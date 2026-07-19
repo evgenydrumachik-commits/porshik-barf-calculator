@@ -3,7 +3,7 @@ wr gewrg
 <completely new line>
 ewr
 g 
-ewrg - extending a line
+ewrg - extending a <replaced one word>
 ew
 rg 
 <replaced a line>
