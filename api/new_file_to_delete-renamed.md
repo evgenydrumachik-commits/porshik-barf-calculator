@@ -1,10 +1,11 @@
 l.e ge
 wr gewrg
+<completely new line>
 ewr
 g 
-ewrg
+ewrg - extending a line
 ew
 rg 
-ewrg
+<replaced a line>
 e
 rg
