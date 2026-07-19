@@ -1,0 +1,3921 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор BARF для Поршика</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --surface: #fffefa;
+      --surface-strong: #ffffff;
+      --text: #25221d;
+      --muted: #6e675c;
+      --border: #ded8cc;
+      --accent: #b8543d;
+      --accent-strong: #8f3626;
+      --accent-soft: #fff0ea;
+      --green: #3d7157;
+      --green-soft: #edf7f1;
+      --blue: #426a89;
+      --blue-soft: #eef6fb;
+      --warning: #8b651e;
+      --warning-soft: #fff7df;
+      --shadow: 0 18px 48px rgba(52, 43, 31, 0.08);
+      --radius: 8px;
+      --radius-sm: 6px;
+      --max-width: 1180px;
+      color-scheme: light;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #16140f;
+      --surface: #211d17;
+      --surface-strong: #2a251d;
+      --text: #ece7dd;
+      --muted: #a89e8d;
+      --border: #3a342a;
+      --accent: #d6755c;
+      --accent-strong: #e89a83;
+      --accent-soft: #3a241d;
+      --green: #6fc398;
+      --green-soft: #1c2a22;
+      --blue: #80a9c8;
+      --blue-soft: #1a2530;
+      --warning: #d8bd6f;
+      --warning-soft: #2c2716;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+      color-scheme: dark;
+    }
+
+    :root[data-theme="dark"] .header-badge,
+    :root[data-theme="dark"] .icon-button,
+    :root[data-theme="dark"] .lang-toggle,
+    :root[data-theme="dark"] .theme-toggle,
+    :root[data-theme="dark"] .auth-dialog,
+    :root[data-theme="dark"] .panel,
+    :root[data-theme="dark"] .card,
+    :root[data-theme="dark"] .note,
+    :root[data-theme="dark"] .chart-panel,
+    :root[data-theme="dark"] .table-panel,
+    :root[data-theme="dark"] .formula-panel,
+    :root[data-theme="dark"] .benchmark-panel {
+      background: var(--surface);
+    }
+
+    :root[data-theme="dark"] .icon-button:hover,
+    :root[data-theme="dark"] .lang-toggle:hover,
+    :root[data-theme="dark"] .theme-toggle:hover,
+    :root[data-theme="dark"] .auth-state {
+      background: var(--surface-strong);
+    }
+
+    :root[data-theme="dark"] .transition-panel {
+      background: linear-gradient(180deg, var(--surface), var(--green-soft));
+    }
+
+    :root[data-theme="dark"] .mini-metric,
+    :root[data-theme="dark"] .transition-list li {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: var(--border);
+    }
+
+    :root[data-theme="dark"] .card .card-value,
+    :root[data-theme="dark"] .mini-metric strong,
+    :root[data-theme="dark"] .transition-list strong {
+      color: var(--text);
+    }
+
+    :root[data-theme="dark"] th {
+      background: var(--surface-strong);
+      color: var(--muted);
+    }
+
+    :root[data-theme="dark"] th,
+    :root[data-theme="dark"] td {
+      border-bottom-color: var(--border);
+    }
+
+    :root[data-theme="dark"] tbody tr.is-current td {
+      background: rgba(128, 169, 200, 0.16);
+      color: var(--blue);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(184, 84, 61, 0.08), transparent 34%),
+        linear-gradient(220deg, rgba(61, 113, 87, 0.08), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(100% - 28px, var(--max-width));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .header-side {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+      color: var(--text);
+    }
+
+    .title-block p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand-photo {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center 32%;
+      border: 3px solid var(--surface-strong);
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, 0.82);
+      box-shadow: var(--shadow);
+      color: var(--accent-strong);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 254, 250, 0.9);
+      color: var(--accent-strong);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(184, 84, 61, 0.35);
+      background: #fff;
+    }
+
+    .icon-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid rgba(61, 113, 87, 0.22);
+      border-radius: var(--radius-sm);
+      background: rgba(237, 247, 241, 0.88);
+      color: var(--green);
+      font-size: 0.86rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .user-chip .user-email {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-chip .logout-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+    }
+
+    .user-chip .logout-button:hover {
+      background: rgba(61, 113, 87, 0.12);
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 254, 250, 0.9);
+      color: var(--accent-strong);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(184, 84, 61, 0.35);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .theme-icon-sun {
+      display: none;
+    }
+
+    .theme-toggle .theme-icon-moon {
+      display: block;
+    }
+
+    :root[data-theme="dark"] .theme-toggle .theme-icon-sun {
+      display: block;
+    }
+
+    :root[data-theme="dark"] .theme-toggle .theme-icon-moon {
+      display: none;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 254, 250, 0.9);
+      color: var(--accent-strong);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 0.84rem;
+      letter-spacing: 0.04em;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .lang-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(184, 84, 61, 0.35);
+      background: #fff;
+    }
+
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(28, 22, 16, 0.28);
+      backdrop-filter: blur(6px);
+      z-index: 30;
+    }
+
+    .auth-modal.is-open {
+      display: flex;
+    }
+
+    .auth-dialog {
+      width: min(100%, 440px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, 0.98);
+      box-shadow: 0 24px 60px rgba(28, 22, 16, 0.18);
+      padding: 20px;
+    }
+
+    .auth-dialog h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+
+    .auth-dialog p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .auth-state {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(222, 216, 204, 0.82);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--text);
+      font-weight: 750;
+    }
+
+    .auth-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .auth-close {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .auth-close:hover {
+      border-color: rgba(184, 84, 61, 0.28);
+    }
+
+    .google-button-shell {
+      margin-top: 14px;
+      min-height: 48px;
+    }
+
+    .auth-hint {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 390px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel,
+    .card,
+    .note,
+    .chart-panel,
+    .table-panel,
+    .formula-panel,
+    .transition-panel,
+    .benchmark-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, 0.9);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      position: sticky;
+      top: 16px;
+      padding: 18px;
+    }
+
+    .panel h2,
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .control {
+      display: grid;
+      gap: 9px;
+      padding: 14px 0;
+      border-top: 1px solid rgba(222, 216, 204, 0.72);
+    }
+
+    .control:first-of-type {
+      border-top: 0;
+      padding-top: 2px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    label,
+    .label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .unit-input {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      min-width: 128px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      overflow: hidden;
+    }
+
+    .unit-input input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      padding: 10px 10px;
+      color: var(--text);
+      background: transparent;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .unit-input span {
+      padding-right: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .unit-input.has-stepper {
+      grid-template-columns: 1fr auto auto;
+    }
+
+    .stepper {
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+      border-left: 1px solid var(--border);
+    }
+
+    .stepper-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      flex: 1;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0;
+      transition: background 140ms ease, color 140ms ease;
+    }
+
+    .stepper-btn:first-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stepper-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+
+    .stepper-btn:active {
+      background: var(--accent-soft);
+    }
+
+    .stepper-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .control-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .segmented {
+      display: grid;
+      gap: 8px;
+    }
+
+    .phase-option,
+    .meal-option {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .phase-option input,
+    .meal-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .phase-option span,
+    .meal-option span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--text);
+      font-size: 0.93rem;
+      font-weight: 800;
+      text-align: center;
+      transition: border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .phase-option input:checked + span,
+    .meal-option input:checked + span {
+      border-color: rgba(184, 84, 61, 0.45);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      box-shadow: inset 0 0 0 1px rgba(184, 84, 61, 0.12);
+    }
+
+    .phase-option input:focus-visible + span,
+    .meal-option input:focus-visible + span,
+    .unit-input:focus-within {
+      outline: 3px solid rgba(184, 84, 61, 0.22);
+      outline-offset: 2px;
+    }
+
+    .meal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      min-height: 132px;
+      padding: 16px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      min-width: 0;
+      overflow: hidden;
+      container-type: inline-size;
+    }
+
+    .card .card-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .card .card-value {
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      flex-wrap: nowrap;
+      min-width: 0;
+      font-size: clamp(1.1rem, 15cqi, 2rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .card .card-value .card-number {
+      min-width: 0;
+    }
+
+    .card .card-value .suffix {
+      font-size: 0.5em;
+      color: var(--muted);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .card .card-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .accent-card {
+      border-color: rgba(184, 84, 61, 0.28);
+      background: linear-gradient(180deg, #fffefa, #fff7f3);
+    }
+
+    .formula-panel,
+    .transition-panel,
+    .benchmark-panel,
+    .note,
+    .chart-panel,
+    .table-panel {
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .formula-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .formula-main {
+      margin: 0;
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+      font-weight: 900;
+    }
+
+    .formula-sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .formula-warning {
+      margin: 10px 0 0;
+      padding: 9px 12px;
+      border: 1px solid rgba(139, 101, 30, 0.32);
+      border-radius: var(--radius-sm);
+      background: var(--warning-soft);
+      color: var(--warning);
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .formula-warning button {
+      appearance: none;
+      margin-left: 6px;
+      border: 0;
+      background: transparent;
+      color: var(--accent-strong);
+      font: inherit;
+      font-weight: 900;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .formula-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 84px;
+      min-height: 54px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+
+    .chart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .chart-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 360px;
+    }
+
+    .chart-wrap.growth-chart {
+      height: 300px;
+    }
+
+    .chart-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .transition-panel {
+      border-color: rgba(61, 113, 87, 0.26);
+      background: linear-gradient(180deg, rgba(255, 254, 250, 0.95), rgba(237, 247, 241, 0.72));
+    }
+
+    .admin-panel {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(222, 216, 204, 0.72);
+    }
+
+    .admin-panel.is-locked .admin-form {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .admin-panel.is-locked .backup-tools {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .admin-form {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) minmax(120px, 0.75fr) minmax(180px, 1.2fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .backup-tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      align-items: center;
+    }
+
+    .backup-select {
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 9px 10px;
+      font-weight: 750;
+      min-width: 0;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 10px 11px;
+      font-weight: 750;
+      outline: none;
+    }
+
+    .text-input:focus {
+      outline: 3px solid rgba(184, 84, 61, 0.22);
+      outline-offset: 2px;
+    }
+
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border: 1px solid rgba(184, 84, 61, 0.34);
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .secondary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      padding: 9px 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .danger-button {
+      border: 0;
+      background: transparent;
+      color: var(--accent-strong);
+      cursor: pointer;
+      font-weight: 850;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .action-group {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .icon-button {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(222, 216, 204, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--accent-strong);
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(66, 106, 137, 0.42);
+      background: var(--blue-soft);
+    }
+
+    .icon-button svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.15;
+    }
+
+    .icon-button.is-danger {
+      color: #9f3f31;
+    }
+
+    .admin-message {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .weight-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .history-table {
+      margin-top: 14px;
+      min-width: 620px;
+    }
+
+    .change-value {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .change-percent {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 7px;
+      border: 1px solid rgba(66, 106, 137, 0.18);
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #244d69;
+      font-size: 0.76rem;
+      font-weight: 900;
+    }
+
+    :root[data-theme="dark"] .change-percent {
+      border-color: rgba(128, 169, 200, 0.42);
+      background: rgba(128, 169, 200, 0.18);
+      color: #b9dcf4;
+      box-shadow: inset 0 0 0 1px rgba(185, 220, 244, 0.05);
+    }
+
+    .transition-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .transition-status {
+      margin: 0;
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+      font-weight: 900;
+    }
+
+    .transition-copy {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .transition-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mini-metric {
+      padding: 11px;
+      border: 1px solid rgba(222, 216, 204, 0.82);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .mini-metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .mini-metric strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--text);
+      font-size: 1.08rem;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .transition-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .transition-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(222, 216, 204, 0.82);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.72);
+      font-weight: 800;
+    }
+
+    .transition-list span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .transition-list strong {
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      min-width: 720px;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(222, 216, 204, 0.7);
+      text-align: right;
+    }
+
+    td {
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+      font-weight: 900;
+    }
+
+    th {
+      background: #fbfaf6;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      white-space: normal;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr.is-current td {
+      background: var(--blue-soft);
+      color: #244d69;
+      font-weight: 900;
+    }
+
+    .note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      border-color: rgba(139, 101, 30, 0.28);
+      background: var(--warning-soft);
+      box-shadow: none;
+    }
+
+    .note-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .note p,
+    .benchmark-panel p {
+      margin: 0;
+      color: var(--text);
+      font-weight: 750;
+    }
+
+    .benchmark-panel {
+      border-color: rgba(66, 106, 137, 0.24);
+      background: var(--blue-soft);
+      box-shadow: none;
+    }
+
+    .benchmark-panel strong {
+      color: #244d69;
+    }
+
+    .footer-space {
+      height: 4px;
+    }
+
+    @media (max-width: 1040px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        position: static;
+      }
+
+      .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, var(--max-width));
+        padding: 18px 0 32px;
+      }
+
+      .header {
+        grid-template-columns: 1fr;
+        align-items: start;
+        gap: 14px;
+      }
+
+      .header-side {
+        justify-content: flex-start;
+      }
+
+      .header-badge {
+        justify-self: start;
+      }
+
+      .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .card {
+        min-height: 104px;
+      }
+
+      .control-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .unit-input {
+        width: 100%;
+      }
+
+      .formula-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .transition-layout,
+      .transition-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-chip {
+        justify-self: start;
+      }
+
+      .chart-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .chart-wrap {
+        height: 320px;
+      }
+
+      .admin-form,
+      .weight-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .meal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .phase-option span {
+        justify-content: flex-start;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        width: min(100% - 16px, var(--max-width));
+        padding: 14px 0 28px;
+      }
+
+      .brand {
+        gap: 12px;
+      }
+
+      .brand-photo {
+        width: 64px;
+        height: 64px;
+        border-width: 2px;
+      }
+
+      .title-block h1 {
+        font-size: 1.6rem;
+        line-height: 1.05;
+      }
+
+      .title-block p {
+        margin-top: 8px;
+        font-size: 0.92rem;
+      }
+
+      .header-badge {
+        padding: 10px 12px;
+        font-size: 0.86rem;
+      }
+
+      .panel,
+      .formula-panel,
+      .transition-panel,
+      .benchmark-panel,
+      .note,
+      .chart-panel,
+      .table-panel {
+        padding: 14px;
+      }
+
+      .formula-panel,
+      .transition-panel,
+      .benchmark-panel,
+      .note,
+      .chart-panel,
+      .table-panel {
+        margin-top: 12px;
+      }
+
+      .card {
+        padding: 13px;
+        min-height: 96px;
+        gap: 8px;
+      }
+
+      .card .card-label {
+        font-size: 0.78rem;
+      }
+
+      .card .card-note {
+        font-size: 0.72rem;
+      }
+
+      .section-title {
+        font-size: 1.05rem;
+      }
+
+      .chart-wrap {
+        height: 250px;
+      }
+
+      .meal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .meal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --surface: #ffffff;
+        --surface-strong: #ffffff;
+        --text: #111111;
+        --muted: #444444;
+        --border: #cfcfcf;
+        --shadow: none;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        width: 100%;
+        padding: 0;
+      }
+
+      .header,
+      .dashboard-grid,
+      .results-grid {
+        display: block;
+      }
+
+      .header-badge,
+      .panel,
+      input,
+      .segmented,
+      .meal-grid,
+      .range-labels {
+        display: none !important;
+      }
+
+      .card,
+      .formula-panel,
+      .transition-panel,
+      .benchmark-panel,
+      .note,
+      .chart-panel,
+      .table-panel {
+        break-inside: avoid;
+        margin: 10px 0;
+        border: 1px solid #cfcfcf;
+        box-shadow: none;
+        background: #ffffff;
+      }
+
+      .card {
+        min-height: auto;
+      }
+
+      .chart-wrap {
+        height: 300px;
+      }
+
+      table {
+        min-width: 0;
+        font-size: 0.75rem;
+      }
+
+      th,
+      td {
+        padding: 7px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="title-block">
+        <div class="brand">
+          <img class="brand-photo" src="assets/porschik.jpg" alt="Поршик" width="88" height="88" loading="eager" decoding="async">
+          <div class="brand-text">
+            <h1 data-i18n="title.h1">Калькулятор BARF для Поршика</h1>
+            <p data-i18n="title.sub">Расчёт дневной нормы корма по весу, возрасту и цене</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-side">
+        <div class="header-badge" data-i18n-title="badge.full" data-i18n-aria="badge.full" aria-label="Поршик, Вельш-корги пемброк" title="Поршик, Вельш-корги пемброк">
+          <span>🐶</span>
+          <span data-i18n="badge.breed">Вельш-корги пемброк</span>
+        </div>
+        <button id="langToggle" class="lang-toggle" type="button" data-i18n-title="btn.lang" title="Сменить язык"><span id="langToggleLabel">EN</span></button>
+        <button id="themeToggle" class="theme-toggle" type="button" data-i18n-title="btn.theme" data-i18n-aria="btn.theme" aria-label="Переключить тему" title="Переключить тему" aria-pressed="false">
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M4.93 19.07l1.41-1.41"></path>
+            <path d="M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
+        <button id="adminLoginButton" class="icon-button" type="button" data-i18n-aria="btn.login" data-i18n-title="btn.login" aria-label="Войти" title="Войти">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 17l5-5-5-5"></path>
+            <path d="M15 12H4"></path>
+            <path d="M20 4v16"></path>
+          </svg>
+        </button>
+        <a id="adminPanelLink" class="icon-button" href="/admin" hidden data-i18n-aria="btn.admin" data-i18n-title="btn.admin" aria-label="Управление доступом" title="Управление доступом">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="7" r="3"></circle>
+            <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            <path d="M21 21v-2a4 4 0 0 0-3-3.85"></path>
+          </svg>
+        </a>
+        <div id="authUserChip" class="user-chip" hidden>
+          <span>Admin</span>
+          <span class="user-email" id="authUserEmail"></span>
+          <button class="logout-button" id="logoutButton" type="button" data-i18n-aria="btn.logout" data-i18n-title="btn.logout" aria-label="Выйти" title="Выйти">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 17l5-5-5-5"></path>
+              <path d="M15 12H4"></path>
+              <path d="M20 4v16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div id="protectedContent" class="protected-content">
+    <div class="dashboard-grid">
+      <aside class="panel" data-i18n-aria="panel.params" aria-label="Параметры расчёта">
+        <h2 data-i18n="panel.params">Параметры</h2>
+
+        <section class="control" data-i18n-title="tip.currentWeight" title="Текущий вес Поршика для расчёта порции">
+          <div class="control-row">
+            <label for="weightRange" data-i18n="label.currentWeight">Текущий вес</label>
+            <div class="unit-input">
+              <input id="weightInput" type="number" min="1" max="15" step="0.1" value="3.1" inputmode="decimal" data-i18n-aria="label.currentWeight" aria-label="Текущий вес в килограммах">
+              <span data-i18n="unit.kg">кг</span>
+            </div>
+          </div>
+          <input id="weightRange" type="range" min="1" max="15" step="0.1" value="3.1" data-i18n-aria="aria.weightSlider" aria-label="Слайдер веса">
+          <div class="range-labels">
+            <span data-i18n="range.w.min">1 кг</span>
+            <span data-i18n="range.w.max">15 кг</span>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.age" title="Возраст влияет на фазу кормления">
+          <div class="control-row">
+            <label for="ageRange" data-i18n="label.age">Возраст Поршика</label>
+            <div class="unit-input">
+              <input id="ageInput" type="number" min="2" max="12" step="0.1" value="4.0" inputmode="decimal" data-i18n-aria="label.age" aria-label="Возраст Поршика в месяцах">
+              <span data-i18n="unit.months">мес.</span>
+            </div>
+          </div>
+          <input id="ageRange" type="range" min="2" max="12" step="0.1" value="4.0" data-i18n-aria="aria.ageSlider" aria-label="Слайдер возраста">
+          <div class="range-labels">
+            <span data-i18n="range.age.min">2 мес.</span>
+            <span data-i18n="range.age.mid">7–8 мес.</span>
+            <span data-i18n="range.age.max">12 мес.</span>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.adultWeight" title="Прогноз взрослого веса для целевой зоны">
+          <div class="control-row">
+            <label for="adultWeightRange" data-i18n="label.adultWeight">Ожидаемый взрослый вес</label>
+            <div class="unit-input">
+              <input id="adultWeightInput" type="number" min="8" max="16" step="0.1" value="11.5" inputmode="decimal" data-i18n-aria="label.adultWeight" aria-label="Ожидаемый взрослый вес в килограммах">
+              <span data-i18n="unit.kg">кг</span>
+            </div>
+          </div>
+          <input id="adultWeightRange" type="range" min="8" max="16" step="0.1" value="11.5" data-i18n-aria="aria.adultWeightSlider" aria-label="Слайдер ожидаемого взрослого веса">
+          <div class="range-labels">
+            <span data-i18n="range.aw.min">8 кг</span>
+            <span data-i18n="range.aw.mid">10–12 кг</span>
+            <span data-i18n="range.aw.max">16 кг</span>
+          </div>
+          <p class="control-hint" data-i18n="hint.adultWeight">Нужен только как прогноз: если заводчица или ветеринар дадут другую цель, поменяйте это число.</p>
+        </section>
+
+        <section class="control" data-i18n-title="tip.phase" title="Щенок — 8% веса, взрослый — 3%">
+          <div class="label" data-i18n="label.phase">Возраст / фаза кормления</div>
+          <div class="segmented" role="radiogroup" data-i18n-aria="label.phase" aria-label="Возраст и фаза кормления">
+            <label class="phase-option">
+              <input type="radio" name="phase" value="puppy" checked>
+              <span data-i18n="phase.puppy">Щенок до 7–8 месяцев — 8% веса</span>
+            </label>
+            <label class="phase-option">
+              <input type="radio" name="phase" value="adult">
+              <span data-i18n="phase.adult">После 8 месяцев / взрослый — 3% веса</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.transition" title="За сколько недель плавно снизить норму">
+          <div class="label" data-i18n="label.transition">Плавность перехода на 3%</div>
+          <div class="meal-grid" role="radiogroup" data-i18n-aria="aria.transitionWeeks" aria-label="Количество недель для плавного перехода">
+            <label class="meal-option">
+              <input type="radio" name="transitionWeeks" value="2">
+              <span data-i18n="weeks.2">2 нед.</span>
+            </label>
+            <label class="meal-option">
+              <input type="radio" name="transitionWeeks" value="3" checked>
+              <span data-i18n="weeks.3">3 нед.</span>
+            </label>
+            <label class="meal-option">
+              <input type="radio" name="transitionWeeks" value="4">
+              <span data-i18n="weeks.4">4 нед.</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.meals" title="На сколько приёмов делится дневная порция">
+          <div class="label" data-i18n="label.meals">Приёмов пищи в день</div>
+          <div class="meal-grid" role="radiogroup" data-i18n-aria="aria.meals" aria-label="Количество приёмов пищи в день">
+            <label class="meal-option">
+              <input type="radio" name="meals" value="2">
+              <span>2</span>
+            </label>
+            <label class="meal-option">
+              <input type="radio" name="meals" value="3" checked>
+              <span>3</span>
+            </label>
+            <label class="meal-option">
+              <input type="radio" name="meals" value="4">
+              <span>4</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.price" title="Цена за килограмм BARF для расчёта стоимости">
+          <div class="control-row">
+            <label for="priceInput" data-i18n="label.price">Цена BARF</label>
+            <div class="unit-input has-stepper">
+              <input id="priceInput" type="text" inputmode="decimal" autocomplete="off" value="6" data-i18n-aria="aria.price" aria-label="Цена BARF за килограмм">
+              <div class="stepper" aria-hidden="false">
+                <button type="button" class="stepper-btn" id="priceStepUp" tabindex="-1" data-i18n-aria="aria.priceUp" aria-label="Увеличить на 0,1">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"></path></svg>
+                </button>
+                <button type="button" class="stepper-btn" id="priceStepDown" tabindex="-1" data-i18n-aria="aria.priceDown" aria-label="Уменьшить на 0,1">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+                </button>
+              </div>
+              <span data-i18n="unit.eurkg">€/кг</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="control" data-i18n-title="tip.days" title="Сколько дней учитывать в месячной норме">
+          <div class="control-row">
+            <label for="daysInput" data-i18n="label.days">Дней в месяце</label>
+            <div class="unit-input">
+              <input id="daysInput" type="number" min="28" max="31" step="1" value="30" inputmode="numeric" data-i18n-aria="aria.days" aria-label="Количество дней в месяце">
+              <span data-i18n="unit.days">дн.</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section data-i18n-aria="aria.results" aria-label="Результаты расчёта">
+        <div class="results-grid">
+          <article class="card accent-card" data-i18n-title="tip.card.daily" title="Дневная норма BARF">
+            <div class="card-label" data-i18n="card.daily">🥩 BARF в день</div>
+            <div class="card-value"><span class="card-number" id="dailyGrams">248</span> <span class="suffix" data-i18n="unit.g">г</span></div>
+            <div class="card-note" id="dailyNote">8% от текущего веса</div>
+          </article>
+
+          <article class="card" data-i18n-title="tip.card.meal" title="Порция на один приём">
+            <div class="card-label" data-i18n="card.meal">BARF за один приём</div>
+            <div class="card-value"><span class="card-number" id="mealGrams">83</span> <span class="suffix" data-i18n="unit.g">г</span></div>
+            <div class="card-note" id="mealNote">3 приёма в день</div>
+          </article>
+
+          <article class="card" data-i18n-title="tip.card.month" title="Месячный объём корма">
+            <div class="card-label" data-i18n="card.month">BARF в месяц</div>
+            <div class="card-value"><span class="card-number" id="monthlyKg">7,4</span> <span class="suffix" data-i18n="unit.kg">кг</span></div>
+            <div class="card-note" id="monthNote">за 30 дней</div>
+          </article>
+
+          <article class="card" data-i18n-title="tip.card.costMonth" title="Стоимость корма в месяц">
+            <div class="card-label" data-i18n="card.costMonth">Стоимость в месяц</div>
+            <div class="card-value"><span class="card-number" id="monthlyCost">44,64</span> <span class="suffix">€</span></div>
+            <div class="card-note" id="priceNote">при 6.00 €/кг</div>
+          </article>
+
+          <article class="card" data-i18n-title="tip.card.costYear" title="Стоимость корма в год">
+            <div class="card-label" data-i18n="card.costYear">Стоимость в год</div>
+            <div class="card-value"><span class="card-number" id="yearlyCost">543,12</span> <span class="suffix">€</span></div>
+            <div class="card-note" data-i18n="card.year.note">365 дней кормления</div>
+          </article>
+        </div>
+
+        <section class="formula-panel" data-i18n-aria="aria.formula" aria-label="Формула расчёта">
+          <div>
+            <p class="formula-main" id="formulaText">Формула: вес × 8% = дневная норма BARF</p>
+            <p class="formula-sub" data-i18n="formula.sub">Пересчитывать желательно каждую неделю по текущему весу.</p>
+            <p class="formula-warning" id="formulaWarning" hidden></p>
+          </div>
+          <div class="formula-chip" id="phaseChip">8%</div>
+        </section>
+
+        <section class="chart-panel" data-i18n-aria="chart.barf.title" aria-label="График нормы BARF">
+          <div class="chart-head">
+            <div>
+              <h2 class="section-title" data-i18n="chart.barf.title">📊 Норма BARF по весу</h2>
+              <p data-i18n="chart.barf.desc">Голубая зона — примерный вес к 7–8 месяцам, точки — текущий вес, пунктир — переход от 8% к 3%.</p>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="barfChart" data-i18n-aria="aria.barfChart" aria-label="График BARF граммов в день по весу собаки"></canvas>
+          </div>
+        </section>
+
+        <section class="chart-panel" data-i18n-aria="chart.weight.title" aria-label="История веса Поршика">
+          <div class="chart-head">
+            <div>
+              <h2 class="section-title" data-i18n="chart.weight.title">Вес Поршика по датам</h2>
+              <p id="weightChartSubtitle">История пока загружается.</p>
+            </div>
+          </div>
+          <div class="chart-wrap growth-chart">
+            <canvas id="weightChart" data-i18n-aria="aria.weightChart" aria-label="График веса Поршика по датам"></canvas>
+          </div>
+          <div class="weight-summary">
+            <div class="mini-metric">
+              <span data-i18n="summary.latest">Последний вес</span>
+              <strong id="latestWeight">—</strong>
+            </div>
+            <div class="mini-metric">
+              <span data-i18n="summary.delta">Динамика</span>
+              <strong id="weightDelta">—</strong>
+            </div>
+            <div class="mini-metric">
+              <span data-i18n="summary.count">Записей</span>
+              <strong id="weightRecordCount">—</strong>
+            </div>
+          </div>
+
+          <div id="adminWeightPanel" class="admin-panel is-locked">
+            <p class="admin-message" id="weightAdminMessage">Войдите как админ, чтобы добавлять или удалять записи веса.</p>
+            <form class="admin-form" id="weightForm">
+              <label class="field">
+                <span class="label" data-i18n="form.date">Дата</span>
+                <input class="text-input" id="weightDateInput" type="date" required>
+              </label>
+              <label class="field">
+                <span class="label" data-i18n="form.weight">Вес</span>
+                <input class="text-input" id="weightKgInput" type="text" inputmode="decimal" autocomplete="off" required>
+              </label>
+              <label class="field">
+                <span class="label" data-i18n="form.note">Заметка</span>
+                <input class="text-input" id="weightNoteInput" type="text" maxlength="80" data-i18n-ph="form.notePlaceholder" placeholder="например: утро, до еды">
+              </label>
+              <div class="form-actions">
+                <button class="primary-button" id="weightSaveButton" type="submit" data-i18n="btn.save">Сохранить</button>
+                <button class="secondary-button" id="weightCancelEditButton" type="button" data-i18n="btn.cancel" hidden>Отменить</button>
+              </div>
+            </form>
+            <div class="backup-tools" id="backupTools">
+              <button class="secondary-button" id="downloadBackupButton" type="button" data-i18n="btn.downloadBackup">Скачать backup</button>
+              <button class="secondary-button" id="dailyBackupButton" type="button" data-i18n="btn.dailyBackup">Daily backup</button>
+              <select class="backup-select" id="restorePointSelect" data-i18n-aria="aria.restorePoint" aria-label="Резервная копия для восстановления">
+                <option value="" data-i18n="backup.loading">Загрузка backup...</option>
+              </select>
+              <button class="secondary-button" id="restoreBackupButton" type="button" data-i18n="btn.restoreBackup">Восстановить</button>
+            </div>
+            <button class="secondary-button" id="weightLoginButton" type="button" data-i18n="btn.loginToEdit">Войти для записи</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th data-i18n="th.date">Дата</th>
+                  <th data-i18n="th.weight">Вес</th>
+                  <th data-i18n="th.change">Изменение</th>
+                  <th data-i18n="th.note">Заметка</th>
+                  <th id="weightActionHead" data-i18n="th.action">Действие</th>
+                </tr>
+              </thead>
+              <tbody id="weightHistoryBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="transition-panel" data-i18n-aria="transition.title" aria-label="Переход с щенячьей нормы на взрослую">
+          <div class="transition-layout">
+            <div>
+              <h2 class="section-title" data-i18n="transition.title">Когда переходить на 3%</h2>
+              <p class="transition-status" id="transitionStatus">Сейчас щенячья фаза: держим 8%.</p>
+              <p class="transition-copy" id="transitionCopy">Ориентир перехода — примерно 7–8 месяцев и признаки полового созревания. Переключаться лучше постепенно, наблюдая за формой тела и стулом.</p>
+              <div class="transition-metrics">
+                <div class="mini-metric">
+                  <span data-i18n="metric.targetWeight">Вес к 7–8 мес.</span>
+                  <strong id="targetWeightRange">9,2–10,4 кг</strong>
+                </div>
+                <div class="mini-metric">
+                  <span data-i18n="metric.gap">До нижней границы</span>
+                  <strong id="targetWeightGap">+6,1 кг</strong>
+                </div>
+                <div class="mini-metric">
+                  <span data-i18n="metric.puppyNorm">Щенячья норма</span>
+                  <strong id="puppyTransitionGrams">248 г/день</strong>
+                </div>
+                <div class="mini-metric">
+                  <span data-i18n="metric.adultNorm">Взрослая норма</span>
+                  <strong id="adultTransitionGrams">93 г/день</strong>
+                </div>
+                <div class="mini-metric">
+                  <span data-i18n="metric.difference">Разница</span>
+                  <strong id="transitionDifference">−155 г/день</strong>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="section-title" data-i18n="transition.practical">Практический переход</h3>
+              <ul class="transition-list" id="transitionPlan"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="table-panel" data-i18n-aria="compare.title" aria-label="Сравнение формул">
+          <h2 class="section-title" data-i18n="compare.title">Сравнение щенячьей и взрослой формулы</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="th.weight">Вес</th>
+                  <th data-i18n="compare.puppyDay">Щенок 8%, г/день</th>
+                  <th data-i18n="compare.adultDay">Взрослый 3%, г/день</th>
+                  <th data-i18n="compare.puppyMonth">Щенок 8%, кг/месяц</th>
+                  <th data-i18n="compare.adultMonth">Взрослый 3%, кг/месяц</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="note" data-i18n-aria="aria.note" aria-label="Практическая рекомендация">
+          <div class="note-icon" aria-hidden="true">ℹ️</div>
+          <p data-i18n="note.text">Это ориентировочный расчёт по рекомендации заводчицы. Реальную порцию нужно корректировать по активности, стулу, аппетиту и форме тела. Рёбра должны прощупываться, но не торчать.</p>
+        </section>
+
+        <section class="benchmark-panel" data-i18n-aria="benchmark.aria" aria-label="Текущий ориентир">
+          <p><strong data-i18n="benchmark.label">Текущий ориентир:</strong> <span data-i18n="benchmark.value">250 г/день ≈ 7,5 кг/месяц ≈ 45 € / месяц при цене 6 €/кг.</span></p>
+        </section>
+      </section>
+    </div>
+
+    <div class="footer-space" aria-hidden="true"></div>
+    </div>
+  </main>
+
+  <div id="authModal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle" hidden>
+    <div class="auth-dialog">
+      <h2 id="authTitle" data-i18n="auth.title">Вход в систему</h2>
+      <p data-i18n="auth.desc">Войдите через Google-аккаунт для доступа к функциям редактирования.</p>
+      <div id="authState" class="auth-state">Проверяем авторизацию...</div>
+      <div id="googleButtonShell" class="google-button-shell"></div>
+      <div class="auth-hint" id="authHint">Для работы входа нужен Google OAuth client ID.</div>
+      <div class="auth-actions">
+        <button id="authCloseButton" class="auth-close" type="button" data-i18n="btn.close">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_EMAIL = "evgeny.drumachik@gmail.com";
+
+    const state = {
+      weight: 3.1,
+      ageMonths: 4,
+      expectedAdultWeight: 11.5,
+      phase: "puppy",
+      transitionWeeks: 3,
+      meals: 3,
+      price: 6,
+      days: 30,
+      lang: "ru",
+      weightRecords: [],
+      weightsStorageReady: false,
+      editingWeightRecordId: "",
+      hoveredWeightRecordId: "",
+      restorePointsLoaded: false
+    };
+
+    const authState = {
+      ready: false,
+      authenticated: false,
+      isAdmin: false,
+      email: "",
+      googleClientId: "",
+      googleInitialized: false
+    };
+
+    const refs = {
+      appShell: document.getElementById("protectedContent"),
+      adminLoginButton: document.getElementById("adminLoginButton"),
+      adminPanelLink: document.getElementById("adminPanelLink"),
+      langToggle: document.getElementById("langToggle"),
+      langToggleLabel: document.getElementById("langToggleLabel"),
+      themeToggle: document.getElementById("themeToggle"),
+      authModal: document.getElementById("authModal"),
+      authState: document.getElementById("authState"),
+      authHint: document.getElementById("authHint"),
+      authCloseButton: document.getElementById("authCloseButton"),
+      googleButtonShell: document.getElementById("googleButtonShell"),
+      authUserChip: document.getElementById("authUserChip"),
+      authUserEmail: document.getElementById("authUserEmail"),
+      logoutButton: document.getElementById("logoutButton"),
+      weightRange: document.getElementById("weightRange"),
+      weightInput: document.getElementById("weightInput"),
+      ageRange: document.getElementById("ageRange"),
+      ageInput: document.getElementById("ageInput"),
+      adultWeightRange: document.getElementById("adultWeightRange"),
+      adultWeightInput: document.getElementById("adultWeightInput"),
+      priceInput: document.getElementById("priceInput"),
+      priceStepUp: document.getElementById("priceStepUp"),
+      priceStepDown: document.getElementById("priceStepDown"),
+      daysInput: document.getElementById("daysInput"),
+      dailyGrams: document.getElementById("dailyGrams"),
+      mealGrams: document.getElementById("mealGrams"),
+      monthlyKg: document.getElementById("monthlyKg"),
+      monthlyCost: document.getElementById("monthlyCost"),
+      yearlyCost: document.getElementById("yearlyCost"),
+      dailyNote: document.getElementById("dailyNote"),
+      mealNote: document.getElementById("mealNote"),
+      monthNote: document.getElementById("monthNote"),
+      priceNote: document.getElementById("priceNote"),
+      formulaText: document.getElementById("formulaText"),
+      formulaWarning: document.getElementById("formulaWarning"),
+      phaseChip: document.getElementById("phaseChip"),
+      transitionStatus: document.getElementById("transitionStatus"),
+      transitionCopy: document.getElementById("transitionCopy"),
+      targetWeightRange: document.getElementById("targetWeightRange"),
+      targetWeightGap: document.getElementById("targetWeightGap"),
+      puppyTransitionGrams: document.getElementById("puppyTransitionGrams"),
+      adultTransitionGrams: document.getElementById("adultTransitionGrams"),
+      transitionDifference: document.getElementById("transitionDifference"),
+      transitionPlan: document.getElementById("transitionPlan"),
+      comparisonBody: document.getElementById("comparisonBody"),
+      chartCanvas: document.getElementById("barfChart"),
+      weightChartCanvas: document.getElementById("weightChart"),
+      weightChartSubtitle: document.getElementById("weightChartSubtitle"),
+      latestWeight: document.getElementById("latestWeight"),
+      weightDelta: document.getElementById("weightDelta"),
+      weightRecordCount: document.getElementById("weightRecordCount"),
+      adminWeightPanel: document.getElementById("adminWeightPanel"),
+      weightAdminMessage: document.getElementById("weightAdminMessage"),
+      weightForm: document.getElementById("weightForm"),
+      weightDateInput: document.getElementById("weightDateInput"),
+      weightKgInput: document.getElementById("weightKgInput"),
+      weightNoteInput: document.getElementById("weightNoteInput"),
+      weightSaveButton: document.getElementById("weightSaveButton"),
+      weightCancelEditButton: document.getElementById("weightCancelEditButton"),
+      backupTools: document.getElementById("backupTools"),
+      downloadBackupButton: document.getElementById("downloadBackupButton"),
+      dailyBackupButton: document.getElementById("dailyBackupButton"),
+      restorePointSelect: document.getElementById("restorePointSelect"),
+      restoreBackupButton: document.getElementById("restoreBackupButton"),
+      weightLoginButton: document.getElementById("weightLoginButton"),
+      weightHistoryBody: document.getElementById("weightHistoryBody"),
+      weightActionHead: document.getElementById("weightActionHead")
+    };
+
+    const translations = {
+      ru: {
+        "page.title": "Калькулятор BARF для Поршика",
+        "title.h1": "Калькулятор BARF для Поршика",
+        "title.sub": "Расчёт дневной нормы корма по весу, возрасту и цене",
+        "badge.breed": "Вельш-корги пемброк",
+        "badge.full": "Поршик, Вельш-корги пемброк",
+        "btn.lang": "Switch to English",
+        "btn.theme": "Toggle dark mode",
+        "btn.login": "Войти",
+        "btn.admin": "Управление доступом",
+        "btn.logout": "Выйти",
+        "btn.save": "Сохранить",
+        "btn.cancel": "Отменить",
+        "btn.edit": "Изменить",
+        "btn.downloadBackup": "Скачать backup",
+        "btn.dailyBackup": "Daily backup",
+        "btn.restoreBackup": "Восстановить",
+        "btn.loginToEdit": "Войти для записи",
+        "btn.delete": "Удалить",
+        "btn.close": "Закрыть",
+        "panel.params": "Параметры",
+        "label.currentWeight": "Текущий вес",
+        "label.age": "Возраст Поршика",
+        "label.adultWeight": "Ожидаемый взрослый вес",
+        "label.phase": "Возраст / фаза кормления",
+        "label.transition": "Плавность перехода на 3%",
+        "label.meals": "Приёмов пищи в день",
+        "label.price": "Цена BARF",
+        "label.days": "Дней в месяце",
+        "unit.kg": "кг",
+        "unit.g": "г",
+        "unit.months": "мес.",
+        "unit.eurkg": "€/кг",
+        "unit.days": "дн.",
+        "range.w.min": "1 кг",
+        "range.w.max": "15 кг",
+        "range.age.min": "2 мес.",
+        "range.age.mid": "7–8 мес.",
+        "range.age.max": "12 мес.",
+        "range.aw.min": "8 кг",
+        "range.aw.mid": "10–12 кг",
+        "range.aw.max": "16 кг",
+        "hint.adultWeight": "Нужен только как прогноз: если заводчица или ветеринар дадут другую цель, поменяйте это число.",
+        "phase.puppy": "Щенок до 7–8 месяцев — 8% веса",
+        "phase.adult": "После 8 месяцев / взрослый — 3% веса",
+        "weeks.2": "2 нед.",
+        "weeks.3": "3 нед.",
+        "weeks.4": "4 нед.",
+        "aria.weightSlider": "Слайдер веса",
+        "aria.ageSlider": "Слайдер возраста",
+        "aria.adultWeightSlider": "Слайдер ожидаемого взрослого веса",
+        "aria.transitionWeeks": "Количество недель для плавного перехода",
+        "aria.meals": "Количество приёмов пищи в день",
+        "aria.price": "Цена BARF за килограмм",
+        "aria.priceUp": "Увеличить цену на 0,1",
+        "aria.priceDown": "Уменьшить цену на 0,1",
+        "aria.days": "Количество дней в месяце",
+        "aria.results": "Результаты расчёта",
+        "aria.formula": "Формула расчёта",
+        "aria.barfChart": "График BARF граммов в день по весу собаки",
+        "aria.weightChart": "График веса Поршика по датам",
+        "aria.restorePoint": "Резервная копия для восстановления",
+        "aria.note": "Практическая рекомендация",
+        "card.daily": "🥩 BARF в день",
+        "card.meal": "BARF за один приём",
+        "card.month": "BARF в месяц",
+        "card.costMonth": "Стоимость в месяц",
+        "card.costYear": "Стоимость в год",
+        "card.year.note": "365 дней кормления",
+        "formula.sub": "Пересчитывать желательно каждую неделю по текущему весу.",
+        "chart.barf.title": "📊 Норма BARF по весу",
+        "chart.barf.desc": "Голубая зона — примерный вес к 7–8 месяцам, точки — текущий вес, пунктир — переход от 8% к 3%.",
+        "chart.weight.title": "Вес Поршика по датам",
+        "summary.latest": "Последний вес",
+        "summary.delta": "Динамика",
+        "summary.count": "Записей",
+        "form.date": "Дата",
+        "form.weight": "Вес",
+        "form.note": "Заметка",
+        "form.notePlaceholder": "например: утро, до еды",
+        "th.date": "Дата",
+        "th.weight": "Вес",
+        "th.change": "Изменение",
+        "th.note": "Заметка",
+        "th.action": "Действие",
+        "transition.title": "Когда переходить на 3%",
+        "transition.practical": "Практический переход",
+        "metric.targetWeight": "Вес к 7–8 мес.",
+        "metric.gap": "До нижней границы",
+        "metric.puppyNorm": "Щенячья норма",
+        "metric.adultNorm": "Взрослая норма",
+        "metric.difference": "Разница",
+        "compare.title": "Сравнение щенячьей и взрослой формулы",
+        "compare.puppyDay": "Щенок 8%, г/день",
+        "compare.adultDay": "Взрослый 3%, г/день",
+        "compare.puppyMonth": "Щенок 8%, кг/месяц",
+        "compare.adultMonth": "Взрослый 3%, кг/месяц",
+        "note.text": "Это ориентировочный расчёт по рекомендации заводчицы. Реальную порцию нужно корректировать по активности, стулу, аппетиту и форме тела. Рёбра должны прощупываться, но не торчать.",
+        "benchmark.aria": "Текущий ориентир",
+        "benchmark.label": "Текущий ориентир:",
+        "benchmark.value": "250 г/день ≈ 7,5 кг/месяц ≈ 45 € / месяц при цене 6 €/кг.",
+        "auth.title": "Вход в систему",
+        "auth.desc": "Войдите через Google-аккаунт для доступа к функциям редактирования.",
+        "tip.currentWeight": "Текущий вес Поршика для расчёта порции",
+        "tip.age": "Возраст влияет на фазу кормления",
+        "tip.adultWeight": "Прогноз взрослого веса для целевой зоны",
+        "tip.phase": "Щенок — 8% веса, взрослый — 3%",
+        "tip.transition": "За сколько недель плавно снизить норму",
+        "tip.meals": "На сколько приёмов делится дневная порция",
+        "tip.price": "Цена за килограмм BARF для расчёта стоимости",
+        "tip.days": "Сколько дней учитывать в месячной норме",
+        "tip.card.daily": "Дневная норма BARF",
+        "tip.card.meal": "Порция на один приём",
+        "tip.card.month": "Месячный объём корма",
+        "tip.card.costMonth": "Стоимость корма в месяц",
+        "tip.card.costYear": "Стоимость корма в год",
+        "chart.xAxisWeight": "Вес собаки, кг",
+        "chart.yAxisBarf": "BARF, г/день",
+        "chart.legendPuppy": "Щенок: 8%",
+        "chart.legendAdult": "Взрослый: 3%",
+        "chart.legendTransition": "Переход 8% → 3%",
+        "chart.date": "Дата",
+        "chart.yAxisWeightKg": "Вес, кг",
+        "chart.noData": "Нет данных веса",
+        "chart.transitionLabel": "7–8 мес.: снижать плавно",
+        "chart.targetLabel": "вес к 7–8 мес.: {range} кг",
+        "dyn.percentWeight": "{percent} от текущего веса",
+        "dyn.mealsPerDay": "{n} приёма в день",
+        "dyn.overDays": "за {n} дней",
+        "dyn.atPrice": "при {price} €/кг",
+        "dyn.formula8": "Формула: вес × 8% = дневная норма BARF",
+        "dyn.formula3": "Формула: вес × 3% = дневная норма BARF",
+        "dyn.warnSwitchAdult": "⚠️ Поршику уже {months} мес. — пора переходить на 3%, а выбрана щенячья формула 8%.",
+        "dyn.warnSwitchAdultAction": "Переключить на 3%",
+        "dyn.warnSwitchPuppy": "⚠️ Поршик ещё щенок ({months} мес.) — обычно держат 8%, а выбрана взрослая формула 3%.",
+        "dyn.warnSwitchPuppyAction": "Переключить на 8%",
+        "dyn.gramsPerDay": "{n} г/день",
+        "dyn.week": "{n}-я неделя",
+        "dyn.inRange": "уже в зоне",
+        "dyn.ageStatus.puppy": "Сейчас щенячья фаза: держим 8%.",
+        "dyn.ageCopy.puppy": "До 7 месяцев обычно ориентируются на щенячью норму. Главное — пересчитывать вес каждую неделю и смотреть на форму тела.",
+        "dyn.ageStatus.mid": "Сейчас зона перехода: 7–8 месяцев.",
+        "dyn.ageCopy.mid": "Это не дата с резким переключением. В этой зоне уже можно планировать плавное снижение от 8% к 3%, если Поршик созревает и форма тела остаётся хорошей.",
+        "dyn.ageStatus.adult": "После 8 месяцев: обычно переходят к 3%.",
+        "dyn.ageCopy.adult": "После 8 месяцев или при признаках полового созревания взрослую норму лучше вводить постепенно, за несколько недель, а не одним днём.",
+        "dyn.firstRecord": "первая запись",
+        "dyn.noRecords": "Записей веса пока нет.",
+        "dyn.addFirst": "Добавьте первую запись веса, чтобы построить график.",
+        "dyn.lastRecord": "Последняя запись: {date}, {kg} кг.",
+        "dyn.seedData": "Показаны стартовые данные. Для сохранения новых записей нужно подключить Vercel Blob.",
+        "dyn.historyUnavailable": "История веса временно недоступна, показан текущий ориентир.",
+        "dyn.chartLoading": "История пока загружается.",
+        "dyn.adminActive": "Админ-режим активен: можно добавлять записи веса.",
+        "dyn.adminActiveNoStorage": "Админ-режим активен, но постоянное хранение веса ещё не подключено в Vercel.",
+        "dyn.loginToManage": "Войдите как админ, чтобы добавлять или удалять записи веса.",
+        "dyn.loginToAdd": "Войдите через Google, чтобы добавить запись веса.",
+        "dyn.specifyDateWeight": "Укажите дату и вес.",
+        "dyn.saving": "Сохраняю запись...",
+        "dyn.saveFailed": "Не удалось сохранить запись.",
+        "dyn.saved": "Запись сохранена.",
+        "dyn.editing": "Редактирую запись от {date}.",
+        "dyn.updated": "Запись обновлена.",
+        "dyn.deleting": "Удаляю запись...",
+        "dyn.deleteFailed": "Не удалось удалить запись.",
+        "dyn.deleted": "Запись удалена.",
+        "dyn.loadingBackups": "Загружаю список backup...",
+        "dyn.backupCreated": "Daily backup создан.",
+        "dyn.backupFailed": "Не удалось создать backup.",
+        "dyn.restoreSelect": "Выберите backup или snapshot.",
+        "dyn.restoreConfirm": "Восстановить данные веса из выбранной резервной копии?",
+        "dyn.restoring": "Восстанавливаю данные...",
+        "dyn.restored": "Данные восстановлены.",
+        "dyn.restoreFailed": "Не удалось восстановить данные.",
+        "backup.loading": "Загрузка backup...",
+        "backup.empty": "Backup пока нет",
+        "dyn.authDefault": "Войдите через Google-аккаунт, чтобы открыть админский режим.",
+        "dyn.authClickGoogle": "Нажмите кнопку Google, чтобы войти.",
+        "dyn.authSetupClient": "Сначала настройте Google OAuth client ID.",
+        "dyn.authForWeight": "Войдите через Google, чтобы добавлять записи веса.",
+        "dyn.checkingGoogle": "Проверяем Google-аккаунт...",
+        "dyn.loginFailed": "Не удалось войти",
+        "dyn.checkingAuth": "Авторизация проверяется...",
+        "dyn.checkingAuthShort": "Проверяем авторизацию...",
+        "dyn.hintNoClient": "Чтобы включить вход, нужен Google OAuth client ID в переменной GOOGLE_CLIENT_ID.",
+        "dyn.hintAllowed": "Войти можно только с разрешённым Google-аккаунтом.",
+        "dyn.clientNotConfigured": "Google OAuth client ID не настроен.",
+        "dyn.adminAfterClient": "Админский вход включится после добавления переменной GOOGLE_CLIENT_ID.",
+        "dyn.checkConfig": "Проверьте /api/config и переменную GOOGLE_CLIENT_ID.",
+        "err.config": "Не удалось загрузить конфигурацию входа",
+        "err.googleLoad": "Не удалось загрузить Google Sign-In",
+        "err.noClient": "Не задан Google OAuth client ID",
+        "err.verify": "Вход не прошёл проверку",
+        "err.loadWeights": "Не удалось загрузить историю веса",
+        "dyn.currentBenchmarkNote": "Текущий ориентир"
+      },
+      en: {
+        "page.title": "BARF Calculator for Porschik",
+        "title.h1": "BARF Calculator for Porschik",
+        "title.sub": "Daily food ration by weight, age and price",
+        "badge.breed": "Welsh Corgi Pembroke",
+        "badge.full": "Porschik, Welsh Corgi Pembroke",
+        "btn.lang": "Переключить на русский",
+        "btn.theme": "Переключить тёмную тему",
+        "btn.login": "Sign in",
+        "btn.admin": "Access management",
+        "btn.logout": "Sign out",
+        "btn.save": "Save",
+        "btn.cancel": "Cancel",
+        "btn.edit": "Edit",
+        "btn.downloadBackup": "Download backup",
+        "btn.dailyBackup": "Daily backup",
+        "btn.restoreBackup": "Restore",
+        "btn.loginToEdit": "Sign in to edit",
+        "btn.delete": "Delete",
+        "btn.close": "Close",
+        "panel.params": "Parameters",
+        "label.currentWeight": "Current weight",
+        "label.age": "Porschik's age",
+        "label.adultWeight": "Expected adult weight",
+        "label.phase": "Age / feeding phase",
+        "label.transition": "Smoothness of switch to 3%",
+        "label.meals": "Meals per day",
+        "label.price": "BARF price",
+        "label.days": "Days in month",
+        "unit.kg": "kg",
+        "unit.g": "g",
+        "unit.months": "mo.",
+        "unit.eurkg": "€/kg",
+        "unit.days": "d.",
+        "range.w.min": "1 kg",
+        "range.w.max": "15 kg",
+        "range.age.min": "2 mo.",
+        "range.age.mid": "7–8 mo.",
+        "range.age.max": "12 mo.",
+        "range.aw.min": "8 kg",
+        "range.aw.mid": "10–12 kg",
+        "range.aw.max": "16 kg",
+        "hint.adultWeight": "Used only as a forecast: if the breeder or vet gives another target, change this number.",
+        "phase.puppy": "Puppy up to 7–8 months — 8% of weight",
+        "phase.adult": "After 8 months / adult — 3% of weight",
+        "weeks.2": "2 wk",
+        "weeks.3": "3 wk",
+        "weeks.4": "4 wk",
+        "aria.weightSlider": "Weight slider",
+        "aria.ageSlider": "Age slider",
+        "aria.adultWeightSlider": "Expected adult weight slider",
+        "aria.transitionWeeks": "Number of weeks for the smooth transition",
+        "aria.meals": "Number of meals per day",
+        "aria.price": "BARF price per kilogram",
+        "aria.priceUp": "Increase price by 0.1",
+        "aria.priceDown": "Decrease price by 0.1",
+        "aria.days": "Number of days in month",
+        "aria.results": "Calculation results",
+        "aria.formula": "Calculation formula",
+        "aria.barfChart": "Chart of BARF grams per day by dog weight",
+        "aria.weightChart": "Chart of Porschik's weight over time",
+        "aria.restorePoint": "Backup or snapshot to restore",
+        "aria.note": "Practical recommendation",
+        "card.daily": "🥩 BARF per day",
+        "card.meal": "BARF per meal",
+        "card.month": "BARF per month",
+        "card.costMonth": "Monthly cost",
+        "card.costYear": "Yearly cost",
+        "card.year.note": "365 feeding days",
+        "formula.sub": "Recalculate weekly based on the current weight.",
+        "chart.barf.title": "📊 BARF ration by weight",
+        "chart.barf.desc": "Blue zone — approximate weight at 7–8 months, dots — current weight, dashed line — switch from 8% to 3%.",
+        "chart.weight.title": "Porschik's weight over time",
+        "summary.latest": "Latest weight",
+        "summary.delta": "Change",
+        "summary.count": "Records",
+        "form.date": "Date",
+        "form.weight": "Weight",
+        "form.note": "Note",
+        "form.notePlaceholder": "e.g. morning, before meal",
+        "th.date": "Date",
+        "th.weight": "Weight",
+        "th.change": "Change",
+        "th.note": "Note",
+        "th.action": "Action",
+        "transition.title": "When to switch to 3%",
+        "transition.practical": "Practical transition",
+        "metric.targetWeight": "Weight at 7–8 mo.",
+        "metric.gap": "To lower bound",
+        "metric.puppyNorm": "Puppy ration",
+        "metric.adultNorm": "Adult ration",
+        "metric.difference": "Difference",
+        "compare.title": "Puppy vs adult formula comparison",
+        "compare.puppyDay": "Puppy 8%, g/day",
+        "compare.adultDay": "Adult 3%, g/day",
+        "compare.puppyMonth": "Puppy 8%, kg/month",
+        "compare.adultMonth": "Adult 3%, kg/month",
+        "note.text": "This is an approximate calculation based on the breeder's recommendation. The real portion should be adjusted by activity, stool, appetite and body shape. Ribs should be palpable but not protruding.",
+        "benchmark.aria": "Current benchmark",
+        "benchmark.label": "Current benchmark:",
+        "benchmark.value": "250 g/day ≈ 7.5 kg/month ≈ €45 / month at €6/kg.",
+        "auth.title": "Sign in",
+        "auth.desc": "Sign in with your Google account to access editing features.",
+        "tip.currentWeight": "Porschik's current weight for portion calculation",
+        "tip.age": "Age affects the feeding phase",
+        "tip.adultWeight": "Adult weight forecast for the target zone",
+        "tip.phase": "Puppy — 8% of weight, adult — 3%",
+        "tip.transition": "Over how many weeks to smoothly reduce the ration",
+        "tip.meals": "How many meals the daily portion is split into",
+        "tip.price": "Price per kilogram of BARF for cost calculation",
+        "tip.days": "How many days to count in the monthly ration",
+        "tip.card.daily": "Daily BARF ration",
+        "tip.card.meal": "Portion per meal",
+        "tip.card.month": "Monthly food volume",
+        "tip.card.costMonth": "Monthly food cost",
+        "tip.card.costYear": "Yearly food cost",
+        "chart.xAxisWeight": "Dog weight, kg",
+        "chart.yAxisBarf": "BARF, g/day",
+        "chart.legendPuppy": "Puppy: 8%",
+        "chart.legendAdult": "Adult: 3%",
+        "chart.legendTransition": "Switch 8% → 3%",
+        "chart.date": "Date",
+        "chart.yAxisWeightKg": "Weight, kg",
+        "chart.noData": "No weight data",
+        "chart.transitionLabel": "7–8 mo.: reduce gradually",
+        "chart.targetLabel": "weight at 7–8 mo.: {range} kg",
+        "dyn.percentWeight": "{percent} of current weight",
+        "dyn.mealsPerDay": "{n} meals per day",
+        "dyn.overDays": "over {n} days",
+        "dyn.atPrice": "at {price} €/kg",
+        "dyn.formula8": "Formula: weight × 8% = daily BARF ration",
+        "dyn.formula3": "Formula: weight × 3% = daily BARF ration",
+        "dyn.warnSwitchAdult": "⚠️ Porschik is already {months} mo. — time to switch to 3%, but the puppy formula 8% is selected.",
+        "dyn.warnSwitchAdultAction": "Switch to 3%",
+        "dyn.warnSwitchPuppy": "⚠️ Porschik is still a puppy ({months} mo.) — usually keep 8%, but the adult formula 3% is selected.",
+        "dyn.warnSwitchPuppyAction": "Switch to 8%",
+        "dyn.gramsPerDay": "{n} g/day",
+        "dyn.week": "Week {n}",
+        "dyn.inRange": "already in range",
+        "dyn.ageStatus.puppy": "Currently the puppy phase: keep 8%.",
+        "dyn.ageCopy.puppy": "Up to 7 months the puppy ration is usually used. The main thing is to recalculate the weight every week and watch the body shape.",
+        "dyn.ageStatus.mid": "Currently the transition zone: 7–8 months.",
+        "dyn.ageCopy.mid": "This is not a date with an abrupt switch. In this zone you can already plan a smooth reduction from 8% to 3%, if Porschik is maturing and the body shape stays good.",
+        "dyn.ageStatus.adult": "After 8 months: usually switch to 3%.",
+        "dyn.ageCopy.adult": "After 8 months or at signs of sexual maturity the adult ration is better introduced gradually, over several weeks, not in a single day.",
+        "dyn.firstRecord": "first record",
+        "dyn.noRecords": "No weight records yet.",
+        "dyn.addFirst": "Add the first weight record to build the chart.",
+        "dyn.lastRecord": "Latest record: {date}, {kg} kg.",
+        "dyn.seedData": "Showing starter data. Connect Vercel Blob to save new records.",
+        "dyn.historyUnavailable": "Weight history is temporarily unavailable, showing the current benchmark.",
+        "dyn.chartLoading": "History is loading.",
+        "dyn.adminActive": "Admin mode active: you can add weight records.",
+        "dyn.adminActiveNoStorage": "Admin mode active, but persistent weight storage is not connected in Vercel yet.",
+        "dyn.loginToManage": "Sign in as admin to add or delete weight records.",
+        "dyn.loginToAdd": "Sign in with Google to add a weight record.",
+        "dyn.specifyDateWeight": "Specify the date and weight.",
+        "dyn.saving": "Saving record...",
+        "dyn.saveFailed": "Failed to save the record.",
+        "dyn.saved": "Record saved.",
+        "dyn.editing": "Editing the record from {date}.",
+        "dyn.updated": "Record updated.",
+        "dyn.deleting": "Deleting record...",
+        "dyn.deleteFailed": "Failed to delete the record.",
+        "dyn.deleted": "Record deleted.",
+        "dyn.loadingBackups": "Loading backups...",
+        "dyn.backupCreated": "Daily backup created.",
+        "dyn.backupFailed": "Failed to create backup.",
+        "dyn.restoreSelect": "Choose a backup or snapshot.",
+        "dyn.restoreConfirm": "Restore weight data from the selected backup?",
+        "dyn.restoring": "Restoring data...",
+        "dyn.restored": "Data restored.",
+        "dyn.restoreFailed": "Failed to restore data.",
+        "backup.loading": "Loading backups...",
+        "backup.empty": "No backups yet",
+        "dyn.authDefault": "Sign in with your Google account to open admin mode.",
+        "dyn.authClickGoogle": "Click the Google button to sign in.",
+        "dyn.authSetupClient": "First set up the Google OAuth client ID.",
+        "dyn.authForWeight": "Sign in with Google to add weight records.",
+        "dyn.checkingGoogle": "Checking the Google account...",
+        "dyn.loginFailed": "Failed to sign in",
+        "dyn.checkingAuth": "Checking authorization...",
+        "dyn.checkingAuthShort": "Checking authorization...",
+        "dyn.hintNoClient": "To enable sign-in, a Google OAuth client ID is needed in the GOOGLE_CLIENT_ID variable.",
+        "dyn.hintAllowed": "You can sign in only with an allowed Google account.",
+        "dyn.clientNotConfigured": "Google OAuth client ID is not configured.",
+        "dyn.adminAfterClient": "Admin sign-in will turn on after adding the GOOGLE_CLIENT_ID variable.",
+        "dyn.checkConfig": "Check /api/config and the GOOGLE_CLIENT_ID variable.",
+        "err.config": "Failed to load the sign-in configuration",
+        "err.googleLoad": "Failed to load Google Sign-In",
+        "err.noClient": "Google OAuth client ID is not set",
+        "err.verify": "Sign-in verification failed",
+        "err.loadWeights": "Failed to load the weight history",
+        "dyn.currentBenchmarkNote": "Current benchmark"
+      }
+    };
+
+    function t(key, vars) {
+      const dict = translations[state.lang] || translations.ru;
+      let str = dict[key];
+      if (str === undefined) {
+        str = translations.ru[key] !== undefined ? translations.ru[key] : key;
+      }
+      if (vars) {
+        Object.keys(vars).forEach((name) => {
+          str = str.split(`{${name}}`).join(vars[name]);
+        });
+      }
+      return str;
+    }
+
+    function numLocale() {
+      return state.lang === "en" ? "en-US" : "ru-RU";
+    }
+
+    function decimalSeparator() {
+      return state.lang === "en" ? "." : ",";
+    }
+
+    function parseDecimal(raw) {
+      if (raw === null || raw === undefined) {
+        return NaN;
+      }
+      const normalized = String(raw).trim().replace(/\s+/g, "").replace(",", ".");
+      if (normalized === "" || normalized === "." || normalized === "-") {
+        return NaN;
+      }
+      return Number.parseFloat(normalized);
+    }
+
+    function formatPriceDisplay(value) {
+      const rounded = Math.round(value * 100) / 100;
+      return String(rounded).replace(".", decimalSeparator());
+    }
+
+    function setLangCookie(lang) {
+      document.cookie = `porschik_lang=${encodeURIComponent(lang)}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    }
+
+    function readLangCookie() {
+      const match = document.cookie.split(";").map((entry) => entry.trim()).find((entry) => entry.startsWith("porschik_lang="));
+      if (!match) {
+        return "";
+      }
+      return decodeURIComponent(match.slice("porschik_lang=".length));
+    }
+
+    function setThemeCookie(theme) {
+      document.cookie = `porschik_theme=${encodeURIComponent(theme)}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    }
+
+    function readThemeCookie() {
+      const match = document.cookie.split(";").map((entry) => entry.trim()).find((entry) => entry.startsWith("porschik_theme="));
+      if (!match) {
+        return "";
+      }
+      return decodeURIComponent(match.slice("porschik_theme=".length));
+    }
+
+    function applyTheme(theme) {
+      state.theme = theme === "dark" ? "dark" : "light";
+      if (state.theme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+      if (refs.themeToggle) {
+        refs.themeToggle.setAttribute("aria-pressed", state.theme === "dark" ? "true" : "false");
+      }
+    }
+
+    function initTheme() {
+      const cookieTheme = readThemeCookie();
+      if (cookieTheme === "dark" || cookieTheme === "light") {
+        applyTheme(cookieTheme);
+      } else {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(prefersDark ? "dark" : "light");
+      }
+    }
+
+    function setTheme(theme) {
+      applyTheme(theme);
+      setThemeCookie(state.theme);
+      drawBarfChart();
+      drawWeightChart();
+    }
+
+    function applyStaticTranslations() {
+      document.documentElement.lang = state.lang;
+      document.title = t("page.title");
+
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+        el.title = t(el.getAttribute("data-i18n-title"));
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+        el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
+      });
+      document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+        el.placeholder = t(el.getAttribute("data-i18n-ph"));
+      });
+
+      refs.langToggleLabel.textContent = state.lang === "ru" ? "EN" : "RU";
+    }
+
+    function initLang() {
+      const cookieLang = readLangCookie();
+      if (cookieLang === "ru" || cookieLang === "en") {
+        state.lang = cookieLang;
+      } else {
+        const browser = (navigator.language || "ru").toLowerCase();
+        state.lang = browser.startsWith("en") ? "en" : "ru";
+      }
+    }
+
+    function setLanguage(lang) {
+      state.lang = lang === "en" ? "en" : "ru";
+      setLangCookie(state.lang);
+      applyStaticTranslations();
+      updateAll();
+      syncLatestWeightFromHistory();
+      renderWeightHistory();
+      drawWeightChart();
+      updateAdminControls();
+    }
+
+    const commonWeights = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+    const chartWeights = Array.from({ length: 141 }, (_, index) => Number((1 + index * 0.1).toFixed(1)));
+
+    function parseDecimalInput(value) {
+      const raw = String(value ?? "")
+        .trim()
+        .replace(/\u00a0/g, " ")
+        .replace(/[，٫]/g, ",")
+        .replace(/[−–—]/g, "-");
+      const match = raw
+        .replace(/[^\d,.\-+\s']/g, " ")
+        .match(/[+-]?(?:\d[\d\s,.']*[,.]\d+|\d[\d\s,.']*|\d*[,.]\d+)/);
+
+      if (!match) {
+        return NaN;
+      }
+
+      let token = match[0].replace(/\s+/g, "").replace(/'/g, "");
+      const lastComma = token.lastIndexOf(",");
+      const lastDot = token.lastIndexOf(".");
+      const decimalIndex = Math.max(lastComma, lastDot);
+
+      if (decimalIndex >= 0) {
+        const intPart = token.slice(0, decimalIndex).replace(/[,.]/g, "");
+        const fracPart = token.slice(decimalIndex + 1).replace(/[,.]/g, "");
+        token = `${intPart || "0"}.${fracPart}`;
+      } else {
+        token = token.replace(/[,.]/g, "");
+      }
+
+      return Number.parseFloat(token);
+    }
+
+    function parseWeightInput(value) {
+      let parsed = parseDecimalInput(value);
+      const compact = String(value ?? "").replace(/[^\d]/g, "");
+
+      if (parsed > 20 && /^\d{3,5}$/.test(compact)) {
+        const digits = Number.parseInt(compact, 10);
+        for (const scale of [100, 1000, 10000]) {
+          const inferred = digits / scale;
+          if (inferred >= 1 && inferred <= 20) {
+            parsed = inferred;
+            break;
+          }
+        }
+      }
+
+      return parsed;
+    }
+
+    function clampNumber(value, min, max, fallback) {
+      const parsed = parseDecimalInput(value);
+
+      if (!Number.isFinite(parsed)) {
+        return fallback;
+      }
+
+      return Math.min(max, Math.max(min, parsed));
+    }
+
+    function roundToStep(value, step) {
+      return Math.round(value / step) * step;
+    }
+
+    function gramsFor(weightKg, ratio) {
+      return weightKg * 1000 * ratio;
+    }
+
+    function getTargetWeightRange() {
+      return {
+        month7: state.expectedAdultWeight * 0.8,
+        month8: state.expectedAdultWeight * 0.9
+      };
+    }
+
+    function formatSignedKg(value) {
+      const sign = value > 0 ? "+" : "";
+
+      return `${sign}${formatTwoDecimals(value)} ${t("unit.kg")}`;
+    }
+
+    function formatSignedPercent(value) {
+      const sign = value > 0 ? "+" : "";
+
+      return `${sign}${value.toLocaleString(numLocale(), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}%`;
+    }
+
+    function formatWeightChange(deltaKg, previousWeightKg) {
+      if (!Number.isFinite(previousWeightKg) || previousWeightKg <= 0) {
+        return `<span class="change-value"><span>${formatSignedKg(deltaKg)}</span></span>`;
+      }
+
+      return `<span class="change-value"><span>${formatSignedKg(deltaKg)}</span><span class="change-percent">${formatSignedPercent(deltaKg / previousWeightKg * 100)}</span></span>`;
+    }
+
+    function formatInteger(value) {
+      return Math.round(value).toLocaleString(numLocale());
+    }
+
+    function formatOneDecimal(value) {
+      return value.toLocaleString(numLocale(), {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      });
+    }
+
+    function formatTwoDecimals(value) {
+      return value.toLocaleString(numLocale(), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatMoney(value) {
+      return value.toLocaleString(numLocale(), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function updateAdminControls() {
+      refs.adminLoginButton.hidden = authState.authenticated;
+      refs.authUserChip.hidden = !authState.authenticated;
+      refs.adminWeightPanel.classList.toggle("is-locked", !authState.authenticated);
+      refs.weightLoginButton.hidden = authState.authenticated;
+      refs.weightActionHead.hidden = !authState.authenticated;
+      refs.adminPanelLink.hidden = !authState.isAdmin;
+      refs.weightSaveButton.textContent = state.editingWeightRecordId ? t("btn.save") : t("btn.save");
+      refs.weightCancelEditButton.hidden = !state.editingWeightRecordId;
+
+      if (authState.authenticated) {
+        refs.weightAdminMessage.textContent = state.weightsStorageReady
+          ? t("dyn.adminActive")
+          : t("dyn.adminActiveNoStorage");
+        if (!state.restorePointsLoaded) {
+          loadRestorePoints();
+        }
+      } else {
+        refs.weightAdminMessage.textContent = t("dyn.loginToManage");
+        state.restorePointsLoaded = false;
+      }
+
+      renderWeightHistory();
+    }
+
+    function iconSvg(name) {
+      if (name === "edit") {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+      }
+
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
+    }
+
+    function openAuthModal(message) {
+      refs.authState.textContent = message || t("dyn.authDefault");
+      refs.authModal.hidden = false;
+      refs.authModal.classList.add("is-open");
+    }
+
+    function closeAuthModal() {
+      refs.authModal.classList.remove("is-open");
+      refs.authModal.hidden = true;
+    }
+
+    function updateAuthUI() {
+      refs.authUserEmail.textContent = authState.email || AUTH_EMAIL;
+      if (authState.authenticated) {
+        closeAuthModal();
+      }
+      updateAdminControls();
+    }
+
+    async function loadConfig() {
+      const response = await fetch("/api/config", { credentials: "same-origin" });
+      if (!response.ok) {
+        throw new Error(t("err.config"));
+      }
+
+      return response.json();
+    }
+
+    async function loadGoogleScript(clientId) {
+      if (window.google?.accounts?.id) {
+        return;
+      }
+
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-google-gsi="true"]');
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", () => reject(new Error(t("err.googleLoad"))), { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.dataset.googleGsi = "true";
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(t("err.googleLoad")));
+        document.head.appendChild(script);
+      });
+
+      if (!clientId) {
+        throw new Error(t("err.noClient"));
+      }
+    }
+
+    async function verifyGoogleCredential(credential) {
+      const response = await fetch("/api/auth/verify", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ credential })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.error || t("err.verify"));
+      }
+
+      return payload;
+    }
+
+    async function refreshAuthStatus() {
+      const response = await fetch("/api/auth/status", { credentials: "same-origin" });
+      if (!response.ok) {
+        authState.authenticated = false;
+        authState.email = "";
+        updateAuthUI();
+        return false;
+      }
+
+      const payload = await response.json();
+      authState.authenticated = Boolean(payload.authenticated);
+      authState.isAdmin = Boolean(payload.isAdmin);
+      authState.email = payload.email || "";
+      updateAuthUI();
+      return authState.authenticated;
+    }
+
+    async function renderGoogleButton() {
+      if (!authState.googleClientId) {
+        refs.googleButtonShell.innerHTML = "";
+        refs.authHint.textContent = t("dyn.hintNoClient");
+        return;
+      }
+
+      await loadGoogleScript(authState.googleClientId);
+      refs.googleButtonShell.innerHTML = "";
+      if (!authState.googleInitialized) {
+        window.google.accounts.id.initialize({
+          client_id: authState.googleClientId,
+          callback: async ({ credential }) => {
+            refs.authState.textContent = t("dyn.checkingGoogle");
+            try {
+              const result = await verifyGoogleCredential(credential);
+              authState.authenticated = true;
+              authState.isAdmin = Boolean(result.isAdmin);
+              authState.email = result.email || AUTH_EMAIL;
+              updateAuthUI();
+            } catch (error) {
+              refs.authState.textContent = error.message || t("dyn.loginFailed");
+            }
+          }
+        });
+        authState.googleInitialized = true;
+      }
+
+      window.google.accounts.id.renderButton(refs.googleButtonShell, {
+        theme: "outline",
+        size: "large",
+        shape: "rectangular",
+        text: "signin_with",
+        logo_alignment: "left",
+        width: 360
+      });
+
+      refs.authHint.textContent = t("dyn.hintAllowed");
+    }
+
+    async function bootAuth() {
+      try {
+        const config = await loadConfig();
+        authState.googleClientId = config.googleClientId || "";
+        if (!authState.googleClientId) {
+          authState.authenticated = false;
+          authState.email = "";
+          refs.authState.textContent = t("dyn.clientNotConfigured");
+          refs.authHint.textContent = t("dyn.adminAfterClient");
+          closeAuthModal();
+          updateAdminControls();
+          return;
+        }
+
+        refs.authState.textContent = t("dyn.checkingAuth");
+        await refreshAuthStatus();
+        updateAdminControls();
+      } catch (error) {
+        authState.authenticated = false;
+        updateAdminControls();
+        refs.googleButtonShell.innerHTML = "";
+        refs.authHint.textContent = t("dyn.checkConfig");
+      }
+    }
+
+    function getActiveRatio() {
+      return state.phase === "puppy" ? 0.08 : 0.03;
+    }
+
+    function syncControls() {
+      refs.weightRange.value = state.weight.toFixed(1);
+      refs.weightInput.value = state.weight.toFixed(1);
+      refs.ageRange.value = state.ageMonths.toFixed(1);
+      refs.ageInput.value = state.ageMonths.toFixed(1);
+      refs.adultWeightRange.value = state.expectedAdultWeight.toFixed(1);
+      refs.adultWeightInput.value = state.expectedAdultWeight.toFixed(1);
+      if (document.activeElement !== refs.priceInput) {
+        refs.priceInput.value = formatPriceDisplay(state.price);
+      }
+      refs.daysInput.value = state.days.toString();
+
+      document.querySelectorAll('input[name="phase"]').forEach((input) => {
+        input.checked = input.value === state.phase;
+      });
+
+      document.querySelectorAll('input[name="meals"]').forEach((input) => {
+        input.checked = Number(input.value) === state.meals;
+      });
+
+      document.querySelectorAll('input[name="transitionWeeks"]').forEach((input) => {
+        input.checked = Number(input.value) === state.transitionWeeks;
+      });
+    }
+
+    function calculateValues(weight = state.weight, ratio = getActiveRatio(), days = state.days, price = state.price, meals = state.meals) {
+      const dailyGrams = gramsFor(weight, ratio);
+      const mealGrams = dailyGrams / meals;
+      const monthlyKg = (dailyGrams * days) / 1000;
+      const monthlyCost = monthlyKg * price;
+      const yearlyCost = (dailyGrams * 365 / 1000) * price;
+
+      return {
+        dailyGrams,
+        mealGrams,
+        monthlyKg,
+        monthlyCost,
+        yearlyCost
+      };
+    }
+
+    function updateResults() {
+      const ratio = getActiveRatio();
+      const values = calculateValues();
+      const percent = ratio === 0.08 ? "8%" : "3%";
+
+      refs.dailyGrams.textContent = formatInteger(values.dailyGrams);
+      refs.mealGrams.textContent = formatInteger(values.mealGrams);
+      refs.monthlyKg.textContent = formatOneDecimal(values.monthlyKg);
+      refs.monthlyCost.textContent = formatMoney(values.monthlyCost);
+      refs.yearlyCost.textContent = formatMoney(values.yearlyCost);
+
+      refs.dailyNote.textContent = t("dyn.percentWeight", { percent });
+      refs.mealNote.textContent = t("dyn.mealsPerDay", { n: state.meals });
+      refs.monthNote.textContent = t("dyn.overDays", { n: state.days });
+      refs.priceNote.textContent = t("dyn.atPrice", { price: formatMoney(state.price) });
+      refs.formulaText.textContent = ratio === 0.08
+        ? t("dyn.formula8")
+        : t("dyn.formula3");
+      refs.phaseChip.textContent = percent;
+      updateFormulaWarning();
+    }
+
+    function updateFormulaWarning() {
+      const warning = refs.formulaWarning;
+      if (state.ageMonths >= 8 && state.phase === "puppy") {
+        warning.innerHTML = `${t("dyn.warnSwitchAdult", { months: formatOneDecimal(state.ageMonths) })} <button type="button" id="switchPhaseBtn" data-target="adult">${t("dyn.warnSwitchAdultAction")}</button>`;
+        warning.hidden = false;
+      } else if (state.ageMonths < 7 && state.phase === "adult") {
+        warning.innerHTML = `${t("dyn.warnSwitchPuppy", { months: formatOneDecimal(state.ageMonths) })} <button type="button" id="switchPhaseBtn" data-target="puppy">${t("dyn.warnSwitchPuppyAction")}</button>`;
+        warning.hidden = false;
+      } else {
+        warning.hidden = true;
+        warning.innerHTML = "";
+      }
+    }
+
+    function getAgePhaseText() {
+      if (state.ageMonths < 7) {
+        return {
+          status: t("dyn.ageStatus.puppy"),
+          copy: t("dyn.ageCopy.puppy")
+        };
+      }
+
+      if (state.ageMonths < 8) {
+        return {
+          status: t("dyn.ageStatus.mid"),
+          copy: t("dyn.ageCopy.mid")
+        };
+      }
+
+      return {
+        status: t("dyn.ageStatus.adult"),
+        copy: t("dyn.ageCopy.adult")
+      };
+    }
+
+    function buildTransitionPlan() {
+      const puppyDaily = gramsFor(state.weight, 0.08);
+      const adultDaily = gramsFor(state.weight, 0.03);
+      const difference = puppyDaily - adultDaily;
+      const target = getTargetWeightRange();
+      const targetGap = target.month7 - state.weight;
+      const ageText = getAgePhaseText();
+      const rows = [];
+
+      refs.transitionStatus.textContent = ageText.status;
+      refs.transitionCopy.textContent = ageText.copy;
+      refs.targetWeightRange.textContent = `${formatOneDecimal(target.month7)}–${formatOneDecimal(target.month8)} ${t("unit.kg")}`;
+      refs.targetWeightGap.textContent = targetGap > 0
+        ? formatSignedKg(targetGap)
+        : t("dyn.inRange");
+      refs.puppyTransitionGrams.textContent = t("dyn.gramsPerDay", { n: formatInteger(puppyDaily) });
+      refs.adultTransitionGrams.textContent = t("dyn.gramsPerDay", { n: formatInteger(adultDaily) });
+      refs.transitionDifference.textContent = `−${t("dyn.gramsPerDay", { n: formatInteger(difference) })}`;
+
+      for (let week = 1; week <= state.transitionWeeks; week += 1) {
+        const ratio = week / state.transitionWeeks;
+        const plannedDaily = puppyDaily - difference * ratio;
+        rows.push(`
+          <li>
+            <span>${t("dyn.week", { n: week })}</span>
+            <strong>${t("dyn.gramsPerDay", { n: formatInteger(plannedDaily) })}</strong>
+          </li>
+        `);
+      }
+
+      refs.transitionPlan.innerHTML = rows.join("");
+    }
+
+    function buildComparisonTable() {
+      const nearestWeight = Math.round(state.weight);
+
+      refs.comparisonBody.innerHTML = commonWeights.map((weight) => {
+        const puppyDaily = gramsFor(weight, 0.08);
+        const adultDaily = gramsFor(weight, 0.03);
+        const puppyMonth = puppyDaily * state.days / 1000;
+        const adultMonth = adultDaily * state.days / 1000;
+        const currentClass = nearestWeight === weight ? " class=\"is-current\"" : "";
+
+        return `
+          <tr${currentClass}>
+            <td>${weight} ${t("unit.kg")}</td>
+            <td>${formatInteger(puppyDaily)} ${t("unit.g")}</td>
+            <td>${formatInteger(adultDaily)} ${t("unit.g")}</td>
+            <td>${formatOneDecimal(puppyMonth)} ${t("unit.kg")}</td>
+            <td>${formatOneDecimal(adultMonth)} ${t("unit.kg")}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function sortWeightRecords(records) {
+      return [...records].sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    function formatDate(dateString) {
+      return new Date(`${dateString}T00:00:00`).toLocaleDateString(numLocale(), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      });
+    }
+
+    function formatDateTime(dateString) {
+      return new Date(dateString).toLocaleString(numLocale(), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function normalizeWeightRecord(record) {
+      return {
+        id: String(record.id || `${record.date}-${record.weightKg}`),
+        date: String(record.date || ""),
+        weightKg: Number(record.weightKg),
+        note: String(record.note || "")
+      };
+    }
+
+    async function loadWeightRecords() {
+      try {
+        const response = await fetch("/api/weights", { credentials: "same-origin" });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || t("err.loadWeights"));
+        }
+
+        state.weightRecords = sortWeightRecords((payload.records || []).map(normalizeWeightRecord));
+        state.weightsStorageReady = Boolean(payload.storageReady);
+        if (!state.weightsStorageReady) {
+          refs.weightChartSubtitle.textContent = t("dyn.seedData");
+        }
+      } catch (error) {
+        state.weightRecords = [{ id: "fallback-current", date: "2026-06-28", weightKg: state.weight, note: t("dyn.currentBenchmarkNote") }];
+        state.weightsStorageReady = false;
+        refs.weightChartSubtitle.textContent = t("dyn.historyUnavailable");
+      }
+
+      syncLatestWeightFromHistory();
+      renderWeightHistory();
+      drawWeightChart();
+      updateAdminControls();
+    }
+
+    async function loadRestorePoints() {
+      if (!authState.authenticated) {
+        return;
+      }
+
+      refs.restorePointSelect.innerHTML = `<option value="">${t("backup.loading")}</option>`;
+
+      try {
+        const response = await fetch("/api/weights?backups=1", { credentials: "same-origin" });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || t("dyn.restoreFailed"));
+        }
+
+        const points = payload.restorePoints || [];
+        refs.restorePointSelect.innerHTML = "";
+
+        if (!points.length) {
+          refs.restorePointSelect.append(new Option(t("backup.empty"), ""));
+        } else {
+          refs.restorePointSelect.append(new Option(t("dyn.restoreSelect"), ""));
+          points.slice(0, 80).forEach((point) => {
+            const type = point.type === "backup" ? "backup" : "snapshot";
+            refs.restorePointSelect.append(new Option(`${type} · ${formatDateTime(point.uploadedAt)}`, point.pathname));
+          });
+        }
+
+        state.restorePointsLoaded = true;
+      } catch (error) {
+        refs.restorePointSelect.innerHTML = `<option value="">${t("dyn.restoreFailed")}</option>`;
+      }
+    }
+
+    function syncLatestWeightFromHistory() {
+      const latest = state.weightRecords.at(-1);
+      if (!latest) {
+        return;
+      }
+
+      state.weight = roundToStep(clampNumber(latest.weightKg, 1, 15, state.weight), 0.1);
+      refs.weightInput.value = state.weight.toFixed(1);
+      refs.weightRange.value = state.weight.toFixed(1);
+      if (!state.editingWeightRecordId && document.activeElement !== refs.weightKgInput) {
+        refs.weightKgInput.value = latest.weightKg.toFixed(2);
+      }
+      updateAll();
+    }
+
+    function renderWeightHistory() {
+      const records = state.weightRecords;
+      refs.weightRecordCount.textContent = `${records.length}`;
+
+      if (!records.length) {
+        refs.latestWeight.textContent = "—";
+        refs.weightDelta.textContent = "—";
+        refs.weightChartSubtitle.textContent = t("dyn.addFirst");
+        refs.weightHistoryBody.innerHTML = `
+          <tr>
+            <td colspan="5">${t("dyn.noRecords")}</td>
+          </tr>
+        `;
+        return;
+      }
+
+      const latest = records.at(-1);
+      const first = records[0];
+      const totalDelta = latest.weightKg - first.weightKg;
+      refs.latestWeight.textContent = `${formatTwoDecimals(latest.weightKg)} ${t("unit.kg")}`;
+      refs.weightDelta.textContent = records.length > 1 ? formatSignedKg(totalDelta) : t("dyn.firstRecord");
+      if (state.weightsStorageReady) {
+        refs.weightChartSubtitle.textContent = t("dyn.lastRecord", { date: formatDate(latest.date), kg: formatTwoDecimals(latest.weightKg) });
+      }
+
+      refs.weightHistoryBody.innerHTML = records.map((record, index) => {
+        const previous = records[index - 1];
+        const delta = previous ? record.weightKg - previous.weightKg : 0;
+        const actionCell = authState.authenticated
+          ? `<td>
+              <span class="action-group">
+                <button class="icon-button" type="button" data-edit-weight="${escapeHtml(record.id)}" title="${t("btn.edit")}" aria-label="${t("btn.edit")}">${iconSvg("edit")}</button>
+                <button class="icon-button is-danger" type="button" data-delete-weight="${escapeHtml(record.id)}" title="${t("btn.delete")}" aria-label="${t("btn.delete")}">${iconSvg("delete")}</button>
+              </span>
+            </td>`
+          : `<td hidden></td>`;
+
+        return `
+          <tr>
+            <td>${formatDate(record.date)}</td>
+            <td>${formatTwoDecimals(record.weightKg)} ${t("unit.kg")}</td>
+            <td>${previous ? formatWeightChange(delta, previous.weightKg) : "—"}</td>
+            <td>${record.note ? escapeHtml(record.note) : "—"}</td>
+            ${actionCell}
+          </tr>
+        `;
+      }).reverse().join("");
+    }
+
+    async function saveWeightRecord(event) {
+      event.preventDefault();
+      if (!authState.authenticated) {
+        openAuthModal(t("dyn.loginToAdd"));
+        await renderGoogleButton();
+        return;
+      }
+
+      const date = refs.weightDateInput.value;
+      const weightKg = Math.round(parseWeightInput(refs.weightKgInput.value) * 100) / 100;
+      const note = refs.weightNoteInput.value.trim();
+      const replaceId = state.editingWeightRecordId || date;
+
+      if (!date || !Number.isFinite(weightKg) || weightKg < 1 || weightKg > 20) {
+        refs.weightAdminMessage.textContent = t("dyn.specifyDateWeight");
+        return;
+      }
+
+      refs.weightAdminMessage.textContent = t("dyn.saving");
+      const response = await fetch("/api/weights", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ date, weightKg, note, replaceId })
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        refs.weightAdminMessage.textContent = payload.error || t("dyn.saveFailed");
+        return;
+      }
+
+      const wasEditing = Boolean(state.editingWeightRecordId);
+      resetWeightForm();
+      state.weightRecords = sortWeightRecords((payload.records || []).map(normalizeWeightRecord));
+      state.weightsStorageReady = true;
+      refs.weightAdminMessage.textContent = wasEditing ? t("dyn.updated") : t("dyn.saved");
+      state.restorePointsLoaded = false;
+      await loadRestorePoints();
+      syncLatestWeightFromHistory();
+      renderWeightHistory();
+      drawWeightChart();
+    }
+
+    function resetWeightForm() {
+      state.editingWeightRecordId = "";
+      refs.weightForm.reset();
+      refs.weightDateInput.value = new Date().toISOString().slice(0, 10);
+      refs.weightKgInput.value = state.weight.toFixed(2);
+      refs.weightCancelEditButton.hidden = true;
+      refs.weightSaveButton.textContent = t("btn.save");
+    }
+
+    function editWeightRecord(recordId) {
+      const record = state.weightRecords.find((item) => item.id === recordId);
+      if (!record || !authState.authenticated) {
+        return;
+      }
+
+      state.editingWeightRecordId = record.id;
+      refs.weightDateInput.value = record.date;
+      refs.weightKgInput.value = record.weightKg.toFixed(2);
+      refs.weightNoteInput.value = record.note;
+      refs.weightCancelEditButton.hidden = false;
+      refs.weightSaveButton.textContent = t("btn.save");
+      refs.weightAdminMessage.textContent = t("dyn.editing", { date: formatDate(record.date) });
+      refs.weightDateInput.focus();
+      renderWeightHistory();
+    }
+
+    async function deleteWeightRecord(recordId) {
+      if (!authState.authenticated) {
+        return;
+      }
+
+      refs.weightAdminMessage.textContent = t("dyn.deleting");
+      const response = await fetch(`/api/weights?id=${encodeURIComponent(recordId)}`, {
+        method: "DELETE",
+        credentials: "same-origin"
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        refs.weightAdminMessage.textContent = payload.error || t("dyn.deleteFailed");
+        return;
+      }
+
+      if (state.editingWeightRecordId === recordId) {
+        resetWeightForm();
+      }
+      state.weightRecords = sortWeightRecords((payload.records || []).map(normalizeWeightRecord));
+      refs.weightAdminMessage.textContent = t("dyn.deleted");
+      state.restorePointsLoaded = false;
+      await loadRestorePoints();
+      syncLatestWeightFromHistory();
+      renderWeightHistory();
+      drawWeightChart();
+    }
+
+    function downloadWeightBackup() {
+      if (!authState.authenticated) {
+        openAuthModal(t("dyn.authForWeight"));
+        return;
+      }
+
+      window.location.href = "/api/weights?export=1";
+    }
+
+    async function createDailyWeightBackup() {
+      if (!authState.authenticated) {
+        openAuthModal(t("dyn.authForWeight"));
+        return;
+      }
+
+      refs.weightAdminMessage.textContent = t("dyn.loadingBackups");
+      const response = await fetch("/api/weights", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action: "dailyBackup" })
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        refs.weightAdminMessage.textContent = payload.error || t("dyn.backupFailed");
+        return;
+      }
+
+      state.restorePointsLoaded = false;
+      await loadRestorePoints();
+      refs.weightAdminMessage.textContent = t("dyn.backupCreated");
+    }
+
+    async function restoreWeightBackup() {
+      if (!authState.authenticated) {
+        openAuthModal(t("dyn.authForWeight"));
+        return;
+      }
+
+      const pathname = refs.restorePointSelect.value;
+      if (!pathname) {
+        refs.weightAdminMessage.textContent = t("dyn.restoreSelect");
+        return;
+      }
+
+      if (!window.confirm(t("dyn.restoreConfirm"))) {
+        return;
+      }
+
+      refs.weightAdminMessage.textContent = t("dyn.restoring");
+      const response = await fetch("/api/weights", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action: "restore", pathname })
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        refs.weightAdminMessage.textContent = payload.error || t("dyn.restoreFailed");
+        return;
+      }
+
+      state.weightRecords = sortWeightRecords((payload.records || []).map(normalizeWeightRecord));
+      state.weightsStorageReady = true;
+      state.restorePointsLoaded = false;
+      await loadRestorePoints();
+      refs.weightAdminMessage.textContent = t("dyn.restored");
+      syncLatestWeightFromHistory();
+      renderWeightHistory();
+      drawWeightChart();
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(x + r, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawTextBox(ctx, text, x, y, color, background, border, bounds) {
+      ctx.font = "700 12px Inter, system-ui, sans-serif";
+      const width = Math.min(ctx.measureText(text).width + 18, bounds.right - bounds.left - 12);
+      const height = 28;
+      const safeX = Math.min(Math.max(x, bounds.left + 6), bounds.right - width - 6);
+      const safeY = Math.min(Math.max(y, bounds.top + 6), bounds.bottom - height - 6);
+
+      ctx.save();
+      ctx.fillStyle = background;
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1;
+      drawRoundedRect(ctx, safeX, safeY, width, height, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.fillText(text, safeX + 9, safeY + 18, width - 18);
+      ctx.restore();
+    }
+
+    function drawLine(ctx, points, xFor, yFor, color, width, dash = []) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+
+      points.forEach((point, index) => {
+        const x = xFor(point.x);
+        const y = yFor(point.y);
+
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPoint(ctx, x, y, color, radius = 6) {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function drawLegend(ctx, chartArea, width, palette) {
+      const items = [
+        { label: t("chart.legendPuppy"), color: "#b8543d", type: "circle" },
+        { label: t("chart.legendAdult"), color: "#3d7157", type: "circle" },
+        { label: t("chart.legendTransition"), color: "#8b651e", type: "dash" }
+      ];
+      const y = chartArea.bottom + 54;
+      const rowSpacing = 22;
+
+      ctx.save();
+      ctx.font = "700 12px Inter, system-ui, sans-serif";
+      ctx.fillStyle = palette.legendText;
+
+      const availableWidth = chartArea.right - chartArea.left;
+      const singleRowWidth = items.reduce((sum, item) => sum + ctx.measureText(item.label).width + 62, 0);
+      const useTwoRows = singleRowWidth > availableWidth;
+
+      if (useTwoRows) {
+        const rows = [[items[0], items[1]], [items[2]]];
+
+        rows.forEach((row, rowIndex) => {
+          const rowWidth = row.reduce((sum, item) => sum + ctx.measureText(item.label).width + 42, 0);
+          let x = Math.max(chartArea.left, (width - rowWidth) / 2);
+          const rowY = y + (rowIndex * rowSpacing);
+
+          row.forEach((item) => {
+            if (item.type === "dash") {
+              ctx.strokeStyle = item.color;
+              ctx.lineWidth = 3;
+              ctx.setLineDash([6, 5]);
+              ctx.beginPath();
+              ctx.moveTo(x, rowY - 4);
+              ctx.lineTo(x + 14, rowY - 4);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            } else {
+              ctx.strokeStyle = item.color;
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.arc(x + 7, rowY - 4, 5, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+            ctx.fillText(item.label, x + 20, rowY);
+            x += ctx.measureText(item.label).width + 42;
+          });
+        });
+
+        ctx.restore();
+        return;
+      }
+
+      const totalWidth = 355;
+      let x = Math.max(chartArea.left, (width - totalWidth) / 2);
+
+      items.forEach((item) => {
+        if (item.type === "dash") {
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = 3;
+          ctx.setLineDash([6, 5]);
+          ctx.beginPath();
+          ctx.moveTo(x, y - 4);
+          ctx.lineTo(x + 14, y - 4);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(x + 7, y - 4, 5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.fillText(item.label, x + 20, y);
+        x += ctx.measureText(item.label).width + 42;
+      });
+
+      ctx.restore();
+    }
+
+    function chartTheme() {
+      const dark = state.theme === "dark";
+      return {
+        canvasBg: dark ? "#211d17" : "#fffefa",
+        axisText: dark ? "#a89e8d" : "#6e675c",
+        legendText: dark ? "#ece7dd" : "#25221d",
+        gridLine: dark ? "rgba(168, 158, 141, 0.18)" : "rgba(222, 216, 204, 0.75)",
+        zoneFill: dark ? "rgba(128, 169, 200, 0.22)" : "rgba(66, 106, 137, 0.12)",
+        zoneLine: dark ? "rgba(128, 169, 200, 0.55)" : "rgba(66, 106, 137, 0.32)"
+      };
+    }
+
+    function drawBarfChart() {
+      const canvas = refs.chartCanvas;
+      const ctx = canvas.getContext("2d");
+      const rect = canvas.getBoundingClientRect();
+      const pixelRatio = window.devicePixelRatio || 1;
+      const width = Math.max(320, rect.width);
+      const height = Math.max(300, rect.height);
+      const palette = chartTheme();
+      const legendBand = width < 560 ? 64 : 52;
+      const chartArea = {
+        left: width < 520 ? 56 : 72,
+        right: width - 28,
+        top: 44,
+        bottom: height - (legendBand + 96)
+      };
+      const xMin = 1;
+      const xMax = 15;
+      const yMin = 0;
+      const yMax = 1200;
+      const xFor = (value) => chartArea.left + ((value - xMin) / (xMax - xMin)) * (chartArea.right - chartArea.left);
+      const yFor = (value) => chartArea.bottom - ((value - yMin) / (yMax - yMin)) * (chartArea.bottom - chartArea.top);
+      const puppyData = chartWeights.map((weight) => ({ x: weight, y: gramsFor(weight, 0.08) }));
+      const adultData = chartWeights.map((weight) => ({ x: weight, y: gramsFor(weight, 0.03) }));
+      const target = getTargetWeightRange();
+      const targetLeft = xFor(target.month7);
+      const targetRight = xFor(target.month8);
+      const currentX = xFor(state.weight);
+      const puppyY = yFor(gramsFor(state.weight, 0.08));
+      const adultY = yFor(gramsFor(state.weight, 0.03));
+
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.fillStyle = palette.canvasBg;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = palette.zoneFill;
+      ctx.fillRect(targetLeft, chartArea.top, targetRight - targetLeft, chartArea.bottom - chartArea.top);
+      ctx.strokeStyle = palette.zoneLine;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(targetLeft, chartArea.top);
+      ctx.lineTo(targetLeft, chartArea.bottom);
+      ctx.moveTo(targetRight, chartArea.top);
+      ctx.lineTo(targetRight, chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = palette.gridLine;
+      ctx.lineWidth = 1;
+      ctx.font = "700 11px Inter, system-ui, sans-serif";
+      ctx.fillStyle = palette.axisText;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      for (let y = 0; y <= 1200; y += 200) {
+        const py = yFor(y);
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, py);
+        ctx.lineTo(chartArea.right, py);
+        ctx.stroke();
+        ctx.fillText(`${y} ${t("unit.g")}`, chartArea.left - 8, py);
+      }
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+
+      for (let x = 1; x <= 15; x += 1) {
+        const px = xFor(x);
+        ctx.beginPath();
+        ctx.moveTo(px, chartArea.top);
+        ctx.lineTo(px, chartArea.bottom);
+        ctx.stroke();
+        ctx.fillText(String(x), px, chartArea.bottom + 8);
+      }
+
+      ctx.restore();
+
+      drawLine(ctx, puppyData, xFor, yFor, "#b8543d", 3);
+      drawLine(ctx, adultData, xFor, yFor, "#3d7157", 3);
+      drawLine(ctx, [
+        { x: state.weight, y: gramsFor(state.weight, 0.08) },
+        { x: state.weight, y: gramsFor(state.weight, 0.03) }
+      ], xFor, yFor, "#8b651e", 2, [6, 6]);
+      drawPoint(ctx, currentX, puppyY, "#8f3626");
+      drawPoint(ctx, currentX, adultY, "#24523b");
+
+      ctx.save();
+      ctx.fillStyle = palette.axisText;
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(t("chart.xAxisWeight"), (chartArea.left + chartArea.right) / 2, height - (legendBand + 60));
+      ctx.translate(17, (chartArea.top + chartArea.bottom) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(t("chart.yAxisBarf"), 0, 0);
+      ctx.restore();
+
+      drawTextBox(
+        ctx,
+        t("chart.targetLabel", { range: `${formatOneDecimal(target.month7)}–${formatOneDecimal(target.month8)}` }),
+        xFor((target.month7 + target.month8) / 2) - 70,
+        chartArea.top + 10,
+        "#244d69",
+        "rgba(238, 246, 251, 0.96)",
+        "rgba(66, 106, 137, 0.38)",
+        chartArea
+      );
+      drawTextBox(
+        ctx,
+        t("chart.transitionLabel"),
+        currentX + 12,
+        (puppyY + adultY) / 2 - 14,
+        "#6f4e13",
+        "rgba(255, 247, 223, 0.94)",
+        "rgba(139, 101, 30, 0.38)",
+        chartArea
+      );
+      drawLegend(ctx, chartArea, width, palette);
+    }
+
+    function drawWeightChart() {
+      const canvas = refs.weightChartCanvas;
+      const ctx = canvas.getContext("2d");
+      const rect = canvas.getBoundingClientRect();
+      const pixelRatio = window.devicePixelRatio || 1;
+      const width = Math.max(320, rect.width);
+      const height = Math.max(260, rect.height);
+      const chartArea = {
+        left: width < 520 ? 54 : 70,
+        right: width - 24,
+        top: 30,
+        bottom: height - 58
+      };
+      const records = state.weightRecords;
+      const palette = chartTheme();
+
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.fillStyle = palette.canvasBg;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+
+      if (!records.length) {
+        ctx.save();
+        ctx.fillStyle = palette.axisText;
+        ctx.font = "800 14px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(t("chart.noData"), width / 2, height / 2);
+        ctx.restore();
+        return;
+      }
+
+      const times = records.map((record) => new Date(`${record.date}T00:00:00`).getTime());
+      const weights = records.map((record) => record.weightKg);
+      const minTime = Math.min(...times);
+      const maxTime = Math.max(...times);
+      const minWeight = Math.max(0, Math.floor((Math.min(...weights) - 0.4) * 10) / 10);
+      const maxWeight = Math.ceil((Math.max(...weights) + 0.4) * 10) / 10;
+      const timeSpan = Math.max(1, maxTime - minTime);
+      const weightSpan = Math.max(0.5, maxWeight - minWeight);
+      const xFor = (time) => records.length === 1
+        ? (chartArea.left + chartArea.right) / 2
+        : chartArea.left + ((time - minTime) / timeSpan) * (chartArea.right - chartArea.left);
+      const yFor = (weight) => chartArea.bottom - ((weight - minWeight) / weightSpan) * (chartArea.bottom - chartArea.top);
+
+      ctx.save();
+      ctx.strokeStyle = palette.gridLine;
+      ctx.lineWidth = 1;
+      ctx.font = "700 11px Inter, system-ui, sans-serif";
+      ctx.fillStyle = palette.axisText;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      for (let i = 0; i <= 4; i += 1) {
+        const weight = minWeight + (weightSpan / 4) * i;
+        const y = yFor(weight);
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.fillText(`${formatTwoDecimals(weight)} ${t("unit.kg")}`, chartArea.left - 8, y);
+      }
+      ctx.restore();
+
+      const points = records.map((record) => ({
+        x: xFor(new Date(`${record.date}T00:00:00`).getTime()),
+        y: yFor(record.weightKg),
+        record
+      }));
+      canvas._weightChartPoints = points;
+
+      ctx.save();
+      ctx.strokeStyle = "#426a89";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(point.x, point.y);
+        } else {
+          ctx.lineTo(point.x, point.y);
+        }
+      });
+      ctx.stroke();
+      ctx.restore();
+
+      points.forEach((point, index) => {
+        const isHovered = point.record.id === state.hoveredWeightRecordId;
+        if (isHovered) {
+          ctx.save();
+          ctx.fillStyle = "rgba(184, 84, 61, 0.16)";
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        drawPoint(ctx, point.x, point.y, isHovered ? "#b8543d" : index === points.length - 1 ? "#8f3626" : "#426a89", isHovered ? 6 : 4);
+      });
+
+      ctx.save();
+      ctx.fillStyle = palette.axisText;
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      const first = records[0];
+      const last = records.at(-1);
+      ctx.fillText(formatDate(first.date), chartArea.left, chartArea.bottom + 16);
+      ctx.fillText(formatDate(last.date), chartArea.right, chartArea.bottom + 16);
+      ctx.fillText(t("chart.date"), (chartArea.left + chartArea.right) / 2, height - 22);
+      ctx.translate(17, (chartArea.top + chartArea.bottom) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(t("chart.yAxisWeightKg"), 0, 0);
+      ctx.restore();
+
+      const hoveredPoint = points.find((point) => point.record.id === state.hoveredWeightRecordId);
+      if (hoveredPoint) {
+        drawWeightTooltip(ctx, hoveredPoint, chartArea, width);
+      }
+    }
+
+    function drawWeightTooltip(ctx, point, chartArea, width) {
+      const label = `${formatDate(point.record.date)} · ${formatTwoDecimals(point.record.weightKg)} ${t("unit.kg")}`;
+      const paddingX = 10;
+      const boxHeight = 34;
+
+      ctx.save();
+      ctx.font = "850 12px Inter, system-ui, sans-serif";
+      const boxWidth = Math.ceil(ctx.measureText(label).width) + paddingX * 2;
+      let x = point.x + 14;
+      let y = point.y - 42;
+
+      if (x + boxWidth > width - 12) {
+        x = point.x - boxWidth - 14;
+      }
+      if (x < chartArea.left) {
+        x = chartArea.left;
+      }
+      if (y < chartArea.top) {
+        y = point.y + 14;
+      }
+
+      ctx.fillStyle = "rgba(255, 254, 250, 0.98)";
+      ctx.strokeStyle = "rgba(184, 84, 61, 0.42)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, x, y, boxWidth, boxHeight, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#2b2620";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, x + paddingX, y + boxHeight / 2);
+      ctx.restore();
+    }
+
+    function updateWeightChartHover(event) {
+      const canvas = refs.weightChartCanvas;
+      const points = canvas._weightChartPoints || [];
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      let nearest = null;
+      let nearestDistance = Infinity;
+
+      points.forEach((point) => {
+        const distance = Math.hypot(point.x - x, point.y - y);
+        if (distance < nearestDistance) {
+          nearest = point;
+          nearestDistance = distance;
+        }
+      });
+
+      const nextHoveredId = nearest && nearestDistance <= 14 ? nearest.record.id : "";
+      canvas.style.cursor = nextHoveredId ? "pointer" : "default";
+
+      if (state.hoveredWeightRecordId !== nextHoveredId) {
+        state.hoveredWeightRecordId = nextHoveredId;
+        drawWeightChart();
+      }
+    }
+
+    function clearWeightChartHover() {
+      if (!state.hoveredWeightRecordId) {
+        return;
+      }
+
+      state.hoveredWeightRecordId = "";
+      refs.weightChartCanvas.style.cursor = "default";
+      drawWeightChart();
+    }
+
+    function createChart() {
+      drawBarfChart();
+      drawWeightChart();
+      window.addEventListener("resize", () => {
+        drawBarfChart();
+        drawWeightChart();
+      });
+    }
+
+    function updateChartMarkers() {
+      drawBarfChart();
+    }
+
+    function updateAll() {
+      syncControls();
+      updateResults();
+      buildTransitionPlan();
+      buildComparisonTable();
+      updateChartMarkers();
+    }
+
+    refs.weightRange.addEventListener("input", (event) => {
+      state.weight = roundToStep(clampNumber(event.target.value, 1, 15, state.weight), 0.1);
+      refs.weightInput.value = state.weight.toFixed(1);
+      updateAll();
+    });
+
+    refs.weightInput.addEventListener("input", (event) => {
+      state.weight = roundToStep(clampNumber(event.target.value, 1, 15, 1), 0.1);
+      updateAll();
+    });
+
+    refs.ageRange.addEventListener("input", (event) => {
+      state.ageMonths = roundToStep(clampNumber(event.target.value, 2, 12, state.ageMonths), 0.1);
+      refs.ageInput.value = state.ageMonths.toFixed(1);
+      updateAll();
+    });
+
+    refs.ageInput.addEventListener("input", (event) => {
+      state.ageMonths = roundToStep(clampNumber(event.target.value, 2, 12, 4), 0.1);
+      updateAll();
+    });
+
+    refs.adultWeightRange.addEventListener("input", (event) => {
+      state.expectedAdultWeight = roundToStep(clampNumber(event.target.value, 8, 16, state.expectedAdultWeight), 0.1);
+      refs.adultWeightInput.value = state.expectedAdultWeight.toFixed(1);
+      updateAll();
+    });
+
+    refs.adultWeightInput.addEventListener("input", (event) => {
+      state.expectedAdultWeight = roundToStep(clampNumber(event.target.value, 8, 16, 11.5), 0.1);
+      updateAll();
+    });
+
+    refs.priceInput.addEventListener("input", (event) => {
+      const parsed = parseDecimal(event.target.value);
+      if (Number.isFinite(parsed)) {
+        state.price = Math.min(1000, Math.max(0.01, parsed));
+        updateAll();
+      }
+    });
+
+    function commitPrice() {
+      const parsed = parseDecimal(refs.priceInput.value);
+      state.price = Number.isFinite(parsed) ? Math.min(1000, Math.max(0.01, parsed)) : state.price;
+      refs.priceInput.value = formatPriceDisplay(state.price);
+      updateAll();
+    }
+
+    refs.priceInput.addEventListener("change", commitPrice);
+    refs.priceInput.addEventListener("blur", commitPrice);
+
+    function stepPrice(delta) {
+      const parsed = parseDecimal(refs.priceInput.value);
+      const base = Number.isFinite(parsed) ? parsed : state.price;
+      const next = Math.round((base + delta) * 10) / 10;
+      state.price = Math.min(1000, Math.max(0.01, next));
+      refs.priceInput.value = formatPriceDisplay(state.price);
+      updateAll();
+    }
+
+    refs.priceStepUp.addEventListener("click", () => stepPrice(0.1));
+    refs.priceStepDown.addEventListener("click", () => stepPrice(-0.1));
+
+    refs.daysInput.addEventListener("input", (event) => {
+      state.days = Math.round(clampNumber(event.target.value, 28, 31, 30));
+      updateAll();
+    });
+
+    document.querySelectorAll('input[name="phase"]').forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.phase = event.target.value;
+        updateAll();
+      });
+    });
+
+    refs.formulaWarning.addEventListener("click", (event) => {
+      const button = event.target.closest("#switchPhaseBtn");
+      if (!button) {
+        return;
+      }
+      state.phase = button.dataset.target === "adult" ? "adult" : "puppy";
+      updateAll();
+    });
+
+    document.querySelectorAll('input[name="transitionWeeks"]').forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.transitionWeeks = Number(event.target.value);
+        updateAll();
+      });
+    });
+
+    document.querySelectorAll('input[name="meals"]').forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.meals = Number(event.target.value);
+        updateAll();
+      });
+    });
+
+    refs.adminLoginButton.addEventListener("click", async () => {
+      openAuthModal(authState.googleClientId
+        ? t("dyn.authClickGoogle")
+        : t("dyn.authSetupClient"));
+      await renderGoogleButton();
+    });
+
+    refs.authCloseButton.addEventListener("click", () => {
+      closeAuthModal();
+    });
+
+    refs.weightLoginButton.addEventListener("click", async () => {
+      openAuthModal(t("dyn.authForWeight"));
+      await renderGoogleButton();
+    });
+
+    refs.weightForm.addEventListener("submit", saveWeightRecord);
+    refs.weightChartCanvas.addEventListener("mousemove", updateWeightChartHover);
+    refs.weightChartCanvas.addEventListener("mouseleave", clearWeightChartHover);
+    refs.downloadBackupButton.addEventListener("click", downloadWeightBackup);
+    refs.dailyBackupButton.addEventListener("click", createDailyWeightBackup);
+    refs.restoreBackupButton.addEventListener("click", restoreWeightBackup);
+
+    refs.weightCancelEditButton.addEventListener("click", () => {
+      resetWeightForm();
+      updateAdminControls();
+    });
+
+    refs.weightHistoryBody.addEventListener("click", async (event) => {
+      const editButton = event.target.closest("[data-edit-weight]");
+      if (editButton) {
+        editWeightRecord(editButton.dataset.editWeight);
+        return;
+      }
+
+      const deleteButton = event.target.closest("[data-delete-weight]");
+      if (!deleteButton) {
+        return;
+      }
+
+      await deleteWeightRecord(deleteButton.dataset.deleteWeight);
+    });
+
+    refs.logoutButton.addEventListener("click", async () => {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
+      authState.authenticated = false;
+      authState.isAdmin = false;
+      authState.email = "";
+      updateAuthUI();
+    });
+
+    refs.langToggle.addEventListener("click", () => {
+      setLanguage(state.lang === "ru" ? "en" : "ru");
+    });
+
+    refs.themeToggle.addEventListener("click", () => {
+      setTheme(state.theme === "dark" ? "light" : "dark");
+    });
+
+    window.addEventListener("load", async () => {
+      initTheme();
+      initLang();
+      applyStaticTranslations();
+      resetWeightForm();
+      createChart();
+      updateAll();
+      await loadWeightRecords();
+      await bootAuth();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "porschik-food-calculator-sites",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vinext dev",
+    "build": "vinext build && mkdir -p dist/.openai && cp .openai/hosting.json dist/.openai/hosting.json",
+    "start": "node dist/standalone/server.js",
+    "dev:vinext": "vinext dev --port 3001",
+    "build:vinext": "vinext build",
+    "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+  },
+  "dependencies": {
+    "@cloudflare/vite-plugin": "^1.44.0",
+    "@vercel/blob": "^2.5.0",
+    "@vinext/cloudflare": "^1.0.0-beta.1",
+    "@vitejs/plugin-react": "^6.0.0",
+    "@vitejs/plugin-rsc": "^0.5.26",
+    "next": "^15.4.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-server-dom-webpack": "^19.2.7",
+    "vinext": "^1.0.0-beta.1",
+    "vite": "^8.1.4",
+    "wrangler": "^4.110.0"
+  },
+  "type": "module"
+}

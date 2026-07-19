@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "allowedRoles": ["fo_operations_users"]
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad"
+    },
+    "403": {
+      "rewrite": "/403.html"
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}

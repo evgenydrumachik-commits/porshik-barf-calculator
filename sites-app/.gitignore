@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.open-next/
+.env*
+*.tgz
+/dist/
+.vinext/
+.wrangler/
