@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8ee">
+  <meta name="description" content="Дневник роста, веса и питания Поршика — вельш-корги пемброк.">
+  <title>Поршик — рост и питание</title>
+  <link rel="icon" href="/assets/porschik.jpg">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body data-page="dashboard">
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="brand">
+        <button class="avatar-button" id="avatarButton" type="button" data-i18n-aria="action.changePhoto" aria-label="Изменить фотографию Поршика">
+          <img class="brand-avatar" id="dogAvatar" src="/assets/porschik.jpg" alt="Поршик">
+          <span class="avatar-edit" aria-hidden="true">📷</span>
+        </button>
+        <input id="avatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <a class="brand-copy" href="/" aria-label="Поршик — на главную">
+          <span class="brand-kicker" data-i18n="brand.kicker">Дневник роста</span>
+          <h1 data-i18n="brand.title">Поршик</h1>
+          <span class="brand-meta">
+            <span data-i18n="brand.breed">Вельш-корги пемброк</span>
+            <span id="dogAge">Возраст загружается…</span>
+          </span>
+        </a>
+      </div>
+      <div class="header-actions">
+        <button class="compact-button" id="languageButton" type="button" aria-label="Сменить язык">EN</button>
+        <button class="icon-button" id="themeButton" type="button" data-i18n-aria="action.theme" aria-label="Переключить тему">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+        </button>
+        <a class="icon-button admin-link" id="adminLink" href="/admin" data-i18n-aria="action.admin" aria-label="Администрирование" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.2a4 4 0 0 1 0 7.6M21 21v-2a4 4 0 0 0-3-3.8"/></svg>
+        </a>
+        <button class="icon-button" id="loginButton" type="button" data-i18n-aria="action.login" aria-label="Войти">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m10 17 5-5-5-5M15 12H4M20 4v16"/></svg>
+        </button>
+        <div class="user-chip" id="userChip" hidden>
+          <span id="userLabel">Admin</span>
+          <button id="logoutButton" type="button" data-i18n-aria="action.logout" aria-label="Выйти">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m14 7 5 5-5 5M19 12H8M4 4v16"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro-row" aria-labelledby="dashboardTitle">
+        <div>
+          <span class="eyebrow" data-i18n="dashboard.eyebrow">Главное сегодня</span>
+          <h2 id="dashboardTitle" data-i18n="dashboard.title">Как растёт и ест Поршик</h2>
+          <p data-i18n="dashboard.subtitle">Вес, фактические порции и актуальная BARF-норма — на одной временной шкале.</p>
+        </div>
+        <div class="stage-pill" id="stagePill"><span id="stagePillText">Щенячья фаза · 8%</span><button class="inline-edit-button" id="stagePillEdit" type="button" aria-label="Изменить параметр кормления" data-i18n-aria="action.editFeedingSettings">✎</button></div>
+      </section>
+
+      <section class="stats-grid" aria-label="Краткая сводка">
+        <article class="stat-card" style="--accent: var(--blue)">
+          <span class="stat-label" data-i18n="stats.weight">Последний вес</span>
+          <strong class="stat-value" id="latestWeight">—</strong>
+          <span class="stat-note" id="latestWeightDate">—</span>
+        </article>
+        <article class="stat-card" style="--accent: var(--mint)">
+          <span class="stat-label" data-i18n="stats.change">Динамика за 30 дней</span>
+          <strong class="stat-value" id="weightChange">—</strong>
+          <span class="stat-percent" id="weightChangePercent">—</span>
+          <span class="stat-note" data-i18n="stats.changeNote">по сохранённым измерениям</span>
+        </article>
+        <article class="stat-card" style="--accent: var(--coral)">
+          <span class="stat-label" data-i18n="stats.meal">Порция сейчас</span>
+          <strong class="stat-value" id="recommendedMeal">—</strong>
+          <span class="stat-note" id="recommendedMealNote">—</span>
+        </article>
+      </section>
+
+      <section class="panel chart-panel" aria-labelledby="growthChartTitle">
+        <div class="panel-topline">
+          <div class="panel-heading">
+            <h2 id="growthChartTitle" data-i18n="chart.title">Рост и питание Поршика</h2>
+            <p data-i18n="chart.subtitle">Синий — вес, цветные точки — сколько съедено за каждый приём.</p>
+          </div>
+          <div class="chart-actions">
+            <button class="button button-blue" type="button" data-open-record="weight">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <span data-i18n="action.addWeight">Добавить вес</span>
+            </button>
+            <button class="button button-primary" type="button" data-open-record="feeding">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <span data-i18n="action.addFeeding">Добавить питание</span>
+            </button>
+            <a class="button button-secondary" href="/history">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg>
+              <span data-i18n="action.history">История и таблица</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="chart-toolbar">
+          <div class="series-toggles">
+            <label class="series-toggle"><input id="showWeightSeries" type="checkbox" checked><span data-i18n="chart.weightSeries">Вес</span></label>
+            <label class="series-toggle food"><input id="showFoodSeries" type="checkbox" checked><span data-i18n="chart.foodSeries">Питание</span></label>
+          </div>
+          <div class="chart-legend" aria-hidden="true">
+            <span class="legend-item"><i class="legend-mark" style="--mark: var(--blue)"></i><span data-i18n="chart.weightLegend">Вес, кг</span></span>
+            <span class="legend-item"><i class="legend-mark" style="--mark: var(--coral)"></i><span data-i18n="chart.meal1">Приём 1</span></span>
+            <span class="legend-item"><i class="legend-mark square" style="--mark: var(--orange)"></i><span data-i18n="chart.meal2">Приём 2</span></span>
+            <span class="legend-item"><i class="legend-mark diamond" style="--mark: var(--yellow)"></i><span data-i18n="chart.meal3">Приём 3</span></span>
+          </div>
+        </div>
+
+        <div class="chart-wrap" id="growthChartWrap" data-empty-label="Добавьте первую запись, чтобы увидеть историю.">
+          <canvas class="chart-canvas" id="growthChart" role="img" aria-label="График веса и фактического питания Поршика"></canvas>
+          <div class="chart-hit-layer" id="growthChartHitLayer"></div>
+          <div class="chart-tooltip" id="growthChartTooltip" role="tooltip" hidden></div>
+          <div class="loading-overlay" id="chartLoading"><span class="loader" aria-label="Загрузка"></span></div>
+        </div>
+        <div class="error-banner" id="loadError" hidden>
+          <span data-i18n="error.load">Не удалось загрузить дневник.</span>
+          <button class="button button-small button-secondary" id="retryLoadButton" type="button" data-i18n="action.retry">Повторить</button>
+        </div>
+      </section>
+
+      <section class="panel feeding-card" aria-labelledby="feedingTodayTitle">
+        <div class="feeding-copy">
+          <span class="eyebrow" data-i18n="feeding.eyebrow">BARF сегодня</span>
+          <h2 id="feedingTodayTitle" data-i18n="feeding.title">Питание без ручных настроек</h2>
+          <p data-i18n="feeding.subtitle">Возраст, фаза, процент и число кормлений рассчитываются автоматически от даты рождения.</p>
+          <span class="feeding-status" id="feedingStatus"><span id="feedingStatusText">Норма пересчитывается…</span><button class="inline-edit-button" id="feedingStatusEdit" type="button" aria-label="Изменить параметр кормления" data-i18n-aria="action.editFeedingSettings">✎</button></span>
+        </div>
+        <div class="feeding-metrics">
+          <article class="feeding-metric"><span data-i18n="feeding.daily">В день</span><strong id="dailyRecommendation">—</strong></article>
+          <article class="feeding-metric"><span data-i18n="feeding.perMeal">За приём</span><strong id="mealRecommendation">—</strong></article>
+          <article class="feeding-metric"><span data-i18n="feeding.meals">Приёмов</span><strong id="mealCountRecommendation">—</strong></article>
+        </div>
+      </section>
+
+      <details class="panel secondary-details" id="barfDetails">
+        <summary data-i18n="barf.title">Норма BARF по весу</summary>
+        <div class="secondary-chart-body">
+          <p data-i18n="barf.subtitle">Щенячья норма, плавный переход и взрослый ориентир на одном графике.</p>
+          <div class="settings-inline" id="feedingSettingsInline" aria-label="Настройки расчёта BARF">
+            <button class="setting-chip" type="button" data-edit-setting="puppyRatio"><span data-setting-value="puppyRatio">8%</span><i aria-hidden="true">✎</i></button>
+            <button class="setting-chip" type="button" data-edit-setting="transitionDays"><span data-setting-value="transitionDays">4 недели</span><i aria-hidden="true">✎</i></button>
+            <button class="setting-chip" type="button" data-edit-setting="adultRatio"><span data-setting-value="adultRatio">3%</span><i aria-hidden="true">✎</i></button>
+            <button class="setting-chip" type="button" data-edit-setting="targetAdultWeightKg"><span data-setting-value="targetAdultWeightKg">12 кг</span><i aria-hidden="true">✎</i></button>
+          </div>
+          <canvas class="barf-canvas" id="barfChart" role="img" aria-label="Норма BARF по весу"></canvas>
+        </div>
+      </details>
+
+      <p class="disclaimer" data-i18n="disclaimer">Расчёт — ориентир по рекомендации заводчицы. Фактическую порцию корректируйте по талии, рёбрам, активности, стулу и динамике веса Поршика; при сомнениях консультируйтесь с ветеринаром.</p>
+    </main>
+  </div>
+
+  <nav class="mobile-actions" aria-label="Быстрое добавление">
+    <button class="button button-blue" type="button" data-open-record="weight" data-i18n="action.addWeightShort">+ Вес</button>
+    <button class="button button-primary" type="button" data-open-record="feeding" data-i18n="action.addFeedingShort">+ Питание</button>
+  </nav>
+
+  <dialog id="recordDialog" aria-labelledby="recordDialogTitle">
+    <div class="dialog-head">
+      <h2 id="recordDialogTitle">Добавить запись</h2>
+      <button class="dialog-close" type="button" data-close-dialog="recordDialog" aria-label="Закрыть">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="record-tabs" role="tablist" aria-label="Тип записи">
+        <button class="record-tab" id="weightTab" type="button" role="tab" aria-selected="true" data-record-tab="weight" data-i18n="tabs.weight">Вес</button>
+        <button class="record-tab" id="feedingTab" type="button" role="tab" aria-selected="false" data-record-tab="feeding" data-i18n="tabs.feeding">Питание</button>
+      </div>
+
+      <form class="form-grid" id="weightForm">
+        <label class="field"><span class="field-label" data-i18n="form.date">Дата</span><input class="date-input" id="weightDate" type="date" required></label>
+        <label class="field">
+          <span class="field-label" data-i18n="form.weight">Вес, кг</span>
+          <span class="dual-control"><input class="number-input" id="weightValue" type="number" min="1" max="20" step="0.05" inputmode="decimal" required><input class="range-input" id="weightRange" type="range" min="1" max="20" step="0.05"></span>
+        </label>
+        <p class="form-message" id="weightFormMessage" aria-live="polite"></p>
+        <div class="dialog-actions dialog-actions-split"><button class="button button-danger" id="deleteWeightButton" type="button" hidden data-i18n="action.deleteWeight">Удалить вес</button><span class="dialog-actions-end"><button class="button button-secondary" type="button" data-close-dialog="recordDialog" data-i18n="action.cancel">Отмена</button><button class="button button-blue" type="submit" data-i18n="action.save">Сохранить</button></span></div>
+      </form>
+
+      <form class="form-grid" id="feedingForm" hidden>
+        <label class="field"><span class="field-label" data-i18n="form.date">Дата</span><input class="date-input" id="feedingDate" type="date" required></label>
+        <div class="feeding-status" id="feedingFormPhase">3 плановых приёма</div>
+        <div class="meals-container" id="mealsContainer"></div>
+        <div class="form-summary">
+          <div><span data-i18n="form.eaten">Съедено за день</span><strong id="feedingTotal">0 г</strong></div>
+          <div><span data-i18n="form.deviation">Отклонение от нормы</span><strong id="feedingDeviation">—</strong></div>
+        </div>
+        <p class="form-message" id="feedingFormMessage" aria-live="polite"></p>
+        <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog="recordDialog" data-i18n="action.cancel">Отмена</button><button class="button button-primary" type="submit" data-i18n="action.save">Сохранить</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="replaceDialog" aria-labelledby="replaceDialogTitle">
+    <div class="dialog-head"><h2 id="replaceDialogTitle" data-i18n="replace.title">Запись за этот день уже есть</h2><button class="dialog-close" type="button" id="replaceCloseButton" aria-label="Закрыть">×</button></div>
+    <div class="dialog-body">
+      <p class="replace-intro" id="replaceIntro"></p>
+      <div class="replace-comparison"><section><span data-i18n="replace.before">Было</span><div id="replaceBefore"></div></section><section><span data-i18n="replace.after">Станет</span><div id="replaceAfter"></div></section></div>
+      <p class="replace-preserved" id="replacePreserved"></p>
+      <div class="dialog-actions"><button class="button button-secondary" id="replaceCancelButton" type="button" data-i18n="action.cancel">Отмена</button><button class="button button-primary" id="replaceConfirmButton" type="button" data-i18n="replace.confirm">Заменить значение</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsDialogTitle">
+    <div class="dialog-head"><h2 id="settingsDialogTitle">Настройка</h2><button class="dialog-close" type="button" data-close-dialog="settingsDialog" aria-label="Закрыть">×</button></div>
+    <div class="dialog-body form-grid">
+      <p class="settings-recommended" id="settingsRecommended"></p>
+      <label class="field"><span class="field-label" id="settingsFieldLabel">Значение</span><span class="setting-value-control"><input class="number-input" id="settingsValue" type="number"><strong id="settingsUnit"></strong></span></label>
+      <p class="settings-difference" id="settingsDifference"></p>
+      <p class="form-message" id="settingsMessage" aria-live="polite"></p>
+      <div class="dialog-actions dialog-actions-split"><button class="button button-secondary" id="settingsResetButton" type="button" data-i18n="settings.reset">Сбросить к рекомендации</button><span class="dialog-actions-end"><button class="button button-secondary" type="button" data-close-dialog="settingsDialog" data-i18n="action.cancel">Отмена</button><button class="button button-primary" id="settingsSaveButton" type="button" data-i18n="action.save">Сохранить</button></span></div>
+    </div>
+  </dialog>
+
+  <dialog id="authDialog" aria-labelledby="authDialogTitle">
+    <div class="dialog-head"><h2 id="authDialogTitle" data-i18n="auth.title">Вход для записи</h2><button class="dialog-close" type="button" data-close-dialog="authDialog" aria-label="Закрыть">×</button></div>
+    <div class="dialog-body">
+      <p class="auth-copy" data-i18n="auth.copy">Дневник виден всем, а добавлять и редактировать данные могут только разрешённые Google-аккаунты.</p>
+      <div class="auth-state" id="authState">Проверяем авторизацию…</div>
+      <div class="google-button-shell" id="googleButtonShell"></div>
+    </div>
+  </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <script type="module" src="/assets/app.mjs"></script>
+</body>
+</html>

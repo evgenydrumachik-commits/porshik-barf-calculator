@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Управление доступом — Поршик</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --surface: #fffefa;
+      --surface-strong: #ffffff;
+      --text: #25221d;
+      --muted: #6e675c;
+      --border: #ded8cc;
+      --accent: #b8543d;
+      --accent-strong: #8f3626;
+      --accent-soft: #fff0ea;
+      --green: #3d7157;
+      --shadow: 0 18px 48px rgba(52, 43, 31, 0.08);
+      --radius: 8px;
+      --radius-sm: 6px;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(184, 84, 61, 0.08), transparent 34%),
+        linear-gradient(220deg, rgba(61, 113, 87, 0.08), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(100% - 28px, 680px);
+      margin: 0 auto;
+      padding: 28px 0 60px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent-strong);
+      font-weight: 800;
+      font-size: 0.93rem;
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 254, 250, 0.9);
+      box-shadow: var(--shadow);
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+
+    .back-link:hover {
+      border-color: rgba(184, 84, 61, 0.35);
+      background: #fff;
+    }
+
+    .back-link svg { width: 16px; height: 16px; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(61, 113, 87, 0.22);
+      border-radius: var(--radius-sm);
+      background: rgba(237, 247, 241, 0.88);
+      color: var(--green);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .user-email {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .logout-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+    }
+
+    .logout-button:hover { background: rgba(61, 113, 87, 0.12); }
+    .logout-button svg { width: 16px; height: 16px; }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, 0.9);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .card + .card { margin-top: 16px; }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+    }
+
+    .add-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    @media (max-width: 440px) {
+      .add-form { grid-template-columns: 1fr; }
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label.field .label, .label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 10px 11px;
+      font-weight: 750;
+      outline: none;
+    }
+
+    .text-input:focus {
+      outline: 3px solid rgba(184, 84, 61, 0.22);
+      outline-offset: 2px;
+    }
+
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border: 1px solid rgba(184, 84, 61, 0.34);
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 18px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .primary-button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .status-msg {
+      margin: 12px 0 0;
+      font-size: 0.86rem;
+      font-weight: 750;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    .users-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .users-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 14px;
+      border: 1px solid rgba(222, 216, 204, 0.82);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .users-item-email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-role-badge {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--accent-strong);
+      background: var(--accent-soft);
+      border: 1px solid rgba(184, 84, 61, 0.22);
+      border-radius: 999px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .danger-button {
+      border: 0;
+      background: transparent;
+      color: var(--accent-strong);
+      cursor: pointer;
+      font-weight: 850;
+      font-size: 0.86rem;
+      flex-shrink: 0;
+      padding: 4px 2px;
+    }
+
+    .danger-button:hover { text-decoration: underline; }
+
+    .empty-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .access-note {
+      margin-top: 16px;
+      padding: 13px 15px;
+      border: 1px solid rgba(139, 101, 30, 0.28);
+      border-radius: var(--radius-sm);
+      background: #fff7df;
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .skeleton {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 750;
+      padding: 8px 0;
+    }
+
+    .lang-toggle {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 254, 250, 0.9);
+      color: var(--accent-strong);
+      font-weight: 900;
+      font-size: 0.86rem;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+
+    .lang-toggle:hover {
+      border-color: rgba(184, 84, 61, 0.35);
+      background: #fff;
+    }
+
+    .backup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .backup-grid .text-input {
+      grid-column: 1 / -1;
+    }
+
+    .backup-grid button,
+    .backup-grid a {
+      min-height: 44px;
+      text-decoration: none;
+    }
+
+    @media (max-width: 620px) {
+      .backup-grid { grid-template-columns: 1fr; }
+      .backup-grid .text-input { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a class="back-link" href="/" data-i18n-title="back" title="Назад к калькулятору">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+        <span data-i18n="back">Назад</span>
+      </a>
+      <div class="topbar-right">
+        <button id="langToggle" class="lang-toggle" type="button" data-i18n-title="langSwitch" title="Сменить язык"><span id="langToggleLabel">EN</span></button>
+        <div id="userChip" class="user-chip" hidden>
+          <span class="user-email" id="userEmail"></span>
+          <button class="logout-button" id="logoutButton" type="button" data-i18n-aria="logout" data-i18n-title="logout" aria-label="Выйти" title="Выйти">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 17l5-5-5-5"></path>
+              <path d="M15 12H4"></path>
+              <path d="M20 4v16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <h1 data-i18n="title">👥 Управление доступом</h1>
+    <p class="subtitle" data-i18n="subtitle">Пользователи с правом входа и редактирования данных.</p>
+
+    <div id="loadingState" class="skeleton" data-i18n="checkingAuth">Проверяем авторизацию...</div>
+
+    <div id="adminContent" hidden>
+      <div class="card">
+        <h2 data-i18n="addUser">Добавить пользователя</h2>
+        <form class="add-form" id="addForm">
+          <label class="field">
+            <span class="label" data-i18n="emailLabel">Google-аккаунт (email)</span>
+            <input class="text-input" id="emailInput" type="email" placeholder="user@gmail.com" autocomplete="email" required>
+          </label>
+          <button class="primary-button" type="submit" data-i18n="addBtn">Добавить</button>
+        </form>
+        <p class="status-msg" id="statusMsg"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="usersListTitle">Список пользователей</h2>
+        <div id="usersList"></div>
+        <div class="access-note" data-i18n="accessNote">
+          Разрешённые пользователи могут входить через Google и редактировать данные о весе. Управление доступом доступно только администратору.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="backupTitle">Резервные копии дневника</h2>
+        <p class="empty-note" data-i18n="backupCopy">Вес и питание сохраняются вместе. Служебные действия доступны только здесь.</p>
+        <div class="backup-grid">
+          <a class="primary-button" id="downloadBackupButton" href="/api/weights?export=1" data-i18n="downloadBackup">Скачать backup</a>
+          <button class="primary-button" id="dailyBackupButton" type="button" data-i18n="dailyBackup">Создать daily backup</button>
+          <select class="text-input" id="restorePointSelect" aria-label="Резервная копия"><option value="" data-i18n="loadingBackups">Загружаем список…</option></select>
+          <button class="primary-button" id="restoreBackupButton" type="button" data-i18n="restoreBackup">Восстановить выбранную</button>
+        </div>
+        <p class="status-msg" id="backupStatusMsg"></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let adminEmail = "";
+    let lang = "ru";
+
+    const translations = {
+      ru: {
+        "pageTitle": "Управление доступом — Поршик",
+        "back": "Назад",
+        "langSwitch": "Switch to English",
+        "logout": "Выйти",
+        "title": "👥 Управление доступом",
+        "subtitle": "Пользователи с правом входа и редактирования данных.",
+        "checkingAuth": "Проверяем авторизацию...",
+        "addUser": "Добавить пользователя",
+        "emailLabel": "Google-аккаунт (email)",
+        "addBtn": "Добавить",
+        "usersListTitle": "Список пользователей",
+        "accessNote": "Разрешённые пользователи могут входить через Google и редактировать данные о весе. Управление доступом доступно только администратору.",
+        "roleAdmin": "Администратор",
+        "delete": "Удалить",
+        "noExtraUsers": "Дополнительных пользователей пока нет.",
+        "loadFailed": "Не удалось загрузить список.",
+        "loadFailedUsers": "Не удалось загрузить список пользователей.",
+        "adding": "Добавляем...",
+        "addFailed": "Не удалось добавить.",
+        "added": "Пользователь добавлен.",
+        "addFailedUser": "Не удалось добавить пользователя.",
+        "removing": "Удаляем...",
+        "removeFailed": "Не удалось удалить.",
+        "removed": "Пользователь удалён.",
+        "removeFailedUser": "Не удалось удалить пользователя."
+        ,"backupTitle": "Резервные копии дневника"
+        ,"backupCopy": "Вес и питание сохраняются вместе. Служебные действия доступны только здесь."
+        ,"downloadBackup": "Скачать backup"
+        ,"dailyBackup": "Создать daily backup"
+        ,"loadingBackups": "Загружаем список…"
+        ,"noBackups": "Резервных копий пока нет"
+        ,"restoreBackup": "Восстановить выбранную"
+        ,"backupCreated": "Daily backup создан."
+        ,"backupFailed": "Не удалось создать backup."
+        ,"restoreSelect": "Выберите резервную копию."
+        ,"restoreConfirm": "Восстановить дневник из выбранной копии?"
+        ,"restored": "Дневник восстановлен."
+        ,"restoreFailed": "Не удалось восстановить дневник."
+      },
+      en: {
+        "pageTitle": "Access management — Porschik",
+        "back": "Back",
+        "langSwitch": "Переключить на русский",
+        "logout": "Sign out",
+        "title": "👥 Access management",
+        "subtitle": "Users allowed to sign in and edit data.",
+        "checkingAuth": "Checking authorization...",
+        "addUser": "Add a user",
+        "emailLabel": "Google account (email)",
+        "addBtn": "Add",
+        "usersListTitle": "Users list",
+        "accessNote": "Allowed users can sign in with Google and edit weight data. Access management is available only to the administrator.",
+        "roleAdmin": "Administrator",
+        "delete": "Delete",
+        "noExtraUsers": "No additional users yet.",
+        "loadFailed": "Failed to load the list.",
+        "loadFailedUsers": "Failed to load the users list.",
+        "adding": "Adding...",
+        "addFailed": "Failed to add.",
+        "added": "User added.",
+        "addFailedUser": "Failed to add the user.",
+        "removing": "Removing...",
+        "removeFailed": "Failed to remove.",
+        "removed": "User removed.",
+        "removeFailedUser": "Failed to remove the user."
+        ,"backupTitle": "Diary backups"
+        ,"backupCopy": "Weight and feeding are backed up together. Service actions live only here."
+        ,"downloadBackup": "Download backup"
+        ,"dailyBackup": "Create daily backup"
+        ,"loadingBackups": "Loading backups…"
+        ,"noBackups": "No backups yet"
+        ,"restoreBackup": "Restore selected"
+        ,"backupCreated": "Daily backup created."
+        ,"backupFailed": "Backup could not be created."
+        ,"restoreSelect": "Choose a backup."
+        ,"restoreConfirm": "Restore the diary from the selected backup?"
+        ,"restored": "Diary restored."
+        ,"restoreFailed": "Diary could not be restored."
+      }
+    };
+
+    function t(key) {
+      const dict = translations[lang] || translations.ru;
+      return dict[key] !== undefined ? dict[key] : (translations.ru[key] !== undefined ? translations.ru[key] : key);
+    }
+
+    function readLangCookie() {
+      const match = document.cookie.split(";").map((entry) => entry.trim()).find((entry) => entry.startsWith("porschik_lang="));
+      return match ? decodeURIComponent(match.slice("porschik_lang=".length)) : "";
+    }
+
+    function setLangCookie(value) {
+      document.cookie = `porschik_lang=${encodeURIComponent(value)}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    }
+
+    function applyStaticTranslations() {
+      document.documentElement.lang = lang;
+      document.title = t("pageTitle");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+        el.title = t(el.getAttribute("data-i18n-title"));
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+        el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
+      });
+      const label = document.getElementById("langToggleLabel");
+      if (label) {
+        label.textContent = lang === "ru" ? "EN" : "RU";
+      }
+    }
+
+    function initLang() {
+      const cookieLang = readLangCookie();
+      if (cookieLang === "ru" || cookieLang === "en") {
+        lang = cookieLang;
+      } else {
+        lang = (navigator.language || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+      }
+    }
+
+    const refs = {
+      loadingState: document.getElementById("loadingState"),
+      adminContent: document.getElementById("adminContent"),
+      userChip: document.getElementById("userChip"),
+      userEmail: document.getElementById("userEmail"),
+      logoutButton: document.getElementById("logoutButton"),
+      addForm: document.getElementById("addForm"),
+      emailInput: document.getElementById("emailInput"),
+      statusMsg: document.getElementById("statusMsg"),
+      usersList: document.getElementById("usersList"),
+      langToggle: document.getElementById("langToggle"),
+      dailyBackupButton: document.getElementById("dailyBackupButton"),
+      restorePointSelect: document.getElementById("restorePointSelect"),
+      restoreBackupButton: document.getElementById("restoreBackupButton"),
+      backupStatusMsg: document.getElementById("backupStatusMsg")
+    };
+
+    function renderUsersList(emails) {
+      const items = [`
+        <div class="users-item">
+          <span class="users-item-email">${adminEmail}</span>
+          <span class="user-role-badge">${t("roleAdmin")}</span>
+        </div>`];
+
+      emails.forEach((email) => {
+        items.push(`
+          <div class="users-item">
+            <span class="users-item-email">${email}</span>
+            <button class="danger-button" type="button" data-remove="${email}">${t("delete")}</button>
+          </div>`);
+      });
+
+      refs.usersList.innerHTML = `<div class="users-list">${items.join("")}</div>`;
+
+      if (emails.length === 0) {
+        refs.usersList.insertAdjacentHTML("beforeend", `<p class="empty-note">${t("noExtraUsers")}</p>`);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch("/api/users", { credentials: "same-origin" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          refs.statusMsg.textContent = payload.error || t("loadFailed");
+          return;
+        }
+        renderUsersList(payload.emails || []);
+      } catch {
+        refs.statusMsg.textContent = t("loadFailedUsers");
+      }
+    }
+
+    async function addUser(event) {
+      event.preventDefault();
+      const email = refs.emailInput.value.trim().toLowerCase();
+      if (!email) return;
+
+      refs.statusMsg.textContent = t("adding");
+      try {
+        const response = await fetch("/api/users", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          refs.statusMsg.textContent = payload.error || t("addFailed");
+          return;
+        }
+        refs.addForm.reset();
+        refs.statusMsg.textContent = t("added");
+        renderUsersList(payload.emails || []);
+      } catch {
+        refs.statusMsg.textContent = t("addFailedUser");
+      }
+    }
+
+    async function removeUser(email) {
+      refs.statusMsg.textContent = t("removing");
+      try {
+        const response = await fetch(`/api/users?email=${encodeURIComponent(email)}`, {
+          method: "DELETE",
+          credentials: "same-origin"
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          refs.statusMsg.textContent = payload.error || t("removeFailed");
+          return;
+        }
+        refs.statusMsg.textContent = t("removed");
+        renderUsersList(payload.emails || []);
+      } catch {
+        refs.statusMsg.textContent = t("removeFailedUser");
+      }
+    }
+
+    async function loadRestorePoints() {
+      refs.restorePointSelect.innerHTML = `<option value="">${t("loadingBackups")}</option>`;
+      try {
+        const response = await fetch("/api/weights?backups=1", { credentials: "same-origin" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || t("backupFailed"));
+        const points = payload.restorePoints || [];
+        refs.restorePointSelect.innerHTML = `<option value="">${points.length ? t("restoreSelect") : t("noBackups")}</option>`;
+        points.forEach((point) => {
+          const option = document.createElement("option");
+          option.value = point.pathname;
+          option.textContent = `${point.type === "backup" ? "Daily" : "Snapshot"} · ${new Date(point.uploadedAt).toLocaleString(lang === "en" ? "en-GB" : "ru-RU")}`;
+          refs.restorePointSelect.append(option);
+        });
+      } catch (error) {
+        refs.backupStatusMsg.textContent = error.message;
+      }
+    }
+
+    async function createDailyBackup() {
+      refs.backupStatusMsg.textContent = t("loadingBackups");
+      try {
+        const response = await fetch("/api/weights", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "dailyBackup" })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || t("backupFailed"));
+        refs.backupStatusMsg.textContent = t("backupCreated");
+        await loadRestorePoints();
+      } catch (error) {
+        refs.backupStatusMsg.textContent = error.message;
+      }
+    }
+
+    async function restoreBackup() {
+      const pathname = refs.restorePointSelect.value;
+      if (!pathname) {
+        refs.backupStatusMsg.textContent = t("restoreSelect");
+        return;
+      }
+      if (!window.confirm(t("restoreConfirm"))) return;
+      try {
+        const response = await fetch("/api/weights", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "restore", pathname })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || t("restoreFailed"));
+        refs.backupStatusMsg.textContent = t("restored");
+        await loadRestorePoints();
+      } catch (error) {
+        refs.backupStatusMsg.textContent = error.message;
+      }
+    }
+
+    refs.addForm.addEventListener("submit", addUser);
+
+    refs.usersList.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-remove]");
+      if (!button) return;
+      await removeUser(button.dataset.remove);
+    });
+
+    refs.logoutButton.addEventListener("click", async () => {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
+      window.location.href = "/";
+    });
+
+    refs.dailyBackupButton.addEventListener("click", createDailyBackup);
+    refs.restoreBackupButton.addEventListener("click", restoreBackup);
+
+    refs.langToggle.addEventListener("click", () => {
+      lang = lang === "ru" ? "en" : "ru";
+      setLangCookie(lang);
+      applyStaticTranslations();
+      if (!refs.adminContent.hidden) {
+        loadUsers();
+      }
+    });
+
+    window.addEventListener("load", async () => {
+      initLang();
+      applyStaticTranslations();
+      try {
+        const response = await fetch("/api/auth/status", { credentials: "same-origin" });
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok || !payload.authenticated || !payload.isAdmin) {
+          window.location.href = "/";
+          return;
+        }
+
+        adminEmail = payload.email || "";
+        refs.userEmail.textContent = adminEmail;
+        refs.userChip.hidden = false;
+        refs.loadingState.hidden = true;
+        refs.adminContent.hidden = false;
+
+        await Promise.all([loadUsers(), loadRestorePoints()]);
+      } catch {
+        window.location.href = "/";
+      }
+    });
+  </script>
+</body>
+</html>
