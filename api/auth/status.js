@@ -1,10 +1,10 @@
-const { buildClearCookie, authorizeRequest } = require("../_auth");
+const { buildClearCookie, buildClearRememberedSessionCookie, authorizeRequest } = require("../_auth");
 
 module.exports = async function handler(request, response) {
   const session = await authorizeRequest(request);
 
   if (!session) {
-    response.setHeader("Set-Cookie", buildClearCookie());
+    response.setHeader("Set-Cookie", [buildClearCookie(), buildClearRememberedSessionCookie()]);
     response.setHeader("Cache-Control", "no-store");
     response.status(401).json({ authenticated: false });
     return;

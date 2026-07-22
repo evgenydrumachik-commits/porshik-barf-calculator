@@ -166,6 +166,51 @@
       "norm_label": "rewrite"
     },
     {
+      "label": "auth.test.mjs",
+      "file_type": "code",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L1",
+      "id": "tests_auth_test_mjs",
+      "community": 3,
+      "norm_label": "auth.test.mjs"
+    },
+    {
+      "label": "require",
+      "file_type": "code",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L5",
+      "id": "tests_auth_test_require",
+      "community": 3,
+      "norm_label": "require"
+    },
+    {
+      "label": "{\n  COOKIE_NAME,\n  REMEMBER_COOKIE_NAME,\n  buildClearCookie,\n  buildClearRememberedSessionCookie,\n  buildRememberedSessionCookie,\n  parseCookies\n}",
+      "file_type": "code",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "id": "tests_auth_test_cookie_name_remember_cookie_name_buildclearcookie_buildclearrememberedsessioncookie_buildrememberedsessioncookie_parsecookies",
+      "community": 3,
+      "norm_label": "{\n  cookie_name,\n  remember_cookie_name,\n  buildclearcookie,\n  buildclearrememberedsessioncookie,\n  buildrememberedsessioncookie,\n  parsecookies\n}"
+    },
+    {
+      "label": "cookie",
+      "file_type": "code",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L16",
+      "id": "tests_auth_test_cookie",
+      "community": 3,
+      "norm_label": "cookie"
+    },
+    {
+      "label": "cookies",
+      "file_type": "code",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L30",
+      "id": "tests_auth_test_cookies",
+      "community": 3,
+      "norm_label": "cookies"
+    },
+    {
       "label": "domain.test.mjs",
       "file_type": "code",
       "source_file": "tests/domain.test.mjs",
@@ -1125,7 +1170,7 @@
       "source_file": "sites-app/legacy-api/_weights.js",
       "source_location": "L5",
       "id": "legacy_api_weights_randomuuid",
-      "community": 0,
+      "community": 7,
       "norm_label": "randomuuid()"
     },
     {
@@ -1412,7 +1457,7 @@
       "file_type": "code",
       "source_file": "sites-app/legacy-api/auth/logout.js",
       "source_location": "L1",
-      "id": "sites_app_legacy_api_auth_logout_js_auth_logout_buildclearcookie",
+      "id": "auth_logout_buildclearcookie",
       "community": 14,
       "norm_label": "{ buildclearcookie }"
     },
@@ -1430,7 +1475,7 @@
       "file_type": "code",
       "source_file": "sites-app/legacy-api/auth/verify.js",
       "source_location": "L1",
-      "id": "sites_app_legacy_api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail",
+      "id": "auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail",
       "community": 14,
       "norm_label": "{ buildclearcookie, buildsessioncookie, verifygoogleidtoken, isemailallowed, isadminemail }"
     },
@@ -1457,7 +1502,7 @@
       "file_type": "code",
       "source_file": "sites-app/legacy-api/auth/status.js",
       "source_location": "L1",
-      "id": "sites_app_legacy_api_auth_status_js_auth_status_buildclearcookie_authorizerequest",
+      "id": "auth_status_buildclearcookie_authorizerequest",
       "community": 14,
       "norm_label": "{ buildclearcookie, authorizerequest }"
     },
@@ -2059,7 +2104,7 @@
       "label": "parseCookies()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L5",
+      "source_location": "L8",
       "id": "api_auth_parsecookies",
       "community": 3,
       "norm_label": "parsecookies()"
@@ -2068,7 +2113,7 @@
       "label": "shouldUseSecureCookies()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L22",
+      "source_location": "L25",
       "id": "api_auth_shouldusesecurecookies",
       "community": 3,
       "norm_label": "shouldusesecurecookies()"
@@ -2077,25 +2122,88 @@
       "label": "buildSessionCookie()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L26",
+      "source_location": "L29",
       "id": "api_auth_buildsessioncookie",
       "community": 3,
       "norm_label": "buildsessioncookie()"
     },
     {
+      "label": "buildRememberedSessionCookie()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L45",
+      "id": "api_auth_buildrememberedsessioncookie",
+      "community": 3,
+      "norm_label": "buildrememberedsessioncookie()"
+    },
+    {
       "label": "buildClearCookie()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L42",
+      "source_location": "L61",
       "id": "api_auth_buildclearcookie",
       "community": 3,
       "norm_label": "buildclearcookie()"
     },
     {
+      "label": "buildClearRememberedSessionCookie()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L77",
+      "id": "api_auth_buildclearrememberedsessioncookie",
+      "community": 3,
+      "norm_label": "buildclearrememberedsessioncookie()"
+    },
+    {
+      "label": "hasBlobToken()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L93",
+      "id": "api_auth_hasblobtoken",
+      "community": 3,
+      "norm_label": "hasblobtoken()"
+    },
+    {
+      "label": "persistentSessionPath()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L97",
+      "id": "api_auth_persistentsessionpath",
+      "community": 3,
+      "norm_label": "persistentsessionpath()"
+    },
+    {
+      "label": "createRememberedSession()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L101",
+      "id": "api_auth_createrememberedsession",
+      "community": 3,
+      "norm_label": "createrememberedsession()"
+    },
+    {
+      "label": "readRememberedSession()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L119",
+      "id": "api_auth_readrememberedsession",
+      "community": 3,
+      "norm_label": "readrememberedsession()"
+    },
+    {
+      "label": "revokeRememberedSession()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L140",
+      "id": "api_auth_revokerememberedsession",
+      "community": 3,
+      "norm_label": "revokerememberedsession()"
+    },
+    {
       "label": "verifyGoogleIdToken()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L58",
+      "source_location": "L154",
       "id": "api_auth_verifygoogleidtoken",
       "community": 3,
       "norm_label": "verifygoogleidtoken()"
@@ -2104,7 +2212,7 @@
       "label": "isAdminEmail()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L81",
+      "source_location": "L177",
       "id": "api_auth_isadminemail",
       "community": 3,
       "norm_label": "isadminemail()"
@@ -2113,7 +2221,7 @@
       "label": "isEmailAllowed()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L85",
+      "source_location": "L181",
       "id": "api_auth_isemailallowed",
       "community": 3,
       "norm_label": "isemailallowed()"
@@ -2122,7 +2230,7 @@
       "label": "authorizeRequest()",
       "file_type": "code",
       "source_file": "api/_auth.js",
-      "source_location": "L99",
+      "source_location": "L195",
       "id": "api_auth_authorizerequest",
       "community": 3,
       "norm_label": "authorizerequest()"
@@ -2137,13 +2245,13 @@
       "norm_label": "logout.js"
     },
     {
-      "label": "{ buildClearCookie }",
+      "label": "{ buildClearCookie, buildClearRememberedSessionCookie, parseCookies, REMEMBER_COOKIE_NAME, revokeRememberedSession }",
       "file_type": "code",
       "source_file": "api/auth/logout.js",
       "source_location": "L1",
-      "id": "api_auth_logout_js_auth_logout_buildclearcookie",
+      "id": "auth_logout_buildclearcookie_buildclearrememberedsessioncookie_parsecookies_remember_cookie_name_revokerememberedsession",
       "community": 3,
-      "norm_label": "{ buildclearcookie }"
+      "norm_label": "{ buildclearcookie, buildclearrememberedsessioncookie, parsecookies, remember_cookie_name, revokerememberedsession }"
     },
     {
       "label": "verify.js",
@@ -2155,19 +2263,28 @@
       "norm_label": "verify.js"
     },
     {
-      "label": "{ buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail }",
+      "label": "{\n  buildClearCookie,\n  buildClearRememberedSessionCookie,\n  buildRememberedSessionCookie,\n  buildSessionCookie,\n  createRememberedSession,\n  verifyGoogleIdToken,\n  isEmailAllowed,\n  isAdminEmail\n}",
       "file_type": "code",
       "source_file": "api/auth/verify.js",
       "source_location": "L1",
-      "id": "api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail",
+      "id": "auth_verify_buildclearcookie_buildclearrememberedsessioncookie_buildrememberedsessioncookie_buildsessioncookie_createrememberedsession_verifygoogleidtoken_isemailallowed_isadminemail",
       "community": 3,
-      "norm_label": "{ buildclearcookie, buildsessioncookie, verifygoogleidtoken, isemailallowed, isadminemail }"
+      "norm_label": "{\n  buildclearcookie,\n  buildclearrememberedsessioncookie,\n  buildrememberedsessioncookie,\n  buildsessioncookie,\n  createrememberedsession,\n  verifygoogleidtoken,\n  isemailallowed,\n  isadminemail\n}"
+    },
+    {
+      "label": "cookies",
+      "file_type": "code",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L39",
+      "id": "auth_verify_cookies",
+      "community": 3,
+      "norm_label": "cookies"
     },
     {
       "label": "ttlSeconds",
       "file_type": "code",
       "source_file": "api/auth/verify.js",
-      "source_location": "L29",
+      "source_location": "L45",
       "id": "api_auth_verify_js_auth_verify_ttlseconds",
       "community": 3,
       "norm_label": "ttlseconds"
@@ -2182,13 +2299,13 @@
       "norm_label": "status.js"
     },
     {
-      "label": "{ buildClearCookie, authorizeRequest }",
+      "label": "{ buildClearCookie, buildClearRememberedSessionCookie, authorizeRequest }",
       "file_type": "code",
       "source_file": "api/auth/status.js",
       "source_location": "L1",
-      "id": "api_auth_status_js_auth_status_buildclearcookie_authorizerequest",
+      "id": "auth_status_buildclearcookie_buildclearrememberedsessioncookie_authorizerequest",
       "community": 3,
-      "norm_label": "{ buildclearcookie, authorizerequest }"
+      "norm_label": "{ buildclearcookie, buildclearrememberedsessioncookie, authorizerequest }"
     },
     {
       "label": ".last-run.json",
@@ -2331,7 +2448,7 @@
       "source_file": "assets/domain.mjs",
       "source_location": "L119",
       "id": "assets_domain_feedingplanfordate",
-      "community": 21,
+      "community": 8,
       "norm_label": "feedingplanfordate()"
     },
     {
@@ -2385,7 +2502,7 @@
       "source_file": "assets/domain.mjs",
       "source_location": "L232",
       "id": "assets_domain_actualmealcount",
-      "community": 21,
+      "community": 8,
       "norm_label": "actualmealcount()"
     },
     {
@@ -2446,7 +2563,7 @@
       "label": "t()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L399",
+      "source_location": "L401",
       "id": "assets_app_t",
       "community": 21,
       "norm_label": "t()"
@@ -2455,7 +2572,7 @@
       "label": "readCookie()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L407",
+      "source_location": "L409",
       "id": "assets_app_readcookie",
       "community": 21,
       "norm_label": "readcookie()"
@@ -2464,7 +2581,7 @@
       "label": "writeCookie()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L412",
+      "source_location": "L414",
       "id": "assets_app_writecookie",
       "community": 21,
       "norm_label": "writecookie()"
@@ -2473,7 +2590,7 @@
       "label": "formatNumber()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L416",
+      "source_location": "L418",
       "id": "assets_app_formatnumber",
       "community": 21,
       "norm_label": "formatnumber()"
@@ -2482,7 +2599,7 @@
       "label": "activeDogProfile()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L423",
+      "source_location": "L425",
       "id": "assets_app_activedogprofile",
       "community": 21,
       "norm_label": "activedogprofile()"
@@ -2491,7 +2608,7 @@
       "label": "formatRatio()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L427",
+      "source_location": "L429",
       "id": "assets_app_formatratio",
       "community": 21,
       "norm_label": "formatratio()"
@@ -2500,7 +2617,7 @@
       "label": "percentChange()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L431",
+      "source_location": "L433",
       "id": "assets_app_percentchange",
       "community": 21,
       "norm_label": "percentchange()"
@@ -2509,7 +2626,7 @@
       "label": "settingDescriptor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L438",
+      "source_location": "L440",
       "id": "assets_app_settingdescriptor",
       "community": 21,
       "norm_label": "settingdescriptor()"
@@ -2518,7 +2635,7 @@
       "label": "updateSettingChips()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L497",
+      "source_location": "L499",
       "id": "assets_app_updatesettingchips",
       "community": 21,
       "norm_label": "updatesettingchips()"
@@ -2527,7 +2644,7 @@
       "label": "formatDate()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L504",
+      "source_location": "L506",
       "id": "assets_app_formatdate",
       "community": 21,
       "norm_label": "formatdate()"
@@ -2536,7 +2653,7 @@
       "label": "escapeHtml()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L511",
+      "source_location": "L513",
       "id": "assets_app_escapehtml",
       "community": 21,
       "norm_label": "escapehtml()"
@@ -2545,7 +2662,7 @@
       "label": "normalizeClientRecord()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L520",
+      "source_location": "L522",
       "id": "assets_app_normalizeclientrecord",
       "community": 21,
       "norm_label": "normalizeclientrecord()"
@@ -2554,16 +2671,16 @@
       "label": "cssColor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L534",
+      "source_location": "L536",
       "id": "assets_app_csscolor",
-      "community": 24,
+      "community": 21,
       "norm_label": "csscolor()"
     },
     {
       "label": "colorWithAlpha()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L538",
+      "source_location": "L540",
       "id": "assets_app_colorwithalpha",
       "community": 21,
       "norm_label": "colorwithalpha()"
@@ -2572,7 +2689,7 @@
       "label": "drawCanvasPill()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L544",
+      "source_location": "L546",
       "id": "assets_app_drawcanvaspill",
       "community": 21,
       "norm_label": "drawcanvaspill()"
@@ -2581,7 +2698,7 @@
       "label": "applyTheme()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L566",
+      "source_location": "L568",
       "id": "assets_app_applytheme",
       "community": 21,
       "norm_label": "applytheme()"
@@ -2590,7 +2707,7 @@
       "label": "applyTranslations()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L572",
+      "source_location": "L574",
       "id": "assets_app_applytranslations",
       "community": 21,
       "norm_label": "applytranslations()"
@@ -2599,7 +2716,7 @@
       "label": "phaseLabel()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L588",
+      "source_location": "L590",
       "id": "assets_app_phaselabel",
       "community": 21,
       "norm_label": "phaselabel()"
@@ -2608,7 +2725,7 @@
       "label": "feedingStatusLabel()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L595",
+      "source_location": "L597",
       "id": "assets_app_feedingstatuslabel",
       "community": 21,
       "norm_label": "feedingstatuslabel()"
@@ -2617,7 +2734,7 @@
       "label": "nearestThirtyDayChange()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L602",
+      "source_location": "L604",
       "id": "assets_app_nearestthirtydaychange",
       "community": 21,
       "norm_label": "nearestthirtydaychange()"
@@ -2626,7 +2743,7 @@
       "label": "updateDerivedUI()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L618",
+      "source_location": "L620",
       "id": "assets_app_updatederivedui",
       "community": 21,
       "norm_label": "updatederivedui()"
@@ -2635,7 +2752,7 @@
       "label": "toast()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L659",
+      "source_location": "L661",
       "id": "assets_app_toast",
       "community": 21,
       "norm_label": "toast()"
@@ -2644,7 +2761,7 @@
       "label": "recordForDate()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L669",
+      "source_location": "L671",
       "id": "assets_app_recordfordate",
       "community": 21,
       "norm_label": "recordfordate()"
@@ -2653,7 +2770,7 @@
       "label": "comparisonDelta()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L673",
+      "source_location": "L675",
       "id": "assets_app_comparisondelta",
       "community": 21,
       "norm_label": "comparisondelta()"
@@ -2662,7 +2779,7 @@
       "label": "replacementValueList()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L680",
+      "source_location": "L682",
       "id": "assets_app_replacementvaluelist",
       "community": 21,
       "norm_label": "replacementvaluelist()"
@@ -2671,7 +2788,7 @@
       "label": "confirmRecordReplacement()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L705",
+      "source_location": "L707",
       "id": "assets_app_confirmrecordreplacement",
       "community": 21,
       "norm_label": "confirmrecordreplacement()"
@@ -2680,88 +2797,88 @@
       "label": "GrowthChart",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L747",
+      "source_location": "L749",
       "id": "assets_app_growthchart",
-      "community": 24,
+      "community": 21,
       "norm_label": "growthchart"
     },
     {
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L748",
+      "source_location": "L750",
       "id": "assets_app_growthchart_constructor",
-      "community": 24,
+      "community": 21,
       "norm_label": ".constructor()"
     },
     {
       "label": ".setData()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L766",
+      "source_location": "L768",
       "id": "assets_app_growthchart_setdata",
-      "community": 24,
+      "community": 21,
       "norm_label": ".setdata()"
     },
     {
       "label": ".draw()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L771",
+      "source_location": "L773",
       "id": "assets_app_growthchart_draw",
-      "community": 24,
+      "community": 21,
       "norm_label": ".draw()"
     },
     {
       "label": ".drawMarker()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L946",
+      "source_location": "L948",
       "id": "assets_app_growthchart_drawmarker",
-      "community": 24,
+      "community": 21,
       "norm_label": ".drawmarker()"
     },
     {
       "label": ".renderHitTargets()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L968",
+      "source_location": "L970",
       "id": "assets_app_growthchart_renderhittargets",
-      "community": 24,
+      "community": 21,
       "norm_label": ".renderhittargets()"
     },
     {
       "label": ".pointAriaLabel()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L987",
+      "source_location": "L989",
       "id": "assets_app_growthchart_pointarialabel",
-      "community": 24,
+      "community": 21,
       "norm_label": ".pointarialabel()"
     },
     {
       "label": ".nearestPoint()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L995",
+      "source_location": "L997",
       "id": "assets_app_growthchart_nearestpoint",
-      "community": 24,
+      "community": 21,
       "norm_label": ".nearestpoint()"
     },
     {
       "label": ".handlePointerMove()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1011",
+      "source_location": "L1013",
       "id": "assets_app_growthchart_handlepointermove",
-      "community": 24,
+      "community": 21,
       "norm_label": ".handlepointermove()"
     },
     {
       "label": ".showTooltip()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1020",
+      "source_location": "L1022",
       "id": "assets_app_growthchart_showtooltip",
       "community": 21,
       "norm_label": ".showtooltip()"
@@ -2770,16 +2887,16 @@
       "label": ".hideTooltip()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1055",
+      "source_location": "L1057",
       "id": "assets_app_growthchart_hidetooltip",
-      "community": 24,
+      "community": 21,
       "norm_label": ".hidetooltip()"
     },
     {
       "label": "initGrowthChart()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1063",
+      "source_location": "L1065",
       "id": "assets_app_initgrowthchart",
       "community": 21,
       "norm_label": "initgrowthchart()"
@@ -2788,7 +2905,7 @@
       "label": "drawBarfChart()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1075",
+      "source_location": "L1077",
       "id": "assets_app_drawbarfchart",
       "community": 21,
       "norm_label": "drawbarfchart()"
@@ -2797,7 +2914,7 @@
       "label": "renderHistoryTable()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1221",
+      "source_location": "L1223",
       "id": "assets_app_renderhistorytable",
       "community": 21,
       "norm_label": "renderhistorytable()"
@@ -2806,7 +2923,7 @@
       "label": "addHistoryDraft()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1309",
+      "source_location": "L1311",
       "id": "assets_app_addhistorydraft",
       "community": 21,
       "norm_label": "addhistorydraft()"
@@ -2815,7 +2932,7 @@
       "label": "discardHistoryDraft()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1324",
+      "source_location": "L1326",
       "id": "assets_app_discardhistorydraft",
       "community": 21,
       "norm_label": "discardhistorydraft()"
@@ -2824,7 +2941,7 @@
       "label": "inlineEditorError()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1331",
+      "source_location": "L1333",
       "id": "assets_app_inlineeditorerror",
       "community": 21,
       "norm_label": "inlineeditorerror()"
@@ -2833,7 +2950,7 @@
       "label": "cancelInlineEditor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1336",
+      "source_location": "L1338",
       "id": "assets_app_cancelinlineeditor",
       "community": 21,
       "norm_label": "cancelinlineeditor()"
@@ -2842,7 +2959,7 @@
       "label": "openInlineEditor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1342",
+      "source_location": "L1344",
       "id": "assets_app_openinlineeditor",
       "community": 21,
       "norm_label": "openinlineeditor()"
@@ -2851,7 +2968,7 @@
       "label": "saveInlineEditor()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1434",
+      "source_location": "L1436",
       "id": "assets_app_saveinlineeditor",
       "community": 21,
       "norm_label": "saveinlineeditor()"
@@ -2860,7 +2977,7 @@
       "label": "renderAll()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1529",
+      "source_location": "L1531",
       "id": "assets_app_renderall",
       "community": 21,
       "norm_label": "renderall()"
@@ -2869,7 +2986,7 @@
       "label": "loadRecords()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1536",
+      "source_location": "L1538",
       "id": "assets_app_loadrecords",
       "community": 21,
       "norm_label": "loadrecords()"
@@ -2878,7 +2995,7 @@
       "label": "applyAvatar()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1555",
+      "source_location": "L1557",
       "id": "assets_app_applyavatar",
       "community": 21,
       "norm_label": "applyavatar()"
@@ -2887,7 +3004,7 @@
       "label": "loadProfile()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1565",
+      "source_location": "L1567",
       "id": "assets_app_loadprofile",
       "community": 21,
       "norm_label": "loadprofile()"
@@ -2896,7 +3013,7 @@
       "label": "avatarDataUrlFromFile()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1580",
+      "source_location": "L1582",
       "id": "assets_app_avatardataurlfromfile",
       "community": 21,
       "norm_label": "avatardataurlfromfile()"
@@ -2905,7 +3022,7 @@
       "label": "uploadAvatar()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1602",
+      "source_location": "L1604",
       "id": "assets_app_uploadavatar",
       "community": 21,
       "norm_label": "uploadavatar()"
@@ -2914,7 +3031,7 @@
       "label": "updateSettingsDifference()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1628",
+      "source_location": "L1630",
       "id": "assets_app_updatesettingsdifference",
       "community": 21,
       "norm_label": "updatesettingsdifference()"
@@ -2923,7 +3040,7 @@
       "label": "openSettingDialog()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1648",
+      "source_location": "L1650",
       "id": "assets_app_opensettingdialog",
       "community": 21,
       "norm_label": "opensettingdialog()"
@@ -2932,7 +3049,7 @@
       "label": "saveFeedingSetting()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1674",
+      "source_location": "L1676",
       "id": "assets_app_savefeedingsetting",
       "community": 21,
       "norm_label": "savefeedingsetting()"
@@ -2941,7 +3058,7 @@
       "label": "setRecordTab()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1705",
+      "source_location": "L1707",
       "id": "assets_app_setrecordtab",
       "community": 21,
       "norm_label": "setrecordtab()"
@@ -2950,7 +3067,7 @@
       "label": "openRecordDialog()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1714",
+      "source_location": "L1716",
       "id": "assets_app_openrecorddialog",
       "community": 21,
       "norm_label": "openrecorddialog()"
@@ -2959,7 +3076,7 @@
       "label": "populateWeightForm()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1727",
+      "source_location": "L1729",
       "id": "assets_app_populateweightform",
       "community": 21,
       "norm_label": "populateweightform()"
@@ -2968,7 +3085,7 @@
       "label": "populateFeedingForm()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1743",
+      "source_location": "L1745",
       "id": "assets_app_populatefeedingform",
       "community": 21,
       "norm_label": "populatefeedingform()"
@@ -2977,7 +3094,7 @@
       "label": "buildMealControls()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1752",
+      "source_location": "L1754",
       "id": "assets_app_buildmealcontrols",
       "community": 21,
       "norm_label": "buildmealcontrols()"
@@ -2986,7 +3103,7 @@
       "label": "mealFormValues()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1780",
+      "source_location": "L1782",
       "id": "assets_app_mealformvalues",
       "community": 21,
       "norm_label": "mealformvalues()"
@@ -2995,7 +3112,7 @@
       "label": "updateFeedingSummary()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1791",
+      "source_location": "L1793",
       "id": "assets_app_updatefeedingsummary",
       "community": 21,
       "norm_label": "updatefeedingsummary()"
@@ -3004,7 +3121,7 @@
       "label": "saveDailyRecord()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1804",
+      "source_location": "L1806",
       "id": "assets_app_savedailyrecord",
       "community": 21,
       "norm_label": "savedailyrecord()"
@@ -3013,7 +3130,7 @@
       "label": "submitWeight()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1819",
+      "source_location": "L1821",
       "id": "assets_app_submitweight",
       "community": 21,
       "norm_label": "submitweight()"
@@ -3022,7 +3139,7 @@
       "label": "submitFeeding()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1848",
+      "source_location": "L1850",
       "id": "assets_app_submitfeeding",
       "community": 21,
       "norm_label": "submitfeeding()"
@@ -3031,7 +3148,7 @@
       "label": "deleteWeightValue()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1877",
+      "source_location": "L1879",
       "id": "assets_app_deleteweightvalue",
       "community": 21,
       "norm_label": "deleteweightvalue()"
@@ -3040,7 +3157,7 @@
       "label": "deleteRecord()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1912",
+      "source_location": "L1914",
       "id": "assets_app_deleterecord",
       "community": 21,
       "norm_label": "deleterecord()"
@@ -3049,7 +3166,7 @@
       "label": "setBackupStatus()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1931",
+      "source_location": "L1933",
       "id": "assets_app_setbackupstatus",
       "community": 21,
       "norm_label": "setbackupstatus()"
@@ -3058,7 +3175,7 @@
       "label": "setBackupBusy()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1938",
+      "source_location": "L1940",
       "id": "assets_app_setbackupbusy",
       "community": 21,
       "norm_label": "setbackupbusy()"
@@ -3067,7 +3184,7 @@
       "label": "loadRestorePoints()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1946",
+      "source_location": "L1948",
       "id": "assets_app_loadrestorepoints",
       "community": 21,
       "norm_label": "loadrestorepoints()"
@@ -3076,7 +3193,7 @@
       "label": "downloadBackup()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1969",
+      "source_location": "L1971",
       "id": "assets_app_downloadbackup",
       "community": 21,
       "norm_label": "downloadbackup()"
@@ -3085,7 +3202,7 @@
       "label": "restoreSelectedBackup()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L1999",
+      "source_location": "L2001",
       "id": "assets_app_restoreselectedbackup",
       "community": 21,
       "norm_label": "restoreselectedbackup()"
@@ -3094,7 +3211,7 @@
       "label": "confirmSelectedBackupRestore()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2014",
+      "source_location": "L2016",
       "id": "assets_app_confirmselectedbackuprestore",
       "community": 21,
       "norm_label": "confirmselectedbackuprestore()"
@@ -3103,7 +3220,7 @@
       "label": "updateAuthUI()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2042",
+      "source_location": "L2044",
       "id": "assets_app_updateauthui",
       "community": 21,
       "norm_label": "updateauthui()"
@@ -3112,7 +3229,7 @@
       "label": "refreshAuthStatus()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2059",
+      "source_location": "L2061",
       "id": "assets_app_refreshauthstatus",
       "community": 21,
       "norm_label": "refreshauthstatus()"
@@ -3121,7 +3238,7 @@
       "label": "loadAuthConfig()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2075",
+      "source_location": "L2077",
       "id": "assets_app_loadauthconfig",
       "community": 21,
       "norm_label": "loadauthconfig()"
@@ -3130,7 +3247,7 @@
       "label": "loadGoogleScript()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2086",
+      "source_location": "L2088",
       "id": "assets_app_loadgooglescript",
       "community": 21,
       "norm_label": "loadgooglescript()"
@@ -3139,7 +3256,7 @@
       "label": "verifyGoogleCredential()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2106",
+      "source_location": "L2108",
       "id": "assets_app_verifygooglecredential",
       "community": 21,
       "norm_label": "verifygooglecredential()"
@@ -3148,7 +3265,7 @@
       "label": "renderGoogleButton()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2117",
+      "source_location": "L2120",
       "id": "assets_app_rendergooglebutton",
       "community": 21,
       "norm_label": "rendergooglebutton()"
@@ -3157,7 +3274,7 @@
       "label": "openAuthDialog()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2157",
+      "source_location": "L2160",
       "id": "assets_app_openauthdialog",
       "community": 21,
       "norm_label": "openauthdialog()"
@@ -3166,7 +3283,7 @@
       "label": "wireEvents()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2165",
+      "source_location": "L2168",
       "id": "assets_app_wireevents",
       "community": 21,
       "norm_label": "wireevents()"
@@ -3175,7 +3292,7 @@
       "label": "handleHistoryAction()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2269",
+      "source_location": "L2272",
       "id": "assets_app_handlehistoryaction",
       "community": 21,
       "norm_label": "handlehistoryaction()"
@@ -3184,7 +3301,7 @@
       "label": "handleHistoryKeydown()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2282",
+      "source_location": "L2285",
       "id": "assets_app_handlehistorykeydown",
       "community": 21,
       "norm_label": "handlehistorykeydown()"
@@ -3193,10 +3310,208 @@
       "label": "init()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
-      "source_location": "L2301",
+      "source_location": "L2304",
       "id": "assets_app_init",
       "community": 21,
       "norm_label": "init()"
+    },
+    {
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "id": "readme_md",
+      "community": 27,
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "\u041f\u043e\u0440\u0448\u0438\u043a: \u0434\u043d\u0435\u0432\u043d\u0438\u043a \u0440\u043e\u0441\u0442\u0430 \u0438 \u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "community": 27,
+      "norm_label": "\u043f\u043e\u0440\u0448\u0438\u043a: \u0434\u043d\u0435\u0432\u043d\u0438\u043a \u0440\u043e\u0441\u0442\u0430 \u0438 \u043f\u0438\u0442\u0430\u043d\u0438\u044f"
+    },
+    {
+      "label": "Features",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_features",
+      "community": 27,
+      "norm_label": "features"
+    },
+    {
+      "label": "Pages and routes",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L21",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_pages_and_routes",
+      "community": 27,
+      "norm_label": "pages and routes"
+    },
+    {
+      "label": "Feeding model",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L32",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_feeding_model",
+      "community": 27,
+      "norm_label": "feeding model"
+    },
+    {
+      "label": "Requirements",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L47",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_requirements",
+      "community": 27,
+      "norm_label": "requirements"
+    },
+    {
+      "label": "code:bash (npm install)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L54",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_1",
+      "community": 27,
+      "norm_label": "code:bash (npm install)"
+    },
+    {
+      "label": "Local development",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L58",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_local_development",
+      "community": 27,
+      "norm_label": "local development"
+    },
+    {
+      "label": "code:bash (npm test)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L62",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_2",
+      "community": 27,
+      "norm_label": "code:bash (npm test)"
+    },
+    {
+      "label": "code:bash (DEV_AUTH=1 node tests/dev-server.mjs)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L68",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_3",
+      "community": 27,
+      "norm_label": "code:bash (dev_auth=1 node tests/dev-server.mjs)"
+    },
+    {
+      "label": "code:bash (node tests/dev-server.mjs)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L76",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_4",
+      "community": 27,
+      "norm_label": "code:bash (node tests/dev-server.mjs)"
+    },
+    {
+      "label": "Production storage and authentication",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L82",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_production_storage_and_authentication",
+      "community": 27,
+      "norm_label": "production storage and authentication"
+    },
+    {
+      "label": "Blob data layout",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L96",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_blob_data_layout",
+      "community": 27,
+      "norm_label": "blob data layout"
+    },
+    {
+      "label": "Deployment",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L107",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_deployment",
+      "community": 27,
+      "norm_label": "deployment"
+    },
+    {
+      "label": "Vercel",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L109",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_vercel",
+      "community": 27,
+      "norm_label": "vercel"
+    },
+    {
+      "label": "code:bash (npm test)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L115",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_5",
+      "community": 27,
+      "norm_label": "code:bash (npm test)"
+    },
+    {
+      "label": "Azure Static Web Apps",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L121",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_azure_static_web_apps",
+      "community": 27,
+      "norm_label": "azure static web apps"
+    },
+    {
+      "label": "Project structure",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L125",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_project_structure",
+      "community": 27,
+      "norm_label": "project structure"
+    },
+    {
+      "label": "code:text (index.html                 Dashboard)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L127",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_6",
+      "community": 27,
+      "norm_label": "code:text (index.html                 dashboard)"
+    },
+    {
+      "label": "Testing",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L140",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_testing",
+      "community": 27,
+      "norm_label": "testing"
+    },
+    {
+      "label": "code:bash (npm test)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L144",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_7",
+      "community": 27,
+      "norm_label": "code:bash (npm test)"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L150",
+      "id": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_license",
+      "community": 27,
+      "norm_label": "license"
     },
     {
       "label": "FRONTEND_REDESIGN_TASK.md",
@@ -3550,6 +3865,60 @@
       "norm_label": "delete"
     },
     {
+      "label": "{ buildClearCookie }",
+      "file_type": "code",
+      "source_file": "sites-app/legacy-api/auth/logout.js",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "{ buildclearcookie }",
+      "id": "sites_app_legacy_api_auth_logout_js_auth_logout_buildclearcookie"
+    },
+    {
+      "label": "{ buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail }",
+      "file_type": "code",
+      "source_file": "sites-app/legacy-api/auth/verify.js",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "{ buildclearcookie, buildsessioncookie, verifygoogleidtoken, isemailallowed, isadminemail }",
+      "id": "sites_app_legacy_api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+    },
+    {
+      "label": "{ buildClearCookie, authorizeRequest }",
+      "file_type": "code",
+      "source_file": "sites-app/legacy-api/auth/status.js",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "{ buildclearcookie, authorizerequest }",
+      "id": "sites_app_legacy_api_auth_status_js_auth_status_buildclearcookie_authorizerequest"
+    },
+    {
+      "label": "{ buildClearCookie }",
+      "file_type": "code",
+      "source_file": "api/auth/logout.js",
+      "source_location": "L1",
+      "community": 3,
+      "norm_label": "{ buildclearcookie }",
+      "id": "api_auth_logout_js_auth_logout_buildclearcookie"
+    },
+    {
+      "label": "{ buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail }",
+      "file_type": "code",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L1",
+      "community": 3,
+      "norm_label": "{ buildclearcookie, buildsessioncookie, verifygoogleidtoken, isemailallowed, isadminemail }",
+      "id": "api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+    },
+    {
+      "label": "{ buildClearCookie, authorizeRequest }",
+      "file_type": "code",
+      "source_file": "api/auth/status.js",
+      "source_location": "L1",
+      "community": 3,
+      "norm_label": "{ buildclearcookie, authorizerequest }",
+      "id": "api_auth_status_js_auth_status_buildclearcookie_authorizerequest"
+    },
+    {
       "label": "createDailyBackupFromHistory()",
       "file_type": "code",
       "source_file": "assets/app.mjs",
@@ -3622,24 +3991,6 @@
       "id": "path_route_runlegacyhandler"
     },
     {
-      "label": "{ buildClearCookie }",
-      "file_type": "code",
-      "source_file": "api/auth/logout.js",
-      "source_location": "L1",
-      "community": 3,
-      "norm_label": "{ buildclearcookie }",
-      "id": "auth_logout_buildclearcookie"
-    },
-    {
-      "label": "{ buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail }",
-      "file_type": "code",
-      "source_file": "api/auth/verify.js",
-      "source_location": "L1",
-      "community": 3,
-      "norm_label": "{ buildclearcookie, buildsessioncookie, verifygoogleidtoken, isemailallowed, isadminemail }",
-      "id": "auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
-    },
-    {
       "label": "ttlSeconds",
       "file_type": "code",
       "source_file": "api/auth/verify.js",
@@ -3647,15 +3998,6 @@
       "community": 3,
       "norm_label": "ttlseconds",
       "id": "auth_verify_ttlseconds"
-    },
-    {
-      "label": "{ buildClearCookie, authorizeRequest }",
-      "file_type": "code",
-      "source_file": "api/auth/status.js",
-      "source_location": "L1",
-      "community": 3,
-      "norm_label": "{ buildclearcookie, authorizerequest }",
-      "id": "auth_status_buildclearcookie_authorizerequest"
     },
     {
       "label": "{ normalizeRecord, readRecords, writeRecords }",
@@ -3844,6 +4186,101 @@
       "confidence_score": 1.0,
       "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_staticwebapp_config_navigationfallback",
       "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_staticwebapp_config_navigationfallback_rewrite"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "tests_auth_test_require",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "api_auth_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "api_auth_buildclearcookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "api_auth_buildclearrememberedsessioncookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "api_auth_buildrememberedsessioncookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "api_auth_parsecookies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "tests_auth_test_cookie_name_remember_cookie_name_buildclearcookie_buildclearrememberedsessioncookie_buildrememberedsessioncookie_parsecookies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "tests_auth_test_cookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/auth.test.mjs",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "tests_auth_test_mjs",
+      "target": "tests_auth_test_cookies",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -6269,7 +6706,27 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "sites_app_legacy_api_auth_logout_js",
+      "target": "auth_logout_buildclearcookie"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "sites-app/legacy-api/auth/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "sites_app_legacy_api_auth_logout_js",
       "target": "sites_app_legacy_api_auth_logout_js_auth_logout_buildclearcookie"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_logout_js",
+      "target": "auth_logout_buildclearcookie"
     },
     {
       "relation": "contains",
@@ -6279,7 +6736,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "sites_app_legacy_api_auth_verify_js",
-      "target": "sites_app_legacy_api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+      "target": "auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
     },
     {
       "relation": "contains",
@@ -6294,12 +6751,52 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "sites-app/legacy-api/auth/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "sites_app_legacy_api_auth_verify_js",
+      "target": "sites_app_legacy_api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_verify_js",
+      "target": "auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "sites-app/legacy-api/auth/status.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "sites_app_legacy_api_auth_status_js",
+      "target": "auth_status_buildclearcookie_authorizerequest"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "sites-app/legacy-api/auth/status.js",
       "source_location": "L1",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "sites_app_legacy_api_auth_status_js",
       "target": "sites_app_legacy_api_auth_status_js_auth_status_buildclearcookie_authorizerequest"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/status.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_status_js",
+      "target": "auth_status_buildclearcookie_authorizerequest"
     },
     {
       "relation": "contains",
@@ -7706,11 +8203,81 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "api/_auth.js",
+      "source_location": "L45",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_buildrememberedsessioncookie"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
       "source_location": "L42",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_js",
       "target": "api_auth_buildclearcookie"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L77",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_buildclearrememberedsessioncookie"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L93",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_hasblobtoken"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L97",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_persistentsessionpath"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L101",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_createrememberedsession"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L119",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_readrememberedsession"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L140",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_js",
+      "target": "api_auth_revokerememberedsession"
     },
     {
       "relation": "contains",
@@ -7797,6 +8364,17 @@
       "target": "api_auth_parsecookies"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_logout_js",
+      "target": "api_auth_parsecookies"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -7812,10 +8390,32 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "api/_auth.js",
+      "source_location": "L54",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_buildrememberedsessioncookie",
+      "target": "api_auth_shouldusesecurecookies"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
       "source_location": "L51",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_buildclearcookie",
+      "target": "api_auth_shouldusesecurecookies"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L86",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_buildclearrememberedsessioncookie",
       "target": "api_auth_shouldusesecurecookies"
     },
     {
@@ -7828,6 +8428,17 @@
       "confidence_score": 1.0,
       "source": "api_auth_verify_js",
       "target": "api_auth_buildsessioncookie"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_verify_js",
+      "target": "api_auth_buildrememberedsessioncookie"
     },
     {
       "relation": "imports",
@@ -7861,6 +8472,138 @@
       "confidence_score": 1.0,
       "source": "api_auth_status_js",
       "target": "api_auth_buildclearcookie"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_logout_js",
+      "target": "api_auth_buildclearrememberedsessioncookie"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_verify_js",
+      "target": "api_auth_buildclearrememberedsessioncookie"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/status.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_status_js",
+      "target": "api_auth_buildclearrememberedsessioncookie"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L102",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_createrememberedsession",
+      "target": "api_auth_hasblobtoken"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L120",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_readrememberedsession",
+      "target": "api_auth_hasblobtoken"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L141",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_revokerememberedsession",
+      "target": "api_auth_hasblobtoken"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L108",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_createrememberedsession",
+      "target": "api_auth_persistentsessionpath"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L124",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_readrememberedsession",
+      "target": "api_auth_persistentsessionpath"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L145",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_revokerememberedsession",
+      "target": "api_auth_persistentsessionpath"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_verify_js",
+      "target": "api_auth_createrememberedsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L200",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_authorizerequest",
+      "target": "api_auth_readrememberedsession"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_logout_js",
+      "target": "api_auth_revokerememberedsession"
     },
     {
       "relation": "calls",
@@ -7958,7 +8701,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_logout_js",
-      "target": "api_auth_logout_js_auth_logout_buildclearcookie"
+      "target": "auth_logout_buildclearcookie_buildclearrememberedsessioncookie_parsecookies_remember_cookie_name_revokerememberedsession"
     },
     {
       "relation": "contains",
@@ -7968,7 +8711,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_logout_js",
-      "target": "auth_logout_buildclearcookie"
+      "target": "api_auth_logout_js_auth_logout_buildclearcookie"
     },
     {
       "relation": "contains",
@@ -7978,7 +8721,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_verify_js",
-      "target": "api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+      "target": "auth_verify_buildclearcookie_buildclearrememberedsessioncookie_buildrememberedsessioncookie_buildsessioncookie_createrememberedsession_verifygoogleidtoken_isemailallowed_isadminemail"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/auth/verify.js",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_auth_verify_js",
+      "target": "auth_verify_cookies"
     },
     {
       "relation": "contains",
@@ -7998,7 +8751,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_verify_js",
-      "target": "auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
+      "target": "api_auth_verify_js_auth_verify_buildclearcookie_buildsessioncookie_verifygoogleidtoken_isemailallowed_isadminemail"
     },
     {
       "relation": "contains",
@@ -8018,7 +8771,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_status_js",
-      "target": "api_auth_status_js_auth_status_buildclearcookie_authorizerequest"
+      "target": "auth_status_buildclearcookie_buildclearrememberedsessioncookie_authorizerequest"
     },
     {
       "relation": "contains",
@@ -8028,7 +8781,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_auth_status_js",
-      "target": "auth_status_buildclearcookie_authorizerequest"
+      "target": "api_auth_status_js_auth_status_buildclearcookie_authorizerequest"
     },
     {
       "relation": "contains",
@@ -12004,6 +12757,216 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_md",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_features"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_pages_and_routes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_feeding_model"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_requirements"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_local_development"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L82",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_production_storage_and_authentication"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_deployment"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L125",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_project_structure"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L140",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_testing"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L150",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_\u043f\u043e\u0440\u0448\u0438\u043a_\u0434\u043d\u0435\u0432\u043d\u0438\u043a_\u0440\u043e\u0441\u0442\u0430_\u0438_\u043f\u0438\u0442\u0430\u043d\u0438\u044f",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_license"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L54",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_requirements",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L62",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_local_development",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L68",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_local_development",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L76",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_local_development",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_4"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_production_storage_and_authentication",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_blob_data_layout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L109",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_deployment",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_vercel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L121",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_deployment",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_azure_static_web_apps"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_vercel",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_5"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L127",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_project_structure",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_6"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_testing",
+      "target": "\u043a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440_\u0435\u0434\u044b_\u0434\u043b\u044f_\u043f\u043e\u0440\u0448\u0438\u043a\u0430_readme_codeblock_7"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "FRONTEND_REDESIGN_TASK.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -12383,5 +13346,6 @@
       "target": "playwright_weight_hover_spec_chart"
     }
   ],
-  "hyperedges": []
+  "hyperedges": [],
+  "built_at_commit": "c85a44329fa531cfe18914a148d7316ceefc93fb"
 }

@@ -189,6 +189,7 @@ const translations = {
     "inline.saved": "Значение обновлено.",
     "auth.title": "Вход для записи",
     "auth.copy": "Дневник виден всем, а добавлять и редактировать данные могут только разрешённые Google-аккаунты.",
+    "auth.remember": "Запомнить меня на этом устройстве",
     "auth.checking": "Проверяем авторизацию…",
     "auth.ready": "Выберите разрешённый Google-аккаунт.",
     "auth.unavailable": "Google-вход не настроен.",
@@ -361,6 +362,7 @@ const translations = {
     "inline.saved": "Value updated.",
     "auth.title": "Sign in to record",
     "auth.copy": "The diary is public; only approved Google accounts can add or edit data.",
+    "auth.remember": "Keep me signed in on this device",
     "auth.checking": "Checking sign-in…",
     "auth.ready": "Choose an approved Google account.",
     "auth.unavailable": "Google sign-in is not configured.",
@@ -2104,11 +2106,12 @@ async function loadGoogleScript() {
 }
 
 async function verifyGoogleCredential(credential) {
+  const remember = Boolean(document.getElementById("rememberMe")?.checked);
   const response = await fetch("/api/auth/verify", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ credential })
+    body: JSON.stringify({ credential, remember })
   });
   if (!response.ok) throw new Error(t("auth.failed"));
   await refreshAuthStatus();

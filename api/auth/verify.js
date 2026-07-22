@@ -1,4 +1,13 @@
-const { buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail } = require("../_auth");
+const {
+  buildClearCookie,
+  buildClearRememberedSessionCookie,
+  buildRememberedSessionCookie,
+  buildSessionCookie,
+  createRememberedSession,
+  verifyGoogleIdToken,
+  isEmailAllowed,
+  isAdminEmail
+} = require("../_auth");
 
 module.exports = async function handler(request, response) {
   if (request.method !== "POST") {
@@ -8,9 +17,11 @@ module.exports = async function handler(request, response) {
   }
 
   let credential = "";
+  let remember = false;
   try {
     const body = typeof request.body === "string" ? JSON.parse(request.body) : request.body;
     credential = body && typeof body.credential === "string" ? body.credential : "";
+    remember = Boolean(body && body.remember);
   } catch {
     credential = "";
   }
@@ -25,10 +36,17 @@ module.exports = async function handler(request, response) {
     if (!await isEmailAllowed(claims.email)) {
       throw new Error("Account not allowed");
     }
-    const expiresAt = Number.parseInt(claims.exp, 10) * 1000;
-    const ttlSeconds = Math.max(60, Math.min(60 * 60 * 24 * 7, Math.floor((expiresAt - Date.now()) / 1000)));
+    const cookies = [buildClearCookie(), buildClearRememberedSessionCookie()];
+    if (remember) {
+      const rememberedSession = await createRememberedSession(claims.email);
+      cookies[1] = buildRememberedSessionCookie(rememberedSession);
+    } else {
+      const expiresAt = Number.parseInt(claims.exp, 10) * 1000;
+      const ttlSeconds = Math.max(60, Math.min(60 * 60 * 24 * 7, Math.floor((expiresAt - Date.now()) / 1000)));
+      cookies[0] = buildSessionCookie(credential, ttlSeconds);
+    }
 
-    response.setHeader("Set-Cookie", buildSessionCookie(credential, ttlSeconds));
+    response.setHeader("Set-Cookie", cookies);
     response.setHeader("Cache-Control", "no-store");
     response.status(200).json({
       authenticated: true,
@@ -38,7 +56,7 @@ module.exports = async function handler(request, response) {
       picture: claims.picture || ""
     });
   } catch (error) {
-    response.setHeader("Set-Cookie", buildClearCookie());
+    response.setHeader("Set-Cookie", [buildClearCookie(), buildClearRememberedSessionCookie()]);
     response.status(401).json({
       error: "Google account is not allowed"
     });

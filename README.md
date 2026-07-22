@@ -91,7 +91,7 @@ Set these environment variables in the deployment environment:
 | `GOOGLE_CLIENT_ID` | Yes for Google login | Google OAuth client ID used to validate ID tokens |
 | `ADMIN_GOOGLE_EMAIL` | Recommended | Primary administrator email; defaults to the repository owner's configured fallback |
 
-Google sign-in verifies the token issuer, audience when `GOOGLE_CLIENT_ID` is set, email verification status, and whether the email is allowed. The administrator email is always allowed; additional addresses are stored in Blob and managed from `/admin`.
+Google sign-in verifies the token issuer, audience when `GOOGLE_CLIENT_ID` is set, email verification status, and whether the email is allowed. The administrator email is always allowed; additional addresses are stored in Blob and managed from `/admin`. Selecting “Remember me” creates a long-lived, device-specific session in Vercel Blob; it remains valid until the user signs out, browser data is cleared, or that email loses access.
 
 ### Blob data layout
 

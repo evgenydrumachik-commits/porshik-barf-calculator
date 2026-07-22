@@ -1712,6 +1712,22 @@ dialog::backdrop {
   line-height: 1.55;
 }
 
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.remember-me input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+}
+
 .auth-state {
   min-height: 44px;
   margin-bottom: 12px;

@@ -1,4 +1,7 @@
 const COOKIE_NAME = "porschik_google_id_token";
+const REMEMBER_COOKIE_NAME = "porschik_remembered_session";
+const REMEMBER_SESSION_PREFIX = "porschik/sessions/";
+const REMEMBER_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 365 * 20;
 const ALLOWED_EMAIL = process.env.ADMIN_GOOGLE_EMAIL || "evgeny.drumachik@gmail.com";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 
@@ -39,6 +42,22 @@ function buildSessionCookie(token, maxAgeSeconds) {
   return parts.join("; ");
 }
 
+function buildRememberedSessionCookie(token) {
+  const parts = [
+    `${REMEMBER_COOKIE_NAME}=${encodeURIComponent(token)}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${REMEMBER_SESSION_MAX_AGE_SECONDS}`
+  ];
+
+  if (shouldUseSecureCookies()) {
+    parts.push("Secure");
+  }
+
+  return parts.join("; ");
+}
+
 function buildClearCookie() {
   const parts = [
     `${COOKIE_NAME}=`,
@@ -53,6 +72,83 @@ function buildClearCookie() {
   }
 
   return parts.join("; ");
+}
+
+function buildClearRememberedSessionCookie() {
+  const parts = [
+    `${REMEMBER_COOKIE_NAME}=`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=0"
+  ];
+
+  if (shouldUseSecureCookies()) {
+    parts.push("Secure");
+  }
+
+  return parts.join("; ");
+}
+
+function hasBlobToken() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+function persistentSessionPath(token) {
+  return `${REMEMBER_SESSION_PREFIX}${encodeURIComponent(token)}.json`;
+}
+
+async function createRememberedSession(email) {
+  if (!hasBlobToken()) {
+    throw new Error("Persistent sessions require configured storage");
+  }
+
+  const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replaceAll("-", "");
+  const { put } = require("@vercel/blob");
+  await put(persistentSessionPath(token), JSON.stringify({
+    email,
+    createdAt: new Date().toISOString()
+  }), {
+    access: "public",
+    addRandomSuffix: false,
+    contentType: "application/json"
+  });
+  return token;
+}
+
+async function readRememberedSession(token) {
+  if (!token || !hasBlobToken()) {
+    return null;
+  }
+
+  const pathname = persistentSessionPath(token);
+  const { list } = require("@vercel/blob");
+  const result = await list({ prefix: pathname, limit: 1 });
+  const blob = result.blobs.find((entry) => entry.pathname === pathname);
+  if (!blob) {
+    return null;
+  }
+
+  const response = await fetch(blob.url, { cache: "no-store" });
+  if (!response.ok) {
+    return null;
+  }
+  const payload = await response.json();
+  return typeof payload.email === "string" ? payload : null;
+}
+
+async function revokeRememberedSession(token) {
+  if (!token || !hasBlobToken()) {
+    return;
+  }
+
+  const pathname = persistentSessionPath(token);
+  const { list, del } = require("@vercel/blob");
+  const result = await list({ prefix: pathname, limit: 1 });
+  const blob = result.blobs.find((entry) => entry.pathname === pathname);
+  if (blob) {
+    await del(blob.url);
+  }
 }
 
 async function verifyGoogleIdToken(idToken) {
@@ -98,6 +194,23 @@ async function isEmailAllowed(email) {
 
 async function authorizeRequest(request) {
   const cookies = parseCookies(request);
+  const rememberedToken = cookies[REMEMBER_COOKIE_NAME];
+  if (rememberedToken) {
+    try {
+      const rememberedSession = await readRememberedSession(rememberedToken);
+      if (rememberedSession && await isEmailAllowed(rememberedSession.email)) {
+        return {
+          token: rememberedToken,
+          claims: rememberedSession,
+          isAdmin: isAdminEmail(rememberedSession.email),
+          remembered: true
+        };
+      }
+    } catch {
+      // Fall through to the short-lived Google token, if it is still valid.
+    }
+  }
+
   const token = cookies[COOKIE_NAME];
   if (!token) {
     return null;
@@ -121,10 +234,15 @@ async function authorizeRequest(request) {
 module.exports = {
   ALLOWED_EMAIL,
   COOKIE_NAME,
+  REMEMBER_COOKIE_NAME,
   GOOGLE_CLIENT_ID,
   parseCookies,
   buildSessionCookie,
+  buildRememberedSessionCookie,
   buildClearCookie,
+  buildClearRememberedSessionCookie,
+  createRememberedSession,
+  revokeRememberedSession,
   isAdminEmail,
   isEmailAllowed,
   verifyGoogleIdToken,
