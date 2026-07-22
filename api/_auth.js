@@ -122,18 +122,15 @@ async function readRememberedSession(token) {
   }
 
   const pathname = persistentSessionPath(token);
-  const { list } = require("@vercel/blob");
-  const result = await list({ prefix: pathname, limit: 1 });
-  const blob = result.blobs.find((entry) => entry.pathname === pathname);
-  if (!blob) {
+  const { get } = require("@vercel/blob");
+  const blob = await get(pathname, {
+    access: "public",
+    headers: { "Cache-Control": "no-store" }
+  });
+  if (!blob || blob.statusCode !== 200 || !blob.stream) {
     return null;
   }
-
-  const response = await fetch(blob.url, { cache: "no-store" });
-  if (!response.ok) {
-    return null;
-  }
-  const payload = await response.json();
+  const payload = JSON.parse(await new Response(blob.stream).text());
   return typeof payload.email === "string" ? payload : null;
 }
 
@@ -143,12 +140,8 @@ async function revokeRememberedSession(token) {
   }
 
   const pathname = persistentSessionPath(token);
-  const { list, del } = require("@vercel/blob");
-  const result = await list({ prefix: pathname, limit: 1 });
-  const blob = result.blobs.find((entry) => entry.pathname === pathname);
-  if (blob) {
-    await del(blob.url);
-  }
+  const { del } = require("@vercel/blob");
+  await del(pathname);
 }
 
 async function verifyGoogleIdToken(idToken) {

@@ -7,9 +7,10 @@ import {
   addMonths,
   ageOn,
   feedingPlanForDate,
+  feedingRatioForDate,
   latestWeightRecord,
   intakeDifferencePercent,
-  projectedBarfForWeight,
+  intakeRatioFor,
   recommendationFor
 } from "../assets/domain.mjs";
 
@@ -18,10 +19,23 @@ test("birth date and eight-month boundary are calendar based", () => {
   assert.deepEqual(ageOn("2026-07-18"), { years: 0, months: 4, days: 20 });
 });
 
-test("puppy phase lasts until the four-week transition starts", () => {
+test("feeding target stays at 8% from 1 May through 30 June, then steps to 6%", () => {
+  assert.equal(feedingRatioForDate("2026-05-01").ratio, 0.08);
+  assert.equal(feedingRatioForDate("2026-06-01").ratio, 0.08);
+  assert.equal(feedingRatioForDate("2026-06-30").ratio, 0.08);
+  assert.equal(feedingRatioForDate("2026-07-01").ratio, 0.06);
+});
+
+test("feeding target interpolates daily between dated control points", () => {
+  assert.equal(feedingRatioForDate("2026-07-22").ratio, 0.054);
+  assert.ok(Math.abs(feedingRatioForDate("2026-09-09").ratio - 0.042) < 1e-12);
+  assert.equal(feedingRatioForDate("2026-10-28").ratio, 0.03);
+  assert.equal(feedingRatioForDate("2027-01-01").ratio, 0.03);
+});
+
+test("puppy meal count lasts until the four-week age transition starts", () => {
   const before = feedingPlanForDate("2026-09-29");
   assert.equal(before.phase, "puppy");
-  assert.equal(before.ratio, 0.08);
   assert.equal(before.mealsPerDay, 3);
 });
 
@@ -30,15 +44,13 @@ test("transition starts on 30 September with two meals", () => {
   assert.equal(start.phase, "transition");
   assert.equal(start.transitionStartDate, "2026-09-30");
   assert.equal(start.adultDate, "2026-10-28");
-  assert.equal(start.ratio, 0.08);
   assert.equal(start.mealsPerDay, 2);
 });
 
-test("transition ratio falls linearly over 28 days", () => {
+test("meal transition progress remains age-based", () => {
   const halfway = feedingPlanForDate("2026-10-14");
   assert.equal(halfway.phase, "transition");
   assert.equal(halfway.transitionProgress, 0.5);
-  assert.equal(halfway.ratio, 0.055);
 });
 
 test("adult phase begins at eight months", () => {
@@ -50,8 +62,8 @@ test("adult phase begins at eight months", () => {
 
 test("recommendation is calculated from current weight and phase", () => {
   const puppy = recommendationFor(8, "2026-07-18");
-  assert.equal(puppy.dailyGrams, 640);
-  assert.equal(Math.round(puppy.mealGrams), 213);
+  assert.ok(Math.abs(puppy.dailyGrams - 441.14285714285717) < 1e-9);
+  assert.equal(Math.round(puppy.mealGrams), 147);
 
   const adult = recommendationFor(8, "2026-10-28");
   assert.equal(adult.dailyGrams, 240);
@@ -77,6 +89,11 @@ test("daily intake difference is expressed as a percentage of the target", () =>
   assert.equal(intakeDifferencePercent(400, 0), null);
 });
 
+test("actual feeding can be compared as a ratio of body weight", () => {
+  assert.ok(Math.abs(intakeRatioFor(450, 8.3) - (450 / 8300)) < 1e-12);
+  assert.equal(intakeRatioFor(450, 0), null);
+});
+
 test("feeding-only records do not replace the latest measured weight", () => {
   const latest = latestWeightRecord([
     { date: "2026-07-17", weightKg: 7.95, meals: [] },
@@ -84,20 +101,4 @@ test("feeding-only records do not replace the latest measured weight", () => {
   ]);
   assert.equal(latest.date, "2026-07-17");
   assert.equal(latest.weightKg, 7.95);
-});
-
-test("BARF-by-weight projection includes a four-week transition to target weight", () => {
-  const puppy = projectedBarfForWeight(10.8);
-  assert.equal(puppy.phase, "puppy");
-  assert.equal(puppy.ratio, 0.08);
-
-  const halfway = projectedBarfForWeight(11.4);
-  assert.equal(halfway.phase, "transition");
-  assert.equal(halfway.transitionProgress, 0.5);
-  assert.equal(halfway.ratio, 0.055);
-
-  const adult = projectedBarfForWeight(12);
-  assert.equal(adult.phase, "adult");
-  assert.equal(adult.ratio, 0.03);
-  assert.equal(adult.dailyGrams, 360);
 });

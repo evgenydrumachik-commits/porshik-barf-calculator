@@ -1,3 +1,10 @@
+export const DEFAULT_FEEDING_NORMS = Object.freeze([
+  Object.freeze({ date: "2026-05-01", ratio: 0.08 }),
+  Object.freeze({ date: "2026-07-01", ratio: 0.06, interpolation: "step" }),
+  Object.freeze({ date: "2026-07-22", ratio: 0.054 }),
+  Object.freeze({ date: "2026-10-28", ratio: 0.03 })
+]);
+
 export const DOG_PROFILE = Object.freeze({
   birthDate: "2026-02-28",
   timezone: "Europe/Berlin",
@@ -8,7 +15,8 @@ export const DOG_PROFILE = Object.freeze({
   puppyMealsPerDay: 3,
   adultMealsPerDay: 2,
   targetAdultWeightKg: 12,
-  transitionStartWeightRatio: 0.9
+  transitionStartWeightRatio: 0.9,
+  feedingNorms: DEFAULT_FEEDING_NORMS
 });
 
 const DAY_MS = 86_400_000;
@@ -116,14 +124,62 @@ export function formatAge(age, language = "ru") {
   return `${age.months} ${pluralRu(age.months, "месяц", "месяца", "месяцев")} ${age.days} ${pluralRu(age.days, "день", "дня", "дней")}`;
 }
 
+export function feedingRatioForDate(dateIso, profile = DOG_PROFILE) {
+  parseIsoDate(dateIso);
+  const norms = (Array.isArray(profile.feedingNorms) && profile.feedingNorms.length
+    ? profile.feedingNorms
+    : DEFAULT_FEEDING_NORMS)
+    .map((item) => ({
+      date: String(item.date).slice(0, 10),
+      ratio: Number(item.ratio),
+      interpolation: item.interpolation === "step" ? "step" : "linear"
+    }))
+    .filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.date) && Number.isFinite(item.ratio))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (!norms.length || dateIso < norms[0].date) {
+    return {
+      ratio: Number(profile.puppyRatio ?? DOG_PROFILE.puppyRatio),
+      normStartDate: null,
+      normEndDate: norms[0]?.date || null,
+      normProgress: 0
+    };
+  }
+
+  const finalNorm = norms.at(-1);
+  if (dateIso >= finalNorm.date) {
+    return {
+      ratio: finalNorm.ratio,
+      normStartDate: finalNorm.date,
+      normEndDate: null,
+      normProgress: 1
+    };
+  }
+
+  const nextIndex = norms.findIndex((item) => item.date > dateIso);
+  const start = norms[nextIndex - 1];
+  const end = norms[nextIndex];
+  const totalDays = Math.max(1, daysBetween(start.date, end.date));
+  const normProgress = daysBetween(start.date, dateIso) / totalDays;
+  return {
+    ratio: end.interpolation === "step"
+      ? start.ratio
+      : start.ratio + (end.ratio - start.ratio) * normProgress,
+    normStartDate: start.date,
+    normEndDate: end.date,
+    normProgress
+  };
+}
+
 export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
   const adultDate = addMonths(profile.birthDate, profile.adultAgeMonths);
   const transitionStartDate = addDays(adultDate, -profile.transitionDays);
+  const norm = feedingRatioForDate(dateIso, profile);
 
   if (dateIso < transitionStartDate) {
     return {
       phase: "puppy",
-      ratio: profile.puppyRatio,
+      ...norm,
       mealsPerDay: profile.puppyMealsPerDay,
       transitionProgress: 0,
       transitionStartDate,
@@ -134,7 +190,7 @@ export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
   if (dateIso >= adultDate) {
     return {
       phase: "adult",
-      ratio: profile.adultRatio,
+      ...norm,
       mealsPerDay: profile.adultMealsPerDay,
       transitionProgress: 1,
       transitionStartDate,
@@ -144,12 +200,9 @@ export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
 
   const elapsedDays = daysBetween(transitionStartDate, dateIso);
   const transitionProgress = elapsedDays / profile.transitionDays;
-  const ratio = profile.puppyRatio
-    + (profile.adultRatio - profile.puppyRatio) * transitionProgress;
-
   return {
     phase: "transition",
-    ratio,
+    ...norm,
     mealsPerDay: profile.adultMealsPerDay,
     transitionProgress,
     transitionStartDate,
@@ -244,4 +297,11 @@ export function intakeDifferencePercent(actualGrams, targetGrams) {
   const target = Number(targetGrams);
   if (!Number.isFinite(actual) || !Number.isFinite(target) || target <= 0) return null;
   return ((actual - target) / target) * 100;
+}
+
+export function intakeRatioFor(actualGrams, weightKg) {
+  const actual = Number(actualGrams);
+  const weight = Number(weightKg);
+  if (!Number.isFinite(actual) || actual < 0 || !Number.isFinite(weight) || weight <= 0) return null;
+  return actual / (weight * 1000);
 }

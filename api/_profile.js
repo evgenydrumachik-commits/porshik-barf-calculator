@@ -4,12 +4,13 @@ const PROFILE_PATH = "porschik/profile.json";
 const AVATAR_PREFIX = "porschik/avatar/";
 const DEFAULT_AVATAR_URL = "/assets/porschik.jpg";
 const MAX_AVATAR_BYTES = 1_500_000;
-const RECOMMENDED_FEEDING_SETTINGS = Object.freeze({
-  puppyRatio: 0.08,
-  adultRatio: 0.03,
-  transitionDays: 28,
-  targetAdultWeightKg: 12
-});
+const DEFAULT_FEEDING_NORMS = Object.freeze([
+  Object.freeze({ date: "2026-05-01", ratio: 0.08 }),
+  Object.freeze({ date: "2026-07-01", ratio: 0.06, interpolation: "step" }),
+  Object.freeze({ date: "2026-07-22", ratio: 0.054 }),
+  Object.freeze({ date: "2026-10-28", ratio: 0.03 })
+]);
+const RECOMMENDED_FEEDING_SETTINGS = Object.freeze({ feedingNorms: DEFAULT_FEEDING_NORMS });
 
 function hasBlobToken() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
@@ -32,38 +33,40 @@ function decodeAvatarDataUrl(value) {
 }
 
 function normalizeFeedingSettings(value = {}) {
-  const settings = {
-    puppyRatio: Number(value.puppyRatio ?? RECOMMENDED_FEEDING_SETTINGS.puppyRatio),
-    adultRatio: Number(value.adultRatio ?? RECOMMENDED_FEEDING_SETTINGS.adultRatio),
-    transitionDays: Math.round(Number(value.transitionDays ?? RECOMMENDED_FEEDING_SETTINGS.transitionDays)),
-    targetAdultWeightKg: Number(value.targetAdultWeightKg ?? RECOMMENDED_FEEDING_SETTINGS.targetAdultWeightKg)
-  };
-  if (!Number.isFinite(settings.puppyRatio) || settings.puppyRatio < 0.03 || settings.puppyRatio > 0.12) {
-    const error = new Error("Щенячья норма должна быть от 3% до 12%");
+  const source = Array.isArray(value.feedingNorms) && value.feedingNorms.length
+    ? value.feedingNorms
+    : DEFAULT_FEEDING_NORMS;
+  if (source.length > 24) {
+    const error = new Error("Можно сохранить не более 24 контрольных точек нормы");
     error.statusCode = 400;
     throw error;
   }
-  if (!Number.isFinite(settings.adultRatio) || settings.adultRatio < 0.01 || settings.adultRatio > 0.06) {
-    const error = new Error("Взрослая норма должна быть от 1% до 6%");
-    error.statusCode = 400;
-    throw error;
-  }
-  if (settings.puppyRatio <= settings.adultRatio) {
-    const error = new Error("Щенячья норма должна быть выше взрослой");
-    error.statusCode = 400;
-    throw error;
-  }
-  if (!Number.isInteger(settings.transitionDays) || settings.transitionDays < 7 || settings.transitionDays > 56) {
-    const error = new Error("Переход должен занимать от 1 до 8 недель");
-    error.statusCode = 400;
-    throw error;
-  }
-  if (!Number.isFinite(settings.targetAdultWeightKg) || settings.targetAdultWeightKg < 8 || settings.targetAdultWeightKg > 18) {
-    const error = new Error("Целевой вес должен быть от 8 до 18 кг");
-    error.statusCode = 400;
-    throw error;
-  }
-  return settings;
+  const seenDates = new Set();
+  const feedingNorms = source.map((item) => {
+    const date = String(item?.date || "").slice(0, 10);
+    const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T00:00:00Z`) : null;
+    if (!parsedDate || Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== date) {
+      const error = new Error("Для каждой нормы нужна корректная дата");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (seenDates.has(date)) {
+      const error = new Error("На одну дату можно задать только одну норму");
+      error.statusCode = 400;
+      throw error;
+    }
+    seenDates.add(date);
+    const ratio = Number(item?.ratio);
+    if (!Number.isFinite(ratio) || ratio < 0.01 || ratio > 0.12) {
+      const error = new Error("Норма должна быть от 1% до 12%");
+      error.statusCode = 400;
+      throw error;
+    }
+    const normalized = { date, ratio: Math.round(ratio * 10000) / 10000 };
+    if (item?.interpolation === "step") normalized.interpolation = "step";
+    return normalized;
+  }).sort((a, b) => a.date.localeCompare(b.date));
+  return { feedingNorms };
 }
 
 function defaultProfile(storageReady = false) {
@@ -146,6 +149,7 @@ async function writeFeedingSettings(feedingSettings) {
 }
 
 module.exports = {
+  DEFAULT_FEEDING_NORMS,
   DEFAULT_AVATAR_URL,
   MAX_AVATAR_BYTES,
   RECOMMENDED_FEEDING_SETTINGS,

@@ -6,7 +6,6 @@ const {
   normalizeRecord,
   readRecords,
   restoreRecordsFromPath,
-  writeAuditEvent,
   writeRecords
 } = require("./_weights");
 
@@ -79,12 +78,12 @@ module.exports = async function handler(request, response) {
 
       if (action === "dailyBackup") {
         const { records } = await readRecords();
-        const backup = await createDailyBackup(records);
-        await writeAuditEvent({
-          action: "daily_backup",
-          actor: sessionEmail(session),
-          backupPath: backup.pathname,
-          recordCount: records.length
+        const backup = await createDailyBackup(records, new Date(), {
+          auditEvent: {
+            action: "daily_backup",
+            actor: sessionEmail(session),
+            recordCount: records.length
+          }
         });
         response.status(200).json({ backup, storageReady: true });
         return;
@@ -97,13 +96,13 @@ module.exports = async function handler(request, response) {
           return;
         }
         const before = await readRecords();
-        const saved = await restoreRecordsFromPath(pathname);
-        await writeAuditEvent({
-          action: "restore",
-          actor: sessionEmail(session),
-          sourcePath: pathname,
-          beforeCount: before.records.length,
-          afterCount: saved.length
+        const saved = await restoreRecordsFromPath(pathname, {
+          auditEvent: {
+            action: "restore",
+            actor: sessionEmail(session),
+            sourcePath: pathname,
+            beforeCount: before.records.length
+          }
         });
         response.status(200).json({ records: saved, storageReady: true });
         return;
@@ -115,14 +114,15 @@ module.exports = async function handler(request, response) {
       const record = mergeIncomingRecord(previous, body);
       const nextRecords = records.filter((item) => item.id !== record.id && item.id !== replaceId);
       nextRecords.push(record);
-      const saved = await writeRecords(nextRecords);
-      await writeAuditEvent({
-        action: previous ? "update" : "create",
-        recordType: String(body.recordType || "daily_record"),
-        actor: sessionEmail(session),
-        before: previous,
-        after: record,
-        recordCount: saved.length
+      const saved = await writeRecords(nextRecords, {
+        auditEvent: {
+          action: previous ? "update" : "create",
+          recordType: String(body.recordType || "daily_record"),
+          actor: sessionEmail(session),
+          before: previous,
+          after: record,
+          recordCount: nextRecords.length
+        }
       });
       response.status(200).json({ records: saved, storageReady: true });
     } catch (error) {
@@ -140,13 +140,15 @@ module.exports = async function handler(request, response) {
       }
       const { records } = await readRecords();
       const removed = records.find((item) => item.id === id) || null;
-      const saved = await writeRecords(records.filter((item) => item.id !== id));
-      await writeAuditEvent({
-        action: "delete",
-        recordType: "daily_record",
-        actor: sessionEmail(session),
-        before: removed,
-        recordCount: saved.length
+      const nextRecords = records.filter((item) => item.id !== id);
+      const saved = await writeRecords(nextRecords, {
+        auditEvent: {
+          action: "delete",
+          recordType: "daily_record",
+          actor: sessionEmail(session),
+          before: removed,
+          recordCount: nextRecords.length
+        }
       });
       response.status(200).json({ records: saved, storageReady: true });
     } catch (error) {
@@ -158,4 +160,3 @@ module.exports = async function handler(request, response) {
   response.setHeader("Allow", "GET, POST, DELETE");
   response.status(405).json({ error: "Method not allowed" });
 };
-

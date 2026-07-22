@@ -3,19 +3,34 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { loadDevState, saveDevState } from "./dev-state.mjs";
 
 const require = createRequire(import.meta.url);
 const { buildRecordsPayload, normalizeRecord, readRecords } = require("../api/_weights.js");
 const { RECOMMENDED_FEEDING_SETTINGS, normalizeFeedingSettings } = require("../api/_profile.js");
+const { normalizeExpenseOrder, normalizeExpenseOrders } = require("../api/_expenses.js");
 const root = fileURLToPath(new URL("../", import.meta.url));
 const port = Number(process.env.PORT || 4173);
 const devAuth = process.env.DEV_AUTH === "1";
-let records = (await readRecords()).records;
-let avatarUrl = "/assets/porschik.jpg";
-let feedingSettings = { ...RECOMMENDED_FEEDING_SETTINGS };
+const devDataPath = process.env.DEV_DATA_PATH || join(root, ".local-data", "dev-state.json");
+const seedState = {
+  records: (await readRecords()).records,
+  avatarUrl: "/assets/porschik.jpg",
+  feedingSettings: { ...RECOMMENDED_FEEDING_SETTINGS },
+  expenses: []
+};
+const savedState = await loadDevState(devDataPath, seedState);
+let records = savedState.records.map(normalizeRecord).sort((a, b) => a.date.localeCompare(b.date));
+let avatarUrl = savedState.avatarUrl;
+let feedingSettings = normalizeFeedingSettings(savedState.feedingSettings);
+let expenses = normalizeExpenseOrders(savedState.expenses);
 let restorePoints = [];
 const backupPayloads = new Map();
 let snapshotSequence = 0;
+
+async function persistState() {
+  await saveDevState(devDataPath, { records, avatarUrl, feedingSettings, expenses });
+}
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -82,6 +97,7 @@ const server = http.createServer(async (request, response) => {
           if (!restored) return json(response, 400, { error: "Не выбрана доступная резервная копия" });
           records = structuredClone(restored);
           storeAutomaticSnapshot();
+          await persistState();
           return json(response, 200, { records, storageReady: true });
         }
         const previous = records.find((record) => record.id === (body.replaceId || body.date) || record.date === body.date);
@@ -95,6 +111,7 @@ const server = http.createServer(async (request, response) => {
         records.push(next);
         records.sort((a, b) => a.date.localeCompare(b.date));
         storeAutomaticSnapshot();
+        await persistState();
         return json(response, 200, { records, storageReady: true });
       } catch (error) {
         return json(response, 400, { error: error.message });
@@ -103,6 +120,7 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "DELETE") {
       records = records.filter((record) => record.id !== url.searchParams.get("id"));
       storeAutomaticSnapshot();
+      await persistState();
       return json(response, 200, { records, storageReady: true });
     }
   }
@@ -114,16 +132,41 @@ const server = http.createServer(async (request, response) => {
         const body = await bodyJson(request);
         if (body.feedingSettings) {
           feedingSettings = normalizeFeedingSettings(body.feedingSettings);
+          await persistState();
           return json(response, 200, { avatarUrl, feedingSettings, storageReady: true });
         }
         if (!/^data:image\/(jpeg|png|webp);base64,/.test(String(body.avatarDataUrl || ""))) {
           return json(response, 400, { error: "Неверный формат фотографии" });
         }
         avatarUrl = body.avatarDataUrl;
+        await persistState();
         return json(response, 200, { avatarUrl, feedingSettings, storageReady: true });
       } catch (error) {
         return json(response, 400, { error: error.message });
       }
+    }
+  }
+  if (url.pathname === "/api/expenses") {
+    if (request.method === "GET") return json(response, 200, { orders: expenses, storageReady: true });
+    if (!devAuth) return json(response, 401, { error: "Нужен вход администратора" });
+    try {
+      if (request.method === "POST") {
+        const body = await bodyJson(request);
+        const order = normalizeExpenseOrder(body);
+        const replaceId = String(body.replaceId || order.id);
+        expenses = expenses.filter((item) => item.id !== replaceId && item.id !== order.id);
+        expenses.push(order);
+        expenses.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+        await persistState();
+        return json(response, 200, { orders: expenses, storageReady: true });
+      }
+      if (request.method === "DELETE") {
+        expenses = expenses.filter((item) => item.id !== url.searchParams.get("id"));
+        await persistState();
+        return json(response, 200, { orders: expenses, storageReady: true });
+      }
+    } catch (error) {
+      return json(response, error.statusCode || 400, { error: error.message });
     }
   }
   if (url.pathname === "/api/auth/status") {
@@ -151,5 +194,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Porschik dev server: http://127.0.0.1:${port} (auth=${devAuth})`);
+  console.log(`Porschik dev server: http://127.0.0.1:${port} (auth=${devAuth}, data=${devDataPath})`);
 });

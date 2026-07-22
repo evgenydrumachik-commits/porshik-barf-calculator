@@ -1,4 +1,5 @@
 import {
+  DEFAULT_FEEDING_NORMS,
   DOG_PROFILE,
   actualDailyGrams,
   actualMealCount,
@@ -7,8 +8,8 @@ import {
   feedingPlanForDate,
   formatAge,
   intakeDifferencePercent,
+  intakeRatioFor,
   latestWeightRecord,
-  projectedBarfForWeight,
   recommendationFor,
   sortDailyRecords,
   todayInTimezone
@@ -19,6 +20,7 @@ const today = todayInTimezone();
 
 const state = {
   records: [],
+  expenses: [],
   storageReady: false,
   loading: true,
   lang: readCookie("porschik_lang") === "en" ? "en" : "ru",
@@ -34,12 +36,8 @@ const state = {
   pendingSetting: null,
   avatarUrl: "/assets/porschik.jpg",
   feedingSettings: {
-    puppyRatio: DOG_PROFILE.puppyRatio,
-    adultRatio: DOG_PROFILE.adultRatio,
-    transitionDays: DOG_PROFILE.transitionDays,
-    targetAdultWeightKg: DOG_PROFILE.targetAdultWeightKg
+    feedingNorms: DEFAULT_FEEDING_NORMS.map((item) => ({ ...item }))
   },
-  activeSetting: null,
   backupBusy: false,
   pendingBackupRestore: null,
   inlineEditor: null,
@@ -62,17 +60,21 @@ const translations = {
     "stats.changeNote": "по сохранённым измерениям",
     "stats.meal": "Порция сейчас",
     "chart.title": "Рост и питание Поршика",
-    "chart.subtitle": "Синий — вес, цветные точки — сколько съедено за каждый приём.",
+    "chart.subtitle": "Синий — вес, составные столбики — съеденное за день по приёмам.",
     "chart.historySubtitle": "Нажмите точку, чтобы отредактировать её данные.",
     "chart.weightSeries": "Вес",
     "chart.foodSeries": "Питание",
     "chart.weightLegend": "Вес, кг",
+    "chart.weightLevel": "Вес",
+    "chart.foodLevel": "Питание и дневная норма",
+    "chart.actualDaily": "Съедено за день",
+    "chart.targetDaily": "Дневная норма",
     "chart.meal1": "Приём 1",
     "chart.meal2": "Приём 2",
     "chart.meal3": "Приём 3",
     "chart.leftAxis": "Вес, кг",
-    "chart.rightAxis": "За приём, г",
-    "chart.recommended": "Норма за приём",
+    "chart.rightAxis": "За день, г",
+    "chart.recommended": "Норма за день",
     "action.addWeight": "Добавить вес",
     "action.addFeeding": "Добавить питание",
     "action.addRecord": "Новая запись",
@@ -92,7 +94,7 @@ const translations = {
     "action.logout": "Выйти",
     "action.admin": "Администрирование",
     "action.changePhoto": "Изменить фотографию Поршика",
-    "action.editFeedingSettings": "Изменить параметр кормления",
+    "action.editFeedingSettings": "Изменить историю норм",
     "action.deleteWeight": "Удалить вес",
     "replace.title": "Запись за этот день уже есть",
     "replace.before": "Было",
@@ -102,16 +104,15 @@ const translations = {
     "replace.introFeeding": "За {date} уже сохранены данные. Проверьте новые приёмы пищи перед заменой.",
     "replace.keepFeeding": "Вес будет заменён; питание за этот день останется без изменений.",
     "replace.keepWeight": "Питание будет заменено; вес за этот день останется без изменений.",
-    "settings.reset": "Сбросить к рекомендации",
-    "settings.puppyRatio": "Щенячья норма",
-    "settings.adultRatio": "Взрослая норма",
-    "settings.transitionDays": "Плавность перехода",
-    "settings.targetAdultWeightKg": "Целевой взрослый вес",
-    "settings.recommended": "Рекомендация заводчицы: {value}. Это значение всегда можно восстановить кнопкой сброса.",
-    "settings.difference": "Отклонение от рекомендации: {absolute} ({percent}%)",
-    "settings.noDifference": "Используется исходная рекомендация заводчицы.",
-    "settings.saved": "Настройка сохранена.",
-    "settings.error": "Не удалось сохранить настройку.",
+    "settings.reset": "Вернуть план до взросления",
+    "settings.saved": "История норм сохранена.",
+    "settings.error": "Не удалось сохранить историю норм.",
+    "settings.normTitle": "История норм",
+    "settings.normIntro": "Задайте даты и проценты. Между точками норма меняется плавно каждый день.",
+    "settings.normDate": "Дата",
+    "settings.normPercent": "% веса",
+    "settings.addNorm": "Добавить точку",
+    "settings.removeNorm": "Удалить точку",
     "backup.title": "Резервные копии данных",
     "backup.subtitle": "Точка восстановления создаётся при каждом сохранении. Здесь можно скачать данные или вернуться к предыдущей версии.",
     "backup.automatic": "Автокопирование включено",
@@ -132,18 +133,54 @@ const translations = {
     "backup.downloadError": "Не удалось скачать резервную копию.",
     "backup.restoreError": "Не удалось восстановить данные.",
     "feeding.eyebrow": "BARF сегодня",
-    "feeding.title": "Питание без ручных настроек",
-    "feeding.subtitle": "Возраст, фаза, процент и число кормлений рассчитываются автоматически от даты рождения.",
+    "feeding.title": "Актуальная норма питания",
+    "feeding.subtitle": "Процент меняется по заданному плану, а число кормлений — по возрасту.",
     "feeding.daily": "В день",
     "feeding.perMeal": "За приём",
     "feeding.meals": "Приёмов",
-    "barf.title": "Норма BARF по весу",
-    "barf.subtitle": "Щенячья норма, плавный переход и взрослый ориентир на одном графике.",
-    "barf.puppy": "Щенячья норма",
-    "barf.transition": "Переход",
-    "barf.adult": "Взрослая норма",
-    "barf.dailyAxis": "Норма в день, г",
-    "barf.weightAxis": "Вес, кг",
+    "barf.title": "Норма и фактическое питание",
+    "barf.subtitle": "План до взросления и сколько Поршик фактически съедает в % от веса.",
+    "barf.norm": "Норма",
+    "barf.actual": "Фактически съедено",
+    "barf.future": "Будущий план",
+    "barf.current": "Сейчас",
+    "barf.adultStable": "Стабильная взрослая норма",
+    "barf.completeDays": "Фактическая линия не включает сегодняшний незавершённый день.",
+    "barf.percentAxis": "% от веса",
+    "expense.eyebrow": "Расходы на питание",
+    "expense.title": "Сколько стоит питание Поршика",
+    "expense.subtitle": "Заказы еды, доставка и накопительные расходы в одной истории.",
+    "expense.add": "Добавить заказ",
+    "expense.total": "За всё время",
+    "expense.year": "В этом году",
+    "expense.annualPace": "Годовой темп",
+    "expense.averageKg": "Средняя цена/кг",
+    "expense.foodCost": "Стоимость еды",
+    "expense.delivery": "Доставка",
+    "expense.cumulative": "Накопительно",
+    "expense.orders": "Заказы",
+    "expense.dialogTitle": "Заказ еды",
+    "expense.type": "Тип еды",
+    "expense.typeTreats": "Лакомства",
+    "expense.typeDry": "Сухой корм",
+    "expense.typeSupplements": "Добавки",
+    "expense.typeOther": "Другое",
+    "expense.description": "Описание / поставщик",
+    "expense.kilograms": "Количество, кг",
+    "expense.priceKg": "Цена за кг, €",
+    "expense.deliveryCost": "Доставка, €",
+    "expense.orderTotal": "Итого заказ",
+    "expense.empty": "Пока нет заказов. Добавьте первый, чтобы увидеть расходы во времени.",
+    "expense.orderCountOne": "{count} заказ",
+    "expense.orderCountFew": "{count} заказа",
+    "expense.orderCountMany": "{count} заказов",
+    "expense.saved": "Заказ сохранён.",
+    "expense.deleted": "Заказ удалён.",
+    "expense.loadError": "Не удалось загрузить расходы.",
+    "expense.deleteConfirm": "Удалить этот заказ из истории расходов?",
+    "expense.chartAria": "График расходов на питание Поршика",
+    "expense.perOrderAxis": "Заказ, €",
+    "expense.totalAxis": "Накопительно, €",
     "disclaimer": "Расчёт — ориентир по рекомендации заводчицы. Фактическую порцию корректируйте по талии, рёбрам, активности, стулу и динамике веса Поршика; при сомнениях консультируйтесь с ветеринаром.",
     "history.eyebrow": "Полная история",
     "history.title": "График и записи по дням",
@@ -217,6 +254,7 @@ const translations = {
     "tooltip.actualMeals": "Фактически приёмов",
     "tooltip.total": "Всего за день",
     "tooltip.recommended": "Норма за приём",
+    "tooltip.dailyRecommended": "Дневная норма",
     "tooltip.skipped": "не ел",
     "records.count": "{count} записей",
     "records.empty": "Записей пока нет",
@@ -235,17 +273,21 @@ const translations = {
     "stats.changeNote": "based on saved measurements",
     "stats.meal": "Current portion",
     "chart.title": "Porschik's growth and feeding",
-    "chart.subtitle": "Blue is weight; colored points show the amount eaten at each meal.",
+    "chart.subtitle": "Blue shows weight; stacked bars show daily intake by meal.",
     "chart.historySubtitle": "Select a point to edit its data.",
     "chart.weightSeries": "Weight",
     "chart.foodSeries": "Feeding",
     "chart.weightLegend": "Weight, kg",
+    "chart.weightLevel": "Weight",
+    "chart.foodLevel": "Feeding and daily target",
+    "chart.actualDaily": "Eaten per day",
+    "chart.targetDaily": "Daily target",
     "chart.meal1": "Meal 1",
     "chart.meal2": "Meal 2",
     "chart.meal3": "Meal 3",
     "chart.leftAxis": "Weight, kg",
-    "chart.rightAxis": "Per meal, g",
-    "chart.recommended": "Target per meal",
+    "chart.rightAxis": "Per day, g",
+    "chart.recommended": "Daily target",
     "action.addWeight": "Add weight",
     "action.addFeeding": "Add feeding",
     "action.addRecord": "New record",
@@ -265,7 +307,7 @@ const translations = {
     "action.logout": "Sign out",
     "action.admin": "Administration",
     "action.changePhoto": "Change Porschik's photo",
-    "action.editFeedingSettings": "Edit feeding setting",
+    "action.editFeedingSettings": "Edit target history",
     "action.deleteWeight": "Delete weight",
     "replace.title": "A record already exists for this day",
     "replace.before": "Before",
@@ -275,16 +317,15 @@ const translations = {
     "replace.introFeeding": "Data is already saved for {date}. Review the new meals before replacing them.",
     "replace.keepFeeding": "The weight will be replaced; feeding for this day will remain unchanged.",
     "replace.keepWeight": "Feeding will be replaced; the weight for this day will remain unchanged.",
-    "settings.reset": "Reset to recommendation",
-    "settings.puppyRatio": "Puppy target",
-    "settings.adultRatio": "Adult target",
-    "settings.transitionDays": "Transition duration",
-    "settings.targetAdultWeightKg": "Adult target weight",
-    "settings.recommended": "Breeder recommendation: {value}. You can always restore it with Reset.",
-    "settings.difference": "Difference from recommendation: {absolute} ({percent}%)",
-    "settings.noDifference": "The original breeder recommendation is in use.",
-    "settings.saved": "Setting saved.",
-    "settings.error": "The setting could not be saved.",
+    "settings.reset": "Restore plan to adulthood",
+    "settings.saved": "Target history saved.",
+    "settings.error": "The target history could not be saved.",
+    "settings.normTitle": "Target history",
+    "settings.normIntro": "Set dates and percentages. The target changes smoothly each day between control points.",
+    "settings.normDate": "Date",
+    "settings.normPercent": "% of weight",
+    "settings.addNorm": "Add point",
+    "settings.removeNorm": "Remove point",
     "backup.title": "Data backups",
     "backup.subtitle": "A restore point is created after every save. Download the data or return to an earlier version here.",
     "backup.automatic": "Automatic backups enabled",
@@ -305,18 +346,54 @@ const translations = {
     "backup.downloadError": "The backup could not be downloaded.",
     "backup.restoreError": "The data could not be restored.",
     "feeding.eyebrow": "BARF today",
-    "feeding.title": "Feeding without manual settings",
-    "feeding.subtitle": "Age, phase, percentage and meal count are calculated from the birth date.",
+    "feeding.title": "Current feeding target",
+    "feeding.subtitle": "The percentage follows the saved plan while meal count remains age-based.",
     "feeding.daily": "Per day",
     "feeding.perMeal": "Per meal",
     "feeding.meals": "Meals",
-    "barf.title": "BARF target by weight",
-    "barf.subtitle": "Puppy target, gradual transition and adult reference on one chart.",
-    "barf.puppy": "Puppy target",
-    "barf.transition": "Transition",
-    "barf.adult": "Adult target",
-    "barf.dailyAxis": "Daily target, g",
-    "barf.weightAxis": "Weight, kg",
+    "barf.title": "Target and actual feeding",
+    "barf.subtitle": "The plan to adulthood and how much Porschik actually eats as a percentage of body weight.",
+    "barf.norm": "Target",
+    "barf.actual": "Actually eaten",
+    "barf.future": "Future plan",
+    "barf.current": "Current",
+    "barf.adultStable": "Stable adult target",
+    "barf.completeDays": "The actual line excludes today's incomplete day.",
+    "barf.percentAxis": "% of body weight",
+    "expense.eyebrow": "Food expenses",
+    "expense.title": "What Porschik's food costs",
+    "expense.subtitle": "Food orders, delivery and cumulative spend in one history.",
+    "expense.add": "Add order",
+    "expense.total": "All time",
+    "expense.year": "This year",
+    "expense.annualPace": "Annual pace",
+    "expense.averageKg": "Average price/kg",
+    "expense.foodCost": "Food cost",
+    "expense.delivery": "Delivery",
+    "expense.cumulative": "Cumulative",
+    "expense.orders": "Orders",
+    "expense.dialogTitle": "Food order",
+    "expense.type": "Food type",
+    "expense.typeTreats": "Treats",
+    "expense.typeDry": "Dry food",
+    "expense.typeSupplements": "Supplements",
+    "expense.typeOther": "Other",
+    "expense.description": "Description / supplier",
+    "expense.kilograms": "Quantity, kg",
+    "expense.priceKg": "Price per kg, €",
+    "expense.deliveryCost": "Delivery, €",
+    "expense.orderTotal": "Order total",
+    "expense.empty": "No orders yet. Add the first one to see spending over time.",
+    "expense.orderCountOne": "{count} order",
+    "expense.orderCountFew": "{count} orders",
+    "expense.orderCountMany": "{count} orders",
+    "expense.saved": "Order saved.",
+    "expense.deleted": "Order deleted.",
+    "expense.loadError": "Expenses could not be loaded.",
+    "expense.deleteConfirm": "Delete this order from the expense history?",
+    "expense.chartAria": "Porschik food expense chart",
+    "expense.perOrderAxis": "Order, €",
+    "expense.totalAxis": "Cumulative, €",
     "disclaimer": "This calculation is a breeder-based guide. Adjust portions for body shape, ribs, activity, stool and weight trend; consult a veterinarian when unsure.",
     "history.eyebrow": "Full history",
     "history.title": "Chart and daily records",
@@ -390,6 +467,7 @@ const translations = {
     "tooltip.actualMeals": "Actual meals",
     "tooltip.total": "Daily total",
     "tooltip.recommended": "Target per meal",
+    "tooltip.dailyRecommended": "Daily target",
     "tooltip.skipped": "did not eat",
     "records.count": "{count} records",
     "records.empty": "No records yet",
@@ -422,6 +500,33 @@ function formatNumber(value, maximumFractionDigits = 0, minimumFractionDigits = 
   }).format(value);
 }
 
+function formatCurrency(value, maximumFractionDigits = 2) {
+  return new Intl.NumberFormat(state.lang === "en" ? "en-GB" : "ru-RU", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits,
+    minimumFractionDigits: Number(value) % 1 === 0 ? 0 : Math.min(2, maximumFractionDigits)
+  }).format(Number(value) || 0);
+}
+
+function normalizeClientExpense(order) {
+  const kilograms = Number(order.kilograms);
+  const pricePerKg = Number(order.pricePerKg);
+  const deliveryCost = Number(order.deliveryCost || 0);
+  return {
+    id: String(order.id || ""),
+    date: String(order.date || "").slice(0, 10),
+    type: String(order.type || "BARF"),
+    description: String(order.description || ""),
+    kilograms,
+    pricePerKg,
+    deliveryCost,
+    totalCost: Number.isFinite(Number(order.totalCost))
+      ? Number(order.totalCost)
+      : kilograms * pricePerKg + deliveryCost
+  };
+}
+
 function activeDogProfile() {
   return { ...DOG_PROFILE, ...state.feedingSettings };
 }
@@ -437,70 +542,14 @@ function percentChange(previous, next) {
   return ((after - before) / Math.abs(before)) * 100;
 }
 
-function settingDescriptor(key) {
-  const isRussian = state.lang === "ru";
-  const descriptors = {
-    puppyRatio: {
-      key,
-      title: t("settings.puppyRatio"),
-      recommended: DOG_PROFILE.puppyRatio,
-      min: 3,
-      max: 12,
-      step: 0.1,
-      unit: "%",
-      toInput: (value) => Number(value) * 100,
-      fromInput: (value) => Number(value) / 100,
-      display: (value) => formatRatio(value),
-      differenceUnit: isRussian ? "п.п." : "pp"
-    },
-    adultRatio: {
-      key,
-      title: t("settings.adultRatio"),
-      recommended: DOG_PROFILE.adultRatio,
-      min: 1,
-      max: 6,
-      step: 0.1,
-      unit: "%",
-      toInput: (value) => Number(value) * 100,
-      fromInput: (value) => Number(value) / 100,
-      display: (value) => formatRatio(value),
-      differenceUnit: isRussian ? "п.п." : "pp"
-    },
-    transitionDays: {
-      key,
-      title: t("settings.transitionDays"),
-      recommended: DOG_PROFILE.transitionDays,
-      min: 1,
-      max: 8,
-      step: 1,
-      unit: isRussian ? "нед." : "wk",
-      toInput: (value) => Number(value) / 7,
-      fromInput: (value) => Math.round(Number(value) * 7),
-      display: (value) => `${formatNumber(Number(value) / 7, 1)} ${isRussian ? "нед." : "wk"}`,
-      differenceUnit: isRussian ? "нед." : "wk"
-    },
-    targetAdultWeightKg: {
-      key,
-      title: t("settings.targetAdultWeightKg"),
-      recommended: DOG_PROFILE.targetAdultWeightKg,
-      min: 8,
-      max: 18,
-      step: 0.1,
-      unit: t("unit.kg"),
-      toInput: Number,
-      fromInput: Number,
-      display: (value) => `${formatNumber(value, 1)} ${t("unit.kg")}`,
-      differenceUnit: t("unit.kg")
-    }
-  };
-  return descriptors[key];
-}
-
-function updateSettingChips() {
-  for (const key of ["puppyRatio", "transitionDays", "adultRatio", "targetAdultWeightKg"]) {
-    const element = document.querySelector(`[data-setting-value="${key}"]`);
-    if (element) element.textContent = settingDescriptor(key).display(state.feedingSettings[key]);
-  }
+function activeFeedingNorms() {
+  return (state.feedingSettings.feedingNorms || DEFAULT_FEEDING_NORMS)
+    .map((item) => ({
+      date: item.date,
+      ratio: Number(item.ratio),
+      ...(item.interpolation === "step" ? { interpolation: "step" } : {})
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function formatDate(isoDate, options = { day: "2-digit", month: "short", year: "numeric" }) {
@@ -617,6 +666,35 @@ function nearestThirtyDayChange() {
   };
 }
 
+function renderNormTimeline(plan, recommendation) {
+  const currentRatio = document.getElementById("normCurrentRatio");
+  if (currentRatio) currentRatio.textContent = formatRatio(plan.ratio);
+  const currentDaily = document.getElementById("normCurrentDaily");
+  if (currentDaily) currentDaily.textContent = recommendation.dailyGrams
+    ? `${formatNumber(Math.round(recommendation.dailyGrams))} ${t("unit.g")}`
+    : "—";
+  const currentMeal = document.getElementById("normCurrentMeal");
+  if (currentMeal) currentMeal.textContent = recommendation.mealGrams
+    ? `${formatNumber(Math.round(recommendation.mealGrams))} ${t("unit.g")}`
+    : "—";
+  const timeline = document.getElementById("normTimelineList");
+  if (!timeline) return;
+  timeline.innerHTML = activeFeedingNorms().map((norm, index, norms) => {
+    const isFuture = norm.date > today;
+    const isAdult = index === norms.length - 1;
+    const suffix = isAdult ? t("barf.adultStable") : isFuture ? t("barf.future") : "";
+    const age = ageOn(norm.date);
+    const ageLabel = state.lang === "en"
+      ? `${age.years ? `${age.years}y ` : ""}${age.months}mo ${age.days}d`
+      : `${age.years ? `${age.years}г ` : ""}${age.months}мес ${age.days}дн`;
+    return `<li${norm.date === plan.normStartDate ? ` class="is-active"` : ""}>
+      <span>${escapeHtml(formatDate(norm.date, { day: "2-digit", month: "short" }))}</span>
+      <strong>${escapeHtml(formatRatio(norm.ratio))}</strong>
+      <small><b>${escapeHtml(ageLabel)}</b>${suffix ? ` · ${escapeHtml(suffix)}` : ""}</small>
+    </li>`;
+  }).join("");
+}
+
 function updateDerivedUI() {
   const plan = feedingPlanForDate(today, activeDogProfile());
   const latest = latestWeightRecord(state.records, today);
@@ -625,8 +703,6 @@ function updateDerivedUI() {
   if (ageElement) ageElement.textContent = formatAge(ageOn(today), state.lang);
   const stagePillText = document.getElementById("stagePillText");
   if (stagePillText) stagePillText.textContent = phaseLabel(plan);
-  const stagePillEdit = document.getElementById("stagePillEdit");
-  if (stagePillEdit) stagePillEdit.dataset.editSetting = plan.phase === "puppy" ? "puppyRatio" : plan.phase === "adult" ? "adultRatio" : "transitionDays";
 
   const latestWeight = document.getElementById("latestWeight");
   if (latestWeight) latestWeight.textContent = latest ? `${formatNumber(latest.weightKg, 2)} ${t("unit.kg")}` : "—";
@@ -644,18 +720,20 @@ function updateDerivedUI() {
 
   const feedingStatusText = document.getElementById("feedingStatusText");
   if (feedingStatusText) feedingStatusText.textContent = feedingStatusLabel(plan);
-  const feedingStatusEdit = document.getElementById("feedingStatusEdit");
-  if (feedingStatusEdit) feedingStatusEdit.dataset.editSetting = plan.phase === "puppy" ? "puppyRatio" : plan.phase === "adult" ? "adultRatio" : "transitionDays";
   const dailyRecommendation = document.getElementById("dailyRecommendation");
   if (dailyRecommendation) dailyRecommendation.textContent = latest ? `${formatNumber(Math.round(recommendation.dailyGrams))} ${t("unit.g")}` : "—";
+  const dailyRecommendationRatio = document.getElementById("dailyRecommendationRatio");
+  if (dailyRecommendationRatio) dailyRecommendationRatio.textContent = latest
+    ? `${formatRatio(recommendation.ratio)} ${state.lang === "ru" ? "от веса" : "of body weight"}`
+    : "—";
   const mealRecommendation = document.getElementById("mealRecommendation");
   if (mealRecommendation) mealRecommendation.textContent = latest ? `${formatNumber(Math.round(recommendation.mealGrams))} ${t("unit.g")}` : "—";
   const mealCount = document.getElementById("mealCountRecommendation");
   if (mealCount) mealCount.textContent = String(plan.mealsPerDay);
+  renderNormTimeline(plan, recommendation);
 
   const historyRecordCount = document.getElementById("historyRecordCount");
   if (historyRecordCount) historyRecordCount.textContent = t("records.count", { count: state.records.length });
-  updateSettingChips();
 }
 
 function toast(message, type = "success") {
@@ -770,7 +848,7 @@ class GrowthChart {
     this.draw();
   }
 
-  draw() {
+  draw(renderHits = true) {
     const rect = this.canvas.getBoundingClientRect();
     const width = Math.max(300, rect.width);
     const height = Math.max(300, rect.height);
@@ -796,15 +874,23 @@ class GrowthChart {
     const records = this.records || [];
     this.wrap.classList.toggle("is-empty", records.length === 0);
     this.points = [];
-    this.hitLayer.replaceChildren();
+    if (renderHits) this.hitLayer.replaceChildren();
     if (!records.length) return;
 
-    const area = {
+    const plot = {
       left: width < 560 ? 58 : 82,
       right: width - (width < 560 ? 58 : 82),
-      top: 24,
+      top: 32,
       bottom: height - 48
     };
+    const levelGap = width < 560 ? 34 : 42;
+    const levelHeight = (plot.bottom - plot.top - levelGap) / 2;
+    const weightArea = { ...plot, bottom: plot.top + levelHeight };
+    const foodArea = { ...plot, top: plot.top + levelHeight + levelGap };
+    this.canvas.dataset.weightTop = String(Math.round(weightArea.top));
+    this.canvas.dataset.weightBottom = String(Math.round(weightArea.bottom));
+    this.canvas.dataset.foodTop = String(Math.round(foodArea.top));
+    this.canvas.dataset.foodBottom = String(Math.round(foodArea.bottom));
     const times = records.map((record) => Date.parse(`${record.date}T00:00:00Z`));
     let minTime = Math.min(...times);
     let maxTime = Math.max(...times);
@@ -812,21 +898,21 @@ class GrowthChart {
       minTime -= 7 * 86_400_000;
       maxTime += 7 * 86_400_000;
     }
-    const xFor = (time) => area.left + ((time - minTime) / (maxTime - minTime)) * (area.right - area.left);
+    const xFor = (time) => plot.left + ((time - minTime) / (maxTime - minTime)) * (plot.right - plot.left);
 
     const weights = records.filter((record) => Number.isFinite(record.weightKg)).map((record) => record.weightKg);
     const minWeight = weights.length ? Math.max(0, Math.floor((Math.min(...weights) - 0.5) * 2) / 2) : 0;
     const maxWeight = weights.length ? Math.max(minWeight + 1, Math.ceil((Math.max(...weights) + 0.5) * 2) / 2) : 10;
-    const yWeight = (value) => area.bottom - ((value - minWeight) / (maxWeight - minWeight)) * (area.bottom - area.top);
+    const yWeight = (value) => weightArea.bottom - ((value - minWeight) / (maxWeight - minWeight)) * (weightArea.bottom - weightArea.top);
 
-    const mealValues = records.flatMap((record) => record.meals.filter((meal) => !meal.skipped && Number(meal.grams) > 0).map((meal) => meal.grams));
+    const dailyFoodValues = records.filter((record) => record.meals.length).map((record) => actualDailyGrams(record));
     const recommendedValues = records.map((record) => {
       const latest = latestWeightRecord(records, record.date);
-      return recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).mealGrams;
+      return recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).dailyGrams;
     });
-    const maxFood = Math.max(100, ...mealValues, ...recommendedValues);
-    const foodTop = Math.ceil(maxFood / 50) * 50;
-    const yFood = (value) => area.bottom - (value / foodTop) * (area.bottom - area.top);
+    const maxFood = Math.max(300, ...dailyFoodValues, ...recommendedValues);
+    const foodTop = Math.ceil(maxFood / 100) * 100;
+    const yFood = (value) => foodArea.bottom - (value / foodTop) * (foodArea.bottom - foodArea.top);
 
     ctx.save();
     ctx.strokeStyle = border;
@@ -835,24 +921,36 @@ class GrowthChart {
     ctx.font = "700 10px Inter, system-ui, sans-serif";
     for (let index = 0; index <= 4; index += 1) {
       const fraction = index / 4;
-      const y = area.bottom - fraction * (area.bottom - area.top);
+      const weightY = weightArea.bottom - fraction * (weightArea.bottom - weightArea.top);
       ctx.beginPath();
-      ctx.moveTo(area.left, y);
-      ctx.lineTo(area.right, y);
+      ctx.moveTo(plot.left, weightY);
+      ctx.lineTo(plot.right, weightY);
       ctx.stroke();
       ctx.textBaseline = "middle";
       ctx.textAlign = "right";
-      ctx.fillText(`${formatNumber(minWeight + fraction * (maxWeight - minWeight), 1)} ${t("unit.kg")}`, area.left - 7, y);
+      ctx.fillText(`${formatNumber(minWeight + fraction * (maxWeight - minWeight), 1)} ${t("unit.kg")}`, plot.left - 7, weightY);
+      const foodY = foodArea.bottom - fraction * (foodArea.bottom - foodArea.top);
+      ctx.beginPath();
+      ctx.moveTo(plot.left, foodY);
+      ctx.lineTo(plot.right, foodY);
+      ctx.stroke();
       ctx.textAlign = "left";
-      ctx.fillText(`${formatNumber(fraction * foodTop)} ${t("unit.g")}`, area.right + 7, y);
+      ctx.fillText(`${formatNumber(fraction * foodTop)} ${t("unit.g")}`, plot.right + 7, foodY);
     }
+
+    ctx.fillStyle = text;
+    ctx.font = "850 11px Inter, system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(t("chart.weightLevel"), plot.left, weightArea.top + 7);
+    ctx.fillText(t("chart.foodLevel"), plot.left, foodArea.top + 7);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     for (let index = 0; index <= 3; index += 1) {
       const time = minTime + (index / 3) * (maxTime - minTime);
       const x = xFor(time);
-      ctx.fillText(formatDate(new Date(time).toISOString().slice(0, 10), { day: "2-digit", month: "short" }), x, area.bottom + 12);
+      ctx.fillText(formatDate(new Date(time).toISOString().slice(0, 10), { day: "2-digit", month: "short" }), x, foodArea.bottom + 12);
     }
     ctx.restore();
 
@@ -861,7 +959,7 @@ class GrowthChart {
         const latest = latestWeightRecord(records, record.date);
         return {
           x: xFor(Date.parse(`${record.date}T00:00:00Z`)),
-          y: yFood(recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).mealGrams)
+          y: yFood(recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).dailyGrams)
         };
       }).filter((point) => Number.isFinite(point.y));
       if (targetPoints.length > 1) {
@@ -902,23 +1000,42 @@ class GrowthChart {
     }
 
     if (state.showFood) {
-      const colors = [coral, orange, yellow];
-      const shapes = ["circle", "square", "diamond"];
+      const mealColors = [coral, orange, yellow];
       for (const record of records) {
-        for (const meal of record.meals) {
-          if (meal.skipped || !Number(meal.grams)) continue;
-          const point = {
+        const meals = record.meals.filter((meal) => !meal.skipped && Number(meal.grams) > 0);
+        if (!meals.length) continue;
+        const totalGrams = actualDailyGrams(record);
+        if (!Number.isFinite(totalGrams) || totalGrams <= 0) continue;
+        const x = xFor(Date.parse(`${record.date}T00:00:00Z`));
+        let accumulatedGrams = 0;
+        const segments = meals.map((meal) => {
+          const bottom = yFood(accumulatedGrams);
+          accumulatedGrams += Number(meal.grams);
+          const top = yFood(accumulatedGrams);
+          return {
             kind: "feeding",
             slot: meal.slot,
             key: `meal-${record.date}-${meal.slot}`,
             record,
-            x: xFor(Date.parse(`${record.date}T00:00:00Z`)) + (meal.slot - 2) * 5,
-            y: yFood(meal.grams),
-            color: colors[(meal.slot - 1) % colors.length]
+            totalGrams,
+            grams: Number(meal.grams),
+            x,
+            y: (top + bottom) / 2,
+            top,
+            bottom,
+            color: mealColors[(meal.slot - 1) % mealColors.length]
           };
-          this.drawMarker(ctx, point, shapes[(meal.slot - 1) % shapes.length], point.key === this.hoveredKey ? 7 : 5.5);
-          this.points.push(point);
-        }
+        });
+        const bar = {
+          record,
+          totalGrams,
+          x,
+          y: yFood(totalGrams),
+          baseY: foodArea.bottom,
+          segments
+        };
+        this.drawFoodBar(ctx, bar);
+        this.points.push(...segments);
       }
     }
 
@@ -927,7 +1044,7 @@ class GrowthChart {
     ctx.font = "800 10px Inter, system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.translate(width < 560 ? 11 : 18, (area.top + area.bottom) / 2);
+    ctx.translate(width < 560 ? 11 : 18, (weightArea.top + weightArea.bottom) / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillText(t("chart.leftAxis"), 0, 0);
     ctx.restore();
@@ -937,12 +1054,12 @@ class GrowthChart {
     ctx.font = "800 10px Inter, system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.translate(width - (width < 560 ? 11 : 18), (area.top + area.bottom) / 2);
+    ctx.translate(width - (width < 560 ? 11 : 18), (foodArea.top + foodArea.bottom) / 2);
     ctx.rotate(Math.PI / 2);
     ctx.fillText(t("chart.rightAxis"), 0, 0);
     ctx.restore();
 
-    this.renderHitTargets();
+    if (renderHits) this.renderHitTargets();
   }
 
   drawMarker(ctx, point, shape, radius) {
@@ -964,6 +1081,43 @@ class GrowthChart {
     }
     ctx.fill();
     ctx.stroke();
+    ctx.restore();
+  }
+
+  drawFoodBar(ctx, bar) {
+    const highlighted = bar.segments.some((segment) => segment.key === this.hoveredKey);
+    const width = highlighted ? 10 : 8;
+    ctx.save();
+    if (highlighted) {
+      ctx.strokeStyle = colorWithAlpha(cssColor("--coral"), 0.12);
+      ctx.lineWidth = width + 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(bar.x, bar.baseY - 2);
+      ctx.lineTo(bar.x, bar.y + 2);
+      ctx.stroke();
+    }
+    for (const segment of bar.segments) {
+      const isSelected = segment.key === this.hoveredKey;
+      const top = Math.min(segment.top, segment.bottom) + 0.75;
+      const height = Math.max(2, Math.abs(segment.bottom - segment.top) - 1.5);
+      ctx.fillStyle = colorWithAlpha(segment.color, isSelected ? 0.86 : 0.48);
+      ctx.beginPath();
+      ctx.roundRect(bar.x - width / 2, top, width, height, Math.min(3, width / 2, height / 2));
+      ctx.fill();
+      if (isSelected) {
+        ctx.strokeStyle = colorWithAlpha(segment.color, 0.95);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+    ctx.translate(bar.x + 1, bar.y - 5);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = cssColor("--muted");
+    ctx.font = "750 8px Inter, system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${formatNumber(bar.totalGrams)} ${t("unit.g")}`, 0, 0);
     ctx.restore();
   }
 
@@ -990,8 +1144,7 @@ class GrowthChart {
     if (point.kind === "weight") {
       return `${formatDate(point.record.date)}: ${t("tooltip.weight")} ${formatNumber(point.record.weightKg, 2)} ${t("unit.kg")}`;
     }
-    const meal = point.record.meals.find((item) => item.slot === point.slot);
-    return `${formatDate(point.record.date)}: ${t("form.meal", { slot: point.slot })} ${formatNumber(meal?.grams || 0)} ${t("unit.g")}`;
+    return `${formatDate(point.record.date)}: ${t("form.meal", { slot: point.slot })} ${formatNumber(point.grams)} ${t("unit.g")}; ${t("tooltip.total")} ${formatNumber(point.totalGrams)} ${t("unit.g")}`;
   }
 
   nearestPoint(event) {
@@ -1020,7 +1173,9 @@ class GrowthChart {
   }
 
   showTooltip(point) {
+    const changed = this.hoveredKey !== point.key;
     this.hoveredKey = point.key;
+    if (changed) this.draw(false);
     const record = point.record;
     const previousWeight = state.records.filter((item) => item.date < record.date && Number.isFinite(item.weightKg)).at(-1);
     const change = Number.isFinite(record.weightKg) && previousWeight ? record.weightKg - previousWeight.weightKg : null;
@@ -1028,8 +1183,8 @@ class GrowthChart {
     const latest = latestWeightRecord(state.records, record.date);
     const recommendation = recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile());
     const mealRows = record.meals.map((meal) => `
-      <span>${escapeHtml(t("form.meal", { slot: meal.slot }))}</span>
-      <strong>${meal.skipped ? escapeHtml(t("tooltip.skipped")) : `${formatNumber(meal.grams)} ${escapeHtml(t("unit.g"))}`}</strong>
+      <span${point.slot === meal.slot ? ` class="is-selected"` : ""}>${point.slot === meal.slot ? "● " : ""}${escapeHtml(t("form.meal", { slot: meal.slot }))}</span>
+      <strong${point.slot === meal.slot ? ` class="is-selected"` : ""}>${meal.skipped ? escapeHtml(t("tooltip.skipped")) : `${formatNumber(meal.grams)} ${escapeHtml(t("unit.g"))}`}</strong>
     `).join("");
     this.tooltip.innerHTML = `
       <strong class="tooltip-date">${escapeHtml(formatDate(record.date))}</strong>
@@ -1038,7 +1193,7 @@ class GrowthChart {
         ${change !== null ? `<span>${escapeHtml(t("tooltip.change"))}</span><strong>${change > 0 ? "+" : ""}${formatNumber(change, 2)} ${escapeHtml(t("unit.kg"))}<small class="replace-delta">${changePercent > 0 ? "+" : ""}${formatNumber(changePercent, 1)}%</small></strong>` : ""}
         ${mealRows}
         ${record.meals.length ? `<span>${escapeHtml(t("tooltip.actualMeals"))}</span><strong>${actualMealCount(record)}</strong><span>${escapeHtml(t("tooltip.total"))}</span><strong>${formatNumber(actualDailyGrams(record))} ${escapeHtml(t("unit.g"))}</strong>` : ""}
-        <span>${escapeHtml(t("tooltip.recommended"))}</span><strong>${formatNumber(Math.round(recommendation.mealGrams))} ${escapeHtml(t("unit.g"))}</strong>
+        <span>${escapeHtml(t("tooltip.dailyRecommended"))}</span><strong>${formatNumber(Math.round(recommendation.dailyGrams))} ${escapeHtml(t("unit.g"))}</strong>
       </div>
       ${record.comment ? `<p class="tooltip-comment">${escapeHtml(record.comment)}</p>` : ""}
     `;
@@ -1055,8 +1210,10 @@ class GrowthChart {
   }
 
   hideTooltip() {
+    const hadHover = Boolean(this.hoveredKey);
     this.hoveredKey = "";
     this.tooltip.hidden = true;
+    if (hadHover) this.draw(false);
   }
 }
 
@@ -1074,8 +1231,63 @@ function initGrowthChart() {
   growthChart.onActivate = (point) => openRecordDialog(point.kind === "weight" ? "weight" : "feeding", point.record.date);
 }
 
-function drawBarfChart() {
-  const canvas = document.getElementById("barfChart");
+let normHoveredKey = "";
+let normInteractivePoints = [];
+
+function hideNormTooltip() {
+  const tooltip = document.getElementById("normChartTooltip");
+  if (tooltip) tooltip.hidden = true;
+  if (!normHoveredKey) return;
+  normHoveredKey = "";
+  drawNormChart();
+}
+
+function handleNormChartPointer(event) {
+  const canvas = document.getElementById("normChart");
+  const tooltip = document.getElementById("normChartTooltip");
+  const wrap = document.getElementById("normChartWrap");
+  if (!canvas || !tooltip || !wrap || !normInteractivePoints.length) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  let nearest = null;
+  let distance = Infinity;
+  for (const point of normInteractivePoints) {
+    const candidate = Math.hypot(point.x - x, point.y - y);
+    if (candidate < distance) {
+      nearest = point;
+      distance = candidate;
+    }
+  }
+  if (!nearest || distance > 18) {
+    hideNormTooltip();
+    return;
+  }
+  if (normHoveredKey !== nearest.key) {
+    normHoveredKey = nearest.key;
+    drawNormChart();
+  }
+  tooltip.innerHTML = `<strong class="tooltip-date">${escapeHtml(formatDate(nearest.date))}</strong>
+    <div class="tooltip-grid"><span>${escapeHtml(nearest.kind === "actual" ? t("barf.actual") : t("barf.norm"))}</span><strong>${escapeHtml(formatRatio(nearest.ratio))}</strong></div>`;
+  tooltip.hidden = false;
+  const tooltipWidth = Math.min(220, wrap.clientWidth - 20);
+  let left = nearest.x + 12;
+  let top = nearest.y - 24;
+  if (left + tooltipWidth > wrap.clientWidth - 8) left = nearest.x - tooltipWidth - 12;
+  if (top < 8) top = nearest.y + 12;
+  tooltip.style.left = `${Math.max(8, left)}px`;
+  tooltip.style.top = `${Math.max(8, top)}px`;
+}
+
+function initNormChartInteraction() {
+  const canvas = document.getElementById("normChart");
+  if (!canvas) return;
+  canvas.addEventListener("pointermove", handleNormChartPointer);
+  canvas.addEventListener("pointerleave", hideNormTooltip);
+}
+
+function drawNormChart() {
+  const canvas = document.getElementById("normChart");
   if (!canvas || canvas.getBoundingClientRect().width < 10) return;
   const rect = canvas.getBoundingClientRect();
   const width = rect.width;
@@ -1087,19 +1299,49 @@ function drawBarfChart() {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   ctx.fillStyle = cssColor("--surface-solid");
   ctx.fillRect(0, 0, width, height);
-  const area = { left: width < 560 ? 62 : 78, right: width - 24, top: 42, bottom: height - 50 };
-  const xFor = (kg) => area.left + ((kg - 1) / 14) * (area.right - area.left);
+  const area = { left: width < 560 ? 48 : 58, right: width - 18, top: 18, bottom: height - 38 };
   const profile = activeDogProfile();
-  const projectionSamples = Array.from({ length: 141 }, (_, index) => projectedBarfForWeight(1 + index / 10, profile));
-  const yMax = Math.ceil(Math.max(...projectionSamples.map((item) => item.dailyGrams)) / 100) * 100;
-  const yFor = (grams) => area.bottom - (grams / yMax) * (area.bottom - area.top);
-  const transitionStartWeight = profile.targetAdultWeightKg * profile.transitionStartWeightRatio;
-  const targetWeight = profile.targetAdultWeightKg;
-  const transitionLeft = xFor(transitionStartWeight);
-  const transitionRight = xFor(targetWeight);
-
-  ctx.fillStyle = colorWithAlpha(cssColor("--orange"), 0.09);
-  ctx.fillRect(transitionLeft, area.top, transitionRight - transitionLeft, area.bottom - area.top);
+  const norms = activeFeedingNorms();
+  if (!norms.length) return;
+  const startDate = norms[0].date;
+  const adultDate = norms.at(-1).date;
+  const latestRecordDate = state.records.at(-1)?.date || today;
+  const endDate = [adultDate, today, latestRecordDate].sort().at(-1);
+  const minTime = Date.parse(`${startDate}T00:00:00Z`);
+  const maxTime = Math.max(minTime + 86_400_000, Date.parse(`${endDate}T00:00:00Z`));
+  const xFor = (date) => area.left + ((Date.parse(`${date}T00:00:00Z`) - minTime) / (maxTime - minTime)) * (area.right - area.left);
+  const normPoints = [];
+  for (let date = startDate; date <= endDate; date = addDays(date, 1)) {
+    normPoints.push({ date, ratio: feedingPlanForDate(date, profile).ratio });
+  }
+  const actualPoints = state.records
+    .filter((record) => record.date >= startDate && record.date < today && record.meals.length)
+    .map((record) => {
+      const weight = latestWeightRecord(state.records, record.date)?.weightKg;
+      const ratioValue = intakeRatioFor(actualDailyGrams(record), weight);
+      return { date: record.date, ratio: ratioValue };
+    })
+    .filter((point) => Number.isFinite(point.ratio));
+  const yMax = Math.max(0.08, Math.ceil(Math.max(...normPoints.map((point) => point.ratio), ...actualPoints.map((point) => point.ratio)) * 100) / 100);
+  const yFor = (value) => area.bottom - (value / yMax) * (area.bottom - area.top);
+  normInteractivePoints = [
+    ...norms.map((point) => ({
+      kind: "norm",
+      key: `norm-${point.date}`,
+      date: point.date,
+      ratio: point.ratio,
+      x: xFor(point.date),
+      y: yFor(point.ratio)
+    })),
+    ...actualPoints.map((point) => ({
+      kind: "actual",
+      key: `actual-${point.date}`,
+      date: point.date,
+      ratio: point.ratio,
+      x: xFor(point.date),
+      y: yFor(point.ratio)
+    }))
+  ];
 
   ctx.strokeStyle = cssColor("--border");
   ctx.fillStyle = cssColor("--muted");
@@ -1111,101 +1353,85 @@ function drawBarfChart() {
     ctx.lineTo(area.right, y);
     ctx.stroke();
     ctx.textAlign = "right";
-    ctx.fillText(`${formatNumber(yMax * i / 4)} ${t("unit.g")}`, area.left - 7, y + 3);
+    ctx.fillText(`${formatNumber(yMax * 100 * i / 4, 1)}%`, area.left - 7, y + 3);
   }
 
-  const drawProjection = (fromWeight, toWeight, color) => {
+  const drawLine = (points, color, dashed = false, lineWidth = 3) => {
+    if (points.length < 2) return;
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = lineWidth;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    if (dashed) ctx.setLineDash([6, 5]);
     ctx.beginPath();
-    let first = true;
-    for (let kg = fromWeight; kg <= toWeight + 0.001; kg += 0.03) {
-      const clampedWeight = Math.min(kg, toWeight);
-      const point = projectedBarfForWeight(clampedWeight, profile);
-      const x = xFor(clampedWeight);
-      const y = yFor(point.dailyGrams);
-      if (first) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      first = false;
-    }
+    points.forEach((point, index) => index
+      ? ctx.lineTo(xFor(point.date), yFor(point.ratio))
+      : ctx.moveTo(xFor(point.date), yFor(point.ratio)));
     ctx.stroke();
     ctx.restore();
   };
 
-  drawProjection(1, transitionStartWeight, cssColor("--coral"));
-  drawProjection(transitionStartWeight, targetWeight, cssColor("--orange"));
-  drawProjection(targetWeight, 15, cssColor("--mint"));
+  const pastNorm = normPoints.filter((point) => point.date <= today);
+  const futureNorm = normPoints.filter((point) => point.date >= today);
+  drawLine(pastNorm, cssColor("--coral"));
+  drawLine(futureNorm, cssColor("--coral"), true);
+  drawLine(actualPoints, cssColor("--blue"), false, 2.5);
 
-  ctx.save();
-  ctx.font = "800 10px Inter, system-ui";
-  ctx.textBaseline = "middle";
-  const legend = [
-    { color: cssColor("--coral"), label: `${t("barf.puppy")} ${formatRatio(profile.puppyRatio)}` },
-    { color: cssColor("--orange"), label: `${t("barf.transition")} · ${formatNumber(profile.transitionDays / 7, 1)} ${state.lang === "ru" ? "нед." : "wk"}` },
-    { color: cssColor("--mint"), label: `${t("barf.adult")} ${formatRatio(profile.adultRatio)}` }
-  ];
-  let legendX = area.left;
-  for (const item of legend) {
-    ctx.fillStyle = item.color;
-    ctx.beginPath();
-    ctx.arc(legendX + 4, 17, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = cssColor("--muted");
-    ctx.textAlign = "left";
-    ctx.fillText(item.label, legendX + 12, 17);
-    legendX += ctx.measureText(item.label).width + 30;
-  }
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle = colorWithAlpha(cssColor("--orange"), 0.6);
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(transitionLeft, area.top);
-  ctx.lineTo(transitionLeft, area.bottom);
-  ctx.moveTo(transitionRight, area.top);
-  ctx.lineTo(transitionRight, area.bottom);
-  ctx.stroke();
-  ctx.restore();
-
-  const latest = latestWeightRecord(state.records, today);
-  if (latest) {
-    const x = xFor(latest.weightKg);
-    const current = projectedBarfForWeight(latest.weightKg, profile);
-    const y = yFor(current.dailyGrams);
-    ctx.save();
-    ctx.strokeStyle = colorWithAlpha(cssColor("--blue"), 0.72);
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 4]);
-    ctx.beginPath();
-    ctx.moveTo(area.left, y);
-    ctx.lineTo(x, y);
-    ctx.lineTo(x, area.bottom);
-    ctx.stroke();
-    ctx.restore();
+  for (const point of actualPoints) {
     ctx.fillStyle = cssColor("--blue");
     ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.arc(xFor(point.date), yFor(point.ratio), normHoveredKey === `actual-${point.date}` ? 6 : 3.5, 0, Math.PI * 2);
     ctx.fill();
-
-    drawCanvasPill(ctx, `${formatNumber(latest.weightKg, 2)} ${t("unit.kg")}`, x, area.bottom + 18, "center");
-    drawCanvasPill(ctx, `${formatNumber(Math.round(current.dailyGrams))} ${t("unit.g")}`, area.left + 8, y - 15, "left");
-    canvas.dataset.currentWeight = String(latest.weightKg);
-    canvas.dataset.currentDaily = String(Math.round(current.dailyGrams));
-    canvas.dataset.hasDropLines = "true";
-  } else {
-    delete canvas.dataset.currentWeight;
-    delete canvas.dataset.currentDaily;
-    canvas.dataset.hasDropLines = "false";
+  }
+  for (const norm of norms) {
+    ctx.fillStyle = cssColor("--coral");
+    ctx.beginPath();
+    ctx.arc(xFor(norm.date), yFor(norm.ratio), normHoveredKey === `norm-${norm.date}` ? 7 : 4.5, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  canvas.dataset.transitionStartWeight = String(transitionStartWeight);
-  canvas.dataset.targetWeight = String(targetWeight);
+  const hoveredPoint = normInteractivePoints.find((point) => point.key === normHoveredKey);
+  if (hoveredPoint) {
+    ctx.save();
+    ctx.strokeStyle = colorWithAlpha(hoveredPoint.kind === "actual" ? cssColor("--blue") : cssColor("--coral"), 0.3);
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(hoveredPoint.x, hoveredPoint.y, 9, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  if (today >= startDate && today <= endDate) {
+    const todayX = xFor(today);
+    const todayLabel = `${state.lang === "ru" ? "Сегодня" : "Today"}: ${formatDate(today, { day: "numeric", month: "long" })}`;
+    ctx.save();
+    ctx.strokeStyle = colorWithAlpha(cssColor("--muted"), 0.65);
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(todayX, area.top);
+    ctx.lineTo(todayX, area.bottom);
+    ctx.stroke();
+    ctx.restore();
+    canvas.dataset.todayLabel = todayLabel;
+  }
+
   ctx.fillStyle = cssColor("--muted");
   ctx.textAlign = "center";
-  for (const kg of [1, 5, 10, 15]) ctx.fillText(`${kg} ${t("unit.kg")}`, xFor(kg), area.bottom + 18);
+  for (let index = 0; index <= 3; index += 1) {
+    const time = minTime + (index / 3) * (maxTime - minTime);
+    const date = new Date(time).toISOString().slice(0, 10);
+    ctx.fillText(formatDate(date, { day: "2-digit", month: "short" }), xFor(date), area.bottom + 13);
+  }
+  if (today >= startDate && today <= endDate) {
+    ctx.save();
+    ctx.fillStyle = cssColor("--muted");
+    ctx.font = "850 9px Inter, system-ui";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(canvas.dataset.todayLabel, xFor(today), area.bottom - 5);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.fillStyle = cssColor("--muted");
@@ -1213,11 +1439,24 @@ function drawBarfChart() {
   ctx.textAlign = "center";
   ctx.translate(13, (area.top + area.bottom) / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText(t("barf.dailyAxis"), 0, 0);
+  ctx.fillText(t("barf.percentAxis"), 0, 0);
   ctx.restore();
-  ctx.fillStyle = cssColor("--muted");
-  ctx.textAlign = "right";
-  ctx.fillText(t("barf.weightAxis"), area.right, height - 8);
+
+  const average = actualPoints.length
+    ? actualPoints.reduce((sum, point) => sum + point.ratio, 0) / actualPoints.length
+    : null;
+  const summary = document.getElementById("normTrendSummary");
+  if (summary) summary.textContent = average === null
+    ? t("barf.completeDays")
+    : `${t("barf.completeDays")} ${state.lang === "ru" ? "Среднее" : "Average"}: ${formatRatio(average)}.`;
+  canvas.dataset.normPoints = String(normPoints.length);
+  canvas.dataset.actualPoints = String(actualPoints.length);
+  canvas.dataset.currentRatio = String(feedingPlanForDate(today, profile).ratio);
+  canvas.dataset.adultDate = adultDate;
+  canvas.dataset.adultRatio = String(norms.at(-1).ratio);
+  const hoverProbe = [...normInteractivePoints].reverse().find((point) => point.kind === "actual");
+  canvas.dataset.hoverX = hoverProbe ? String(hoverProbe.x) : "";
+  canvas.dataset.hoverY = hoverProbe ? String(hoverProbe.y) : "";
 }
 
 function renderHistoryTable() {
@@ -1528,10 +1767,291 @@ async function saveInlineEditor() {
   }
 }
 
+let expenseChartPoints = [];
+let expenseHoveredId = "";
+
+function expenseFormValues() {
+  const kilograms = Number(document.getElementById("expenseKilograms")?.value || 0);
+  const pricePerKg = Number(document.getElementById("expensePriceKg")?.value || 0);
+  const deliveryCost = Number(document.getElementById("expenseDelivery")?.value || 0);
+  return { kilograms, pricePerKg, deliveryCost, totalCost: kilograms * pricePerKg + deliveryCost };
+}
+
+function updateExpenseFormTotal() {
+  const total = document.getElementById("expenseFormTotal");
+  if (total) total.textContent = formatCurrency(expenseFormValues().totalCost);
+}
+
+function orderForId(id) {
+  return state.expenses.find((order) => order.id === id) || null;
+}
+
+function openExpenseDialog(order = null) {
+  if (!state.authenticated) {
+    state.pendingSetting = order ? `expense:${order.id}` : "expense:new";
+    openAuthDialog();
+    return;
+  }
+  const dialog = document.getElementById("expenseDialog");
+  if (!dialog) return;
+  document.getElementById("expenseId").value = order?.id || "";
+  document.getElementById("expenseDate").value = order?.date || today;
+  document.getElementById("expenseType").value = order?.type || "BARF";
+  document.getElementById("expenseDescription").value = order?.description || "";
+  document.getElementById("expenseKilograms").value = order?.kilograms ?? "";
+  document.getElementById("expensePriceKg").value = order?.pricePerKg ?? "";
+  document.getElementById("expenseDelivery").value = order?.deliveryCost ?? 0;
+  document.getElementById("deleteExpenseButton").hidden = !order;
+  document.getElementById("expenseFormMessage").textContent = "";
+  updateExpenseFormTotal();
+  dialog.showModal();
+}
+
+async function loadExpenses() {
+  try {
+    const response = await fetch("/api/expenses", { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) throw new Error(t("expense.loadError"));
+    const payload = await response.json();
+    state.expenses = (payload.orders || []).map(normalizeClientExpense)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    renderExpenses();
+  } catch {
+    state.expenses = [];
+    renderExpenses();
+    toast(t("expense.loadError"), "error");
+  }
+}
+
+function expenseMetrics() {
+  const orders = state.expenses;
+  const total = orders.reduce((sum, order) => sum + order.totalCost, 0);
+  const currentYear = Number(today.slice(0, 4));
+  const completedThisYear = orders.filter((order) => order.date <= today && Number(order.date.slice(0, 4)) === currentYear);
+  const year = completedThisYear.reduce((sum, order) => sum + order.totalCost, 0);
+  const startOfYear = Date.parse(`${currentYear}-01-01T00:00:00Z`);
+  const todayTime = Date.parse(`${today}T00:00:00Z`);
+  const elapsedDays = Math.max(1, Math.floor((todayTime - startOfYear) / 86_400_000) + 1);
+  const daysInYear = Date.parse(`${currentYear + 1}-01-01T00:00:00Z`) - startOfYear;
+  const annualPace = completedThisYear.length ? year / elapsedDays * (daysInYear / 86_400_000) : null;
+  const kilograms = orders.reduce((sum, order) => sum + order.kilograms, 0);
+  const foodCost = orders.reduce((sum, order) => sum + order.kilograms * order.pricePerKg, 0);
+  return { total, year, annualPace, averageKg: kilograms ? foodCost / kilograms : null };
+}
+
+function renderExpenseList() {
+  const list = document.getElementById("expenseOrderList");
+  const count = document.getElementById("expenseOrderCount");
+  if (!list || !count) return;
+  const countCategory = new Intl.PluralRules(state.lang === "en" ? "en" : "ru").select(state.expenses.length);
+  const countKey = countCategory === "one" ? "expense.orderCountOne" : countCategory === "few" ? "expense.orderCountFew" : "expense.orderCountMany";
+  count.textContent = t(countKey, { count: state.expenses.length });
+  if (!state.expenses.length) {
+    list.innerHTML = `<p class="expense-empty">${escapeHtml(t("expense.empty"))}</p>`;
+    return;
+  }
+  list.innerHTML = [...state.expenses].reverse().map((order) => `
+    <article class="expense-order-row">
+      <span>${escapeHtml(formatDate(order.date))}</span>
+      <strong>${escapeHtml(order.type)}${order.description ? `<small>${escapeHtml(order.description)}</small>` : ""}</strong>
+      <span class="expense-order-kg">${formatNumber(order.kilograms, 2)} ${escapeHtml(t("unit.kg"))}</span>
+      <span class="expense-order-unit">${formatCurrency(order.pricePerKg)}/${escapeHtml(t("unit.kg"))}</span>
+      <strong>${formatCurrency(order.totalCost)}</strong>
+      <button class="icon-button" type="button" data-edit-expense="${escapeHtml(order.id)}" aria-label="${escapeHtml(t("action.save"))}">✎</button>
+    </article>
+  `).join("");
+}
+
+function drawExpenseChart() {
+  const canvas = document.getElementById("expenseChart");
+  const wrap = document.getElementById("expenseChartWrap");
+  if (!canvas || !wrap) return;
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(300, rect.width);
+  const height = Math.max(230, rect.height);
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(height * ratio);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = cssColor("--surface-solid");
+  ctx.fillRect(0, 0, width, height);
+  expenseChartPoints = [];
+  const orders = state.expenses;
+  if (!orders.length) {
+    ctx.fillStyle = cssColor("--muted");
+    ctx.font = "700 12px Inter, system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(t("expense.empty"), width / 2, height / 2);
+    canvas.dataset.points = "0";
+    return;
+  }
+  const plot = { left: width < 560 ? 48 : 66, right: width - (width < 560 ? 48 : 66), top: 24, bottom: height - 42 };
+  const times = orders.map((order) => Date.parse(`${order.date}T00:00:00Z`));
+  let minTime = Math.min(...times);
+  let maxTime = Math.max(...times, Date.parse(`${today}T00:00:00Z`));
+  if (minTime === maxTime) { minTime -= 15 * 86_400_000; maxTime += 15 * 86_400_000; }
+  const xFor = (time) => plot.left + (time - minTime) / (maxTime - minTime) * (plot.right - plot.left);
+  const cumulative = [];
+  let running = 0;
+  for (const order of orders) { running += order.totalCost; cumulative.push(running); }
+  const maxOrder = Math.max(...orders.map((order) => order.totalCost), 10);
+  const maxCumulative = Math.max(...cumulative, 10);
+  const yOrder = (value) => plot.bottom - value / maxOrder * (plot.bottom - plot.top) * 0.88;
+  const yCumulative = (value) => plot.bottom - value / maxCumulative * (plot.bottom - plot.top) * 0.88;
+  const border = cssColor("--border");
+  const muted = cssColor("--muted");
+  ctx.font = "700 9px Inter, system-ui";
+  for (let index = 0; index <= 4; index += 1) {
+    const fraction = index / 4;
+    const y = plot.bottom - fraction * (plot.bottom - plot.top);
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(plot.left, y); ctx.lineTo(plot.right, y); ctx.stroke();
+    ctx.fillStyle = muted;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "right";
+    ctx.fillText(formatCurrency(fraction * maxOrder, 0), plot.left - 7, y);
+    ctx.textAlign = "left";
+    ctx.fillText(formatCurrency(fraction * maxCumulative, 0), plot.right + 7, y);
+  }
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  for (let index = 0; index <= 3; index += 1) {
+    const time = minTime + index / 3 * (maxTime - minTime);
+    ctx.fillText(formatDate(new Date(time).toISOString().slice(0, 10), { day: "2-digit", month: "short" }), xFor(time), plot.bottom + 11);
+  }
+  const barWidth = Math.max(10, Math.min(28, (plot.right - plot.left) / Math.max(orders.length * 2.4, 8)));
+  orders.forEach((order, index) => {
+    const x = xFor(times[index]);
+    const foodCost = order.kilograms * order.pricePerKg;
+    const foodTop = yOrder(foodCost);
+    const totalTop = yOrder(order.totalCost);
+    const highlighted = order.id === expenseHoveredId;
+    ctx.fillStyle = colorWithAlpha(cssColor("--coral"), highlighted ? 0.72 : 0.42);
+    ctx.beginPath(); ctx.roundRect(x - barWidth / 2, foodTop, barWidth, plot.bottom - foodTop, 4); ctx.fill();
+    if (order.deliveryCost > 0) {
+      ctx.fillStyle = colorWithAlpha(cssColor("--yellow"), highlighted ? 0.9 : 0.64);
+      ctx.beginPath(); ctx.roundRect(x - barWidth / 2, totalTop, barWidth, Math.max(2, foodTop - totalTop), 4); ctx.fill();
+    }
+    expenseChartPoints.push({ order, x, y: totalTop, bottom: plot.bottom, cumulative: cumulative[index], lineY: yCumulative(cumulative[index]), barWidth });
+  });
+  ctx.strokeStyle = cssColor("--blue");
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  expenseChartPoints.forEach((point, index) => index ? ctx.lineTo(point.x, point.lineY) : ctx.moveTo(point.x, point.lineY));
+  ctx.stroke();
+  expenseChartPoints.forEach((point) => {
+    ctx.fillStyle = cssColor("--blue");
+    ctx.strokeStyle = cssColor("--surface-solid");
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(point.x, point.lineY, point.order.id === expenseHoveredId ? 6 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  });
+  canvas.dataset.points = String(expenseChartPoints.length);
+  canvas.dataset.minDate = new Date(minTime).toISOString().slice(0, 10);
+  canvas.dataset.maxDate = new Date(maxTime).toISOString().slice(0, 10);
+}
+
+function renderExpenses() {
+  const metrics = expenseMetrics();
+  const values = {
+    expenseTotal: formatCurrency(metrics.total),
+    expenseYear: formatCurrency(metrics.year),
+    expenseAnnualPace: metrics.annualPace === null ? "—" : formatCurrency(metrics.annualPace, 0),
+    expenseAverageKg: metrics.averageKg === null ? "—" : `${formatCurrency(metrics.averageKg)}/${t("unit.kg")}`
+  };
+  Object.entries(values).forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
+  document.getElementById("expenseChart")?.setAttribute("aria-label", t("expense.chartAria"));
+  renderExpenseList();
+  drawExpenseChart();
+}
+
+function nearestExpensePoint(event) {
+  const canvas = document.getElementById("expenseChart");
+  if (!canvas || !expenseChartPoints.length) return null;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const bar = expenseChartPoints.find((point) => Math.abs(point.x - x) <= Math.max(12, point.barWidth) && y >= Math.min(point.y, point.lineY) - 12 && y <= point.bottom + 8);
+  if (bar) return bar;
+  const nearest = expenseChartPoints.reduce((candidate, point) => Math.hypot(point.x - x, point.lineY - y) < Math.hypot(candidate.x - x, candidate.lineY - y) ? point : candidate, expenseChartPoints[0]);
+  return Math.hypot(nearest.x - x, nearest.lineY - y) <= 20 ? nearest : null;
+}
+
+function showExpenseTooltip(point) {
+  if (!point) return hideExpenseTooltip();
+  const tooltip = document.getElementById("expenseChartTooltip");
+  const wrap = document.getElementById("expenseChartWrap");
+  if (!tooltip || !wrap) return;
+  if (expenseHoveredId !== point.order.id) { expenseHoveredId = point.order.id; drawExpenseChart(); }
+  const order = point.order;
+  const foodCost = order.kilograms * order.pricePerKg;
+  tooltip.innerHTML = `<strong class="tooltip-date">${escapeHtml(formatDate(order.date))} · ${escapeHtml(order.type)}</strong><div class="tooltip-grid">
+    <span>${escapeHtml(t("expense.kilograms"))}</span><strong>${formatNumber(order.kilograms, 2)} ${escapeHtml(t("unit.kg"))}</strong>
+    <span>${escapeHtml(t("expense.priceKg"))}</span><strong>${formatCurrency(order.pricePerKg)}</strong>
+    <span>${escapeHtml(t("expense.foodCost"))}</span><strong>${formatCurrency(foodCost)}</strong>
+    <span>${escapeHtml(t("expense.delivery"))}</span><strong>${formatCurrency(order.deliveryCost)}</strong>
+    <span>${escapeHtml(t("expense.orderTotal"))}</span><strong>${formatCurrency(order.totalCost)}</strong>
+    <span>${escapeHtml(t("expense.cumulative"))}</span><strong>${formatCurrency(point.cumulative)}</strong></div>${order.description ? `<p class="tooltip-comment">${escapeHtml(order.description)}</p>` : ""}`;
+  tooltip.hidden = false;
+  const tooltipWidth = Math.min(290, wrap.clientWidth - 24);
+  let left = point.x + 14;
+  if (left + tooltipWidth > wrap.clientWidth - 10) left = point.x - tooltipWidth - 14;
+  tooltip.style.left = `${Math.max(10, left)}px`;
+  tooltip.style.top = `${Math.max(10, Math.min(point.y - 15, wrap.clientHeight - tooltip.offsetHeight - 10))}px`;
+}
+
+function hideExpenseTooltip() {
+  const tooltip = document.getElementById("expenseChartTooltip");
+  if (tooltip) tooltip.hidden = true;
+  if (expenseHoveredId) { expenseHoveredId = ""; drawExpenseChart(); }
+}
+
+async function submitExpense(event) {
+  event.preventDefault();
+  const message = document.getElementById("expenseFormMessage");
+  const id = document.getElementById("expenseId").value;
+  const formValues = expenseFormValues();
+  const payload = {
+    ...(id ? { id, replaceId: id } : {}),
+    date: document.getElementById("expenseDate").value,
+    type: document.getElementById("expenseType").value,
+    description: document.getElementById("expenseDescription").value,
+    kilograms: formValues.kilograms,
+    pricePerKg: formValues.pricePerKg,
+    deliveryCost: formValues.deliveryCost
+  };
+  try {
+    const response = await fetch("/api/expenses", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || t("error.save"));
+    state.expenses = (result.orders || []).map(normalizeClientExpense);
+    document.getElementById("expenseDialog").close();
+    renderExpenses();
+    toast(t("expense.saved"));
+  } catch (error) { message.textContent = error.message; }
+}
+
+async function deleteExpense() {
+  const id = document.getElementById("expenseId").value;
+  if (!id || !window.confirm(t("expense.deleteConfirm"))) return;
+  const message = document.getElementById("expenseFormMessage");
+  try {
+    const response = await fetch(`/api/expenses?id=${encodeURIComponent(id)}`, { method: "DELETE", credentials: "same-origin" });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || t("error.save"));
+    state.expenses = (result.orders || []).map(normalizeClientExpense);
+    document.getElementById("expenseDialog").close();
+    renderExpenses();
+    toast(t("expense.deleted"));
+  } catch (error) { message.textContent = error.message; }
+}
+
 function renderAll() {
   updateDerivedUI();
   growthChart?.setData(state.records);
-  drawBarfChart();
+  drawNormChart();
+  renderExpenses();
   renderHistoryTable();
 }
 
@@ -1627,64 +2147,56 @@ async function uploadAvatar(file) {
   }
 }
 
-function updateSettingsDifference() {
-  const descriptor = settingDescriptor(state.activeSetting);
-  const input = document.getElementById("settingsValue");
-  const output = document.getElementById("settingsDifference");
-  if (!descriptor || !input || !output) return;
-  const currentInput = Number(input.value);
-  const recommendedInput = descriptor.toInput(descriptor.recommended);
-  const difference = currentInput - recommendedInput;
-  const relative = percentChange(recommendedInput, currentInput);
-  if (!Number.isFinite(difference) || Math.abs(difference) < 0.0001) {
-    output.textContent = t("settings.noDifference");
-    return;
-  }
-  const absolute = `${difference > 0 ? "+" : ""}${formatNumber(difference, 1)} ${descriptor.differenceUnit}`;
-  output.textContent = t("settings.difference", {
-    absolute,
-    percent: `${relative > 0 ? "+" : ""}${formatNumber(relative, 1)}`
-  });
+function normEditorRow(norm) {
+  return `<div class="norm-editor-row" data-interpolation="${norm.interpolation === "step" ? "step" : "linear"}">
+    <label><span>${escapeHtml(t("settings.normDate"))}</span><input class="date-input" data-norm-date type="date" value="${escapeHtml(norm.date)}" required></label>
+    <label><span>${escapeHtml(t("settings.normPercent"))}</span><span class="setting-value-control"><input class="number-input" data-norm-percent type="number" min="1" max="12" step="0.1" value="${escapeHtml(Number(norm.ratio * 100).toFixed(1))}" required><strong>%</strong></span></label>
+    <button class="norm-remove-button" type="button" data-remove-norm aria-label="${escapeHtml(t("settings.removeNorm"))}" title="${escapeHtml(t("settings.removeNorm"))}">×</button>
+  </div>`;
 }
 
-function openSettingDialog(key) {
-  const descriptor = settingDescriptor(key);
-  const dialog = document.getElementById("settingsDialog");
-  if (!descriptor || !dialog) return;
+function renderNormEditor(norms = activeFeedingNorms()) {
+  const editor = document.getElementById("normTimelineEditor");
+  if (editor) editor.innerHTML = norms.map(normEditorRow).join("");
+}
+
+function openNormDialog() {
+  const dialog = document.getElementById("normDialog");
+  if (!dialog) return;
   if (!state.authenticated) {
-    state.pendingSetting = key;
+    state.pendingSetting = "feedingNorms";
     openAuthDialog();
     return;
   }
-  state.activeSetting = key;
-  document.getElementById("settingsDialogTitle").textContent = descriptor.title;
-  document.getElementById("settingsFieldLabel").textContent = descriptor.title;
-  document.getElementById("settingsUnit").textContent = descriptor.unit;
-  document.getElementById("settingsRecommended").textContent = t("settings.recommended", {
-    value: descriptor.display(descriptor.recommended)
-  });
-  const input = document.getElementById("settingsValue");
-  input.min = String(descriptor.min);
-  input.max = String(descriptor.max);
-  input.step = String(descriptor.step);
-  input.value = String(descriptor.toInput(state.feedingSettings[key]));
-  document.getElementById("settingsMessage").textContent = "";
-  updateSettingsDifference();
+  renderNormEditor();
+  document.getElementById("normMessage").textContent = "";
   dialog.showModal();
 }
 
-async function saveFeedingSetting() {
-  const descriptor = settingDescriptor(state.activeSetting);
-  const input = document.getElementById("settingsValue");
-  const message = document.getElementById("settingsMessage");
-  if (!descriptor || !input || !input.checkValidity()) {
+function readNormEditor() {
+  return [...document.querySelectorAll("#normTimelineEditor .norm-editor-row")].map((row) => ({
+    date: row.querySelector("[data-norm-date]").value,
+    ratio: Number(row.querySelector("[data-norm-percent]").value) / 100,
+    ...(row.dataset.interpolation === "step" ? { interpolation: "step" } : {})
+  }));
+}
+
+function addNormEditorPoint() {
+  const norms = readNormEditor();
+  let date = today;
+  while (norms.some((norm) => norm.date === date)) date = addDays(date, 7);
+  norms.push({ date, ratio: feedingPlanForDate(date, activeDogProfile()).ratio });
+  renderNormEditor(norms.sort((a, b) => a.date.localeCompare(b.date)));
+}
+
+async function saveFeedingNorms() {
+  const message = document.getElementById("normMessage");
+  const inputs = [...document.querySelectorAll("#normTimelineEditor input")];
+  if (!inputs.length || inputs.some((input) => !input.checkValidity())) {
     if (message) message.textContent = t("settings.error");
     return;
   }
-  const nextSettings = {
-    ...state.feedingSettings,
-    [descriptor.key]: descriptor.fromInput(input.value)
-  };
+  const nextSettings = { feedingNorms: readNormEditor() };
   if (message) message.textContent = "";
   try {
     const response = await fetch("/api/profile", {
@@ -1695,9 +2207,9 @@ async function saveFeedingSetting() {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || t("settings.error"));
-    state.feedingSettings = { ...state.feedingSettings, ...payload.feedingSettings };
+    state.feedingSettings = payload.feedingSettings;
     renderAll();
-    document.getElementById("settingsDialog")?.close();
+    document.getElementById("normDialog")?.close();
     toast(t("settings.saved"));
   } catch (error) {
     if (message) message.textContent = error.message;
@@ -2142,9 +2654,14 @@ async function renderGoogleButton() {
             openRecordDialog(action.type, action.date);
           }
           if (state.pendingSetting) {
-            const setting = state.pendingSetting;
+            const pendingSetting = state.pendingSetting;
             state.pendingSetting = null;
-            openSettingDialog(setting);
+            if (pendingSetting.startsWith("expense:")) {
+              const id = pendingSetting.slice("expense:".length);
+              openExpenseDialog(id === "new" ? null : orderForId(id));
+            } else {
+              openNormDialog();
+            }
           }
         } catch (error) {
           authState.textContent = error.message;
@@ -2167,8 +2684,7 @@ function openAuthDialog() {
 
 function wireEvents() {
   document.addEventListener("click", (event) => {
-    const settingButton = event.target.closest("[data-edit-setting]");
-    if (settingButton) openSettingDialog(settingButton.dataset.editSetting);
+    if (event.target.closest("[data-edit-norms]")) openNormDialog();
   });
   document.getElementById("languageButton")?.addEventListener("click", () => {
     state.lang = state.lang === "ru" ? "en" : "ru";
@@ -2181,7 +2697,8 @@ function wireEvents() {
     state.theme = state.theme === "dark" ? "light" : "dark";
     applyTheme();
     growthChart?.draw();
-    drawBarfChart();
+    drawNormChart();
+    drawExpenseChart();
   });
   document.getElementById("loginButton")?.addEventListener("click", openAuthDialog);
   document.getElementById("logoutButton")?.addEventListener("click", async () => {
@@ -2196,15 +2713,16 @@ function wireEvents() {
     const file = event.target.files?.[0];
     if (file) uploadAvatar(file);
   });
-  document.getElementById("settingsValue")?.addEventListener("input", updateSettingsDifference);
-  document.getElementById("settingsResetButton")?.addEventListener("click", () => {
-    const descriptor = settingDescriptor(state.activeSetting);
-    const input = document.getElementById("settingsValue");
-    if (!descriptor || !input) return;
-    input.value = String(descriptor.toInput(descriptor.recommended));
-    updateSettingsDifference();
+  document.getElementById("normAddButton")?.addEventListener("click", addNormEditorPoint);
+  document.getElementById("normResetButton")?.addEventListener("click", () => renderNormEditor(DEFAULT_FEEDING_NORMS));
+  document.getElementById("normSaveButton")?.addEventListener("click", saveFeedingNorms);
+  document.getElementById("normTimelineEditor")?.addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-remove-norm]");
+    if (!removeButton) return;
+    const rows = [...document.querySelectorAll("#normTimelineEditor .norm-editor-row")];
+    if (rows.length <= 1) return;
+    removeButton.closest(".norm-editor-row")?.remove();
   });
-  document.getElementById("settingsSaveButton")?.addEventListener("click", saveFeedingSetting);
   document.getElementById("downloadBackupButton")?.addEventListener("click", downloadBackup);
   document.getElementById("restoreBackupButton")?.addEventListener("click", restoreSelectedBackup);
   document.getElementById("confirmRestoreButton")?.addEventListener("click", confirmSelectedBackupRestore);
@@ -2262,8 +2780,29 @@ function wireEvents() {
   document.getElementById("historyTableBody")?.addEventListener("keydown", handleHistoryKeydown);
   document.getElementById("mobileRecordList")?.addEventListener("click", handleHistoryAction);
   document.getElementById("addHistoryRowButton")?.addEventListener("click", addHistoryDraft);
-  document.getElementById("barfDetails")?.addEventListener("toggle", drawBarfChart);
-  addEventListener("resize", () => drawBarfChart());
+  document.getElementById("addExpenseButton")?.addEventListener("click", () => openExpenseDialog());
+  document.getElementById("expenseOrderList")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-edit-expense]");
+    if (button) openExpenseDialog(orderForId(button.dataset.editExpense));
+  });
+  document.getElementById("expenseForm")?.addEventListener("submit", submitExpense);
+  document.getElementById("deleteExpenseButton")?.addEventListener("click", deleteExpense);
+  ["expenseKilograms", "expensePriceKg", "expenseDelivery"].forEach((id) => document.getElementById(id)?.addEventListener("input", updateExpenseFormTotal));
+  document.getElementById("expenseChart")?.addEventListener("pointermove", (event) => {
+    const point = nearestExpensePoint(event);
+    if (!point) return hideExpenseTooltip();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    if (Math.min(Math.abs(point.x - x), Math.hypot(point.x - x, point.lineY - y)) > 32) return hideExpenseTooltip();
+    showExpenseTooltip(point);
+  });
+  document.getElementById("expenseChart")?.addEventListener("pointerleave", hideExpenseTooltip);
+  document.getElementById("expenseChart")?.addEventListener("click", (event) => {
+    const point = nearestExpensePoint(event);
+    if (point) openExpenseDialog(point.order);
+  });
+  addEventListener("resize", () => { drawNormChart(); drawExpenseChart(); });
   document.querySelectorAll("dialog").forEach((dialog) => dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   }));
@@ -2304,10 +2843,11 @@ function handleHistoryKeydown(event) {
 async function init() {
   applyTheme();
   initGrowthChart();
+  initNormChartInteraction();
   wireEvents();
   applyTranslations();
   setRecordTab("weight");
-  await Promise.all([loadRecords(), loadProfile(), loadAuthConfig(), refreshAuthStatus()]);
+  await Promise.all([loadRecords(), loadExpenses(), loadProfile(), loadAuthConfig(), refreshAuthStatus()]);
   renderAll();
 }
 

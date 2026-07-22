@@ -19,20 +19,15 @@ async function readAllowedEmails() {
     return [];
   }
 
-  const { list } = require("@vercel/blob");
-  const result = await list({ prefix: USERS_BLOB_PATH, limit: 1 });
-  const blob = result.blobs.find((entry) => entry.pathname === USERS_BLOB_PATH);
-
-  if (!blob) {
+  const { get } = require("@vercel/blob");
+  const blob = await get(USERS_BLOB_PATH, {
+    access: "public",
+    headers: { "Cache-Control": "no-store" }
+  });
+  if (!blob || blob.statusCode !== 200 || !blob.stream) {
     return [];
   }
-
-  const response = await fetch(blob.url, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error("Не удалось прочитать список пользователей");
-  }
-
-  const payload = await response.json();
+  const payload = JSON.parse(await new Response(blob.stream).text());
   return Array.isArray(payload.emails) ? payload.emails.map(String) : [];
 }
 

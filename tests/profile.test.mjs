@@ -18,24 +18,44 @@ test("profile rejects unsupported image formats", () => {
   );
 });
 
-test("feeding settings preserve breeder recommendations by default", () => {
+test("feeding settings provide the approved timeline to adulthood by default", () => {
   assert.deepEqual(normalizeFeedingSettings(), RECOMMENDED_FEEDING_SETTINGS);
 });
 
-test("feeding settings accept safe custom values", () => {
+test("feeding settings accept and sort dated norm points", () => {
   assert.deepEqual(normalizeFeedingSettings({
-    puppyRatio: 0.075,
-    adultRatio: 0.032,
-    transitionDays: 35,
-    targetAdultWeightKg: 12.5
+    feedingNorms: [
+      { date: "2026-10-28", ratio: 0.03 },
+      { date: "2026-07-22", ratio: 0.054 }
+    ]
   }), {
-    puppyRatio: 0.075,
-    adultRatio: 0.032,
-    transitionDays: 35,
-    targetAdultWeightKg: 12.5
+    feedingNorms: [
+      { date: "2026-07-22", ratio: 0.054 },
+      { date: "2026-10-28", ratio: 0.03 }
+    ]
   });
 });
 
-test("feeding settings reject an adult ratio above the puppy ratio", () => {
-  assert.throws(() => normalizeFeedingSettings({ puppyRatio: 0.03, adultRatio: 0.04 }), /выше взрослой/);
+test("feeding settings preserve a step change between periods", () => {
+  assert.deepEqual(normalizeFeedingSettings({
+    feedingNorms: [
+      { date: "2026-05-01", ratio: 0.08 },
+      { date: "2026-07-01", ratio: 0.06, interpolation: "step" }
+    ]
+  }), {
+    feedingNorms: [
+      { date: "2026-05-01", ratio: 0.08 },
+      { date: "2026-07-01", ratio: 0.06, interpolation: "step" }
+    ]
+  });
+});
+
+test("feeding settings reject duplicate dates and unsafe ratios", () => {
+  assert.throws(() => normalizeFeedingSettings({ feedingNorms: [
+    { date: "2026-07-22", ratio: 0.054 },
+    { date: "2026-07-22", ratio: 0.05 }
+  ] }), /одну дату/);
+  assert.throws(() => normalizeFeedingSettings({ feedingNorms: [
+    { date: "2026-07-22", ratio: 0.2 }
+  ] }), /от 1% до 12%/);
 });

@@ -8,8 +8,9 @@ The application is public for reading. Authorized users can add and edit records
 
 - Dashboard with latest weight, 30-day weight change, and current recommended portion.
 - Combined growth and feeding chart with separate weight and meal series.
-- Automatic age, feeding phase, daily target, per-meal target, and planned meal count calculations.
-- Puppy, transition, and adult feeding phases based on calendar dates.
+- Automatic age, daily target, per-meal target, and planned meal count calculations.
+- An editable dated feeding-target timeline with smooth daily interpolation through the stable adult target.
+- A compact comparison chart showing planned and actual intake as percentages of body weight; today's incomplete intake is excluded from the actual trend.
 - Weight and meal entry forms with duplicate-date comparison before replacement.
 - Full history page with inline editing, derived totals, deviation from target, and mobile-friendly records.
 - Automatic snapshots after changes, downloadable JSON backups, and restore points.
@@ -35,14 +36,15 @@ The default profile is defined in `assets/domain.mjs` and can be overridden by p
 
 - Birth date: `2026-02-28`
 - Time zone: `Europe/Berlin`
-- Puppy ratio: `8%` of current weight
-- Adult ratio: `3%` of current weight
-- Adult phase: eight calendar months, beginning `2026-10-28`
-- Transition: 28 calendar days, beginning `2026-09-30`
+- Before the custom timeline: `8%` of current weight
+- `2026-07-01`: `6.0%`
+- `2026-07-22`: `5.4%`
+- Stable adult target from `2026-10-28`: `3.0%`
+- The target percentage is interpolated linearly between dated control points
+- Adult meal phase: eight calendar months, beginning `2026-10-28`; meal count transitions on `2026-09-30`
 - Planned meals: three before the transition, two from the transition start
-- Target adult weight: `12 kg`
 
-The transition ratio is interpolated by date. Actual intake counts only meals with grams; meals marked as skipped are retained as `Не ел` / `Skipped` and do not contribute to the daily total.
+Actual intake counts only meals with grams; meals marked as skipped are retained as `Не ел` / `Skipped` and do not contribute to the daily total.
 
 ## Requirements
 
@@ -69,7 +71,7 @@ Start the local static server and API with editing enabled:
 DEV_AUTH=1 node tests/dev-server.mjs
 ```
 
-Open <http://127.0.0.1:4173>. The local server provides an in-memory API, seeds the sample weight history, and treats the local test account as an administrator. Changes are lost when the process stops.
+Open <http://127.0.0.1:4173>. The local server treats the local test account as an administrator and stores its own persistent development state in `.local-data/dev-state.json`. That ignored file survives code updates and server restarts but is never used by production, which continues to use Vercel Blob. Set `DEV_DATA_PATH=/tmp/porschik-test.json` when a disposable isolated dataset is needed for automated checks.
 
 To serve the public read-only experience instead:
 
@@ -97,12 +99,16 @@ Google sign-in verifies the token issuer, audience when `GOOGLE_CLIENT_ID` is se
 
 The API stores data under these prefixes:
 
+- `porschik/state.json` for the current diary, restore-point index, and audit trail
 - `porschik/weights/` for immutable record snapshots
 - `porschik/backups/daily/` for daily restore points
+- `porschik/expenses.json` for current expense data
+- `porschik/expenses/` for immutable expense snapshots
 - `porschik/profile.json` for the avatar URL and feeding overrides
 - `porschik/avatar/` for uploaded profile images
 - `porschik/users.json` for additional allowed email addresses
-- `porschik/audit/` for audit records
+
+Existing snapshot-only stores are migrated automatically on the first request. After that one-time migration, normal reads use exact Blob paths and do not call Blob `list()`. Automatic snapshots, daily backups, restore points, expense history, audit events, and remembered sessions remain available without listing the store in normal application traffic.
 
 ## Deployment
 
@@ -145,7 +151,7 @@ The test suite is run with Node's built-in test runner:
 npm test
 ```
 
-It covers feeding phase boundaries, calendar-based age calculations, recommendations, skipped meals, daily intake differences, weight-only history behavior, record normalization, and API behavior. Browser smoke coverage is available in `tests/browser-smoke.mjs` and expects the local server to be running.
+It covers dated target interpolation, feeding phase boundaries, calendar-based age calculations, recommendations, actual intake percentages, skipped meals, daily intake differences, weight-only history behavior, record normalization, profile validation, and API behavior. Browser smoke coverage is available in `tests/browser-smoke.mjs` and expects the local server to be running.
 
 ## License
 
