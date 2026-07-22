@@ -1,6 +1,8 @@
+const { createHash, randomBytes } = require("crypto");
+const { hasDatabase, query } = require("./_db");
+
 const COOKIE_NAME = "porschik_google_id_token";
 const REMEMBER_COOKIE_NAME = "porschik_remembered_session";
-const REMEMBER_SESSION_PREFIX = "porschik/sessions/";
 const REMEMBER_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 365 * 20;
 const ALLOWED_EMAIL = process.env.ADMIN_GOOGLE_EMAIL || "evgeny.drumachik@gmail.com";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
@@ -90,58 +92,48 @@ function buildClearRememberedSessionCookie() {
   return parts.join("; ");
 }
 
-function hasBlobToken() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
-
-function persistentSessionPath(token) {
-  return `${REMEMBER_SESSION_PREFIX}${encodeURIComponent(token)}.json`;
+function persistentSessionHash(token) {
+  return createHash("sha256").update(String(token || "")).digest("hex");
 }
 
 async function createRememberedSession(email) {
-  if (!hasBlobToken()) {
+  if (!hasDatabase()) {
     throw new Error("Persistent sessions require configured storage");
   }
 
-  const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replaceAll("-", "");
-  const { put } = require("@vercel/blob");
-  await put(persistentSessionPath(token), JSON.stringify({
-    email,
-    createdAt: new Date().toISOString()
-  }), {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: "application/json"
-  });
+  const token = randomBytes(32).toString("hex");
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + REMEMBER_SESSION_MAX_AGE_SECONDS * 1000);
+  await query(
+    "INSERT INTO porschik_sessions (token_hash, email, created_at, expires_at) VALUES ($1, $2, $3, $4)",
+    [persistentSessionHash(token), email, createdAt.toISOString(), expiresAt.toISOString()]
+  );
   return token;
 }
 
 async function readRememberedSession(token) {
-  if (!token || !hasBlobToken()) {
+  if (!token || !hasDatabase()) {
     return null;
   }
 
-  const pathname = persistentSessionPath(token);
-  const { get } = require("@vercel/blob");
-  const blob = await get(pathname, {
-    access: "public",
-    headers: { "Cache-Control": "no-store" }
-  });
-  if (!blob || blob.statusCode !== 200 || !blob.stream) {
-    return null;
-  }
-  const payload = JSON.parse(await new Response(blob.stream).text());
-  return typeof payload.email === "string" ? payload : null;
+  const rows = await query(
+    "SELECT email, created_at, expires_at FROM porschik_sessions WHERE token_hash = $1 AND expires_at > now()",
+    [persistentSessionHash(token)]
+  );
+  if (!rows[0]?.email) return null;
+  return {
+    email: rows[0].email,
+    createdAt: new Date(rows[0].created_at).toISOString(),
+    expiresAt: new Date(rows[0].expires_at).toISOString()
+  };
 }
 
 async function revokeRememberedSession(token) {
-  if (!token || !hasBlobToken()) {
+  if (!token || !hasDatabase()) {
     return;
   }
 
-  const pathname = persistentSessionPath(token);
-  const { del } = require("@vercel/blob");
-  await del(pathname);
+  await query("DELETE FROM porschik_sessions WHERE token_hash = $1", [persistentSessionHash(token)]);
 }
 
 async function verifyGoogleIdToken(idToken) {
@@ -235,6 +227,7 @@ module.exports = {
   buildClearCookie,
   buildClearRememberedSessionCookie,
   createRememberedSession,
+  readRememberedSession,
   revokeRememberedSession,
   isAdminEmail,
   isEmailAllowed,

@@ -1,0 +1,8 @@
+.agents/
+.local-data/
+.env*
+db/
+graphify-out/
+scripts/
+skills-lock.json
+tests/

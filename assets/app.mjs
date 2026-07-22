@@ -43,8 +43,16 @@ const state = {
   inlineEditor: null,
   inlineSaving: false,
   historyDraft: null,
-  showWeight: true,
-  showFood: true
+  normEditor: null,
+  normSaving: false,
+  showGrowthWeight: true,
+  showGrowthActual: true,
+  showGrowthTarget: true,
+  showNormTarget: true,
+  showNormActual: true,
+  showExpenseFood: true,
+  showExpenseDelivery: true,
+  showExpenseCumulative: true
 };
 
 const translations = {
@@ -95,6 +103,7 @@ const translations = {
     "action.admin": "Администрирование",
     "action.changePhoto": "Изменить фотографию Поршика",
     "action.editFeedingSettings": "Изменить историю норм",
+    "action.edit": "Изменить",
     "action.deleteWeight": "Удалить вес",
     "replace.title": "Запись за этот день уже есть",
     "replace.before": "Было",
@@ -111,8 +120,11 @@ const translations = {
     "settings.normIntro": "Задайте даты и проценты. Между точками норма меняется плавно каждый день.",
     "settings.normDate": "Дата",
     "settings.normPercent": "% веса",
-    "settings.addNorm": "Добавить точку",
-    "settings.removeNorm": "Удалить точку",
+    "settings.addNorm": "Добавить норму",
+    "settings.removeNorm": "Удалить норму",
+    "settings.deleteConfirm": "Удалить норму {date} ({percent})? Это изменит расчёт питания для связанных дат.",
+    "settings.oneRequired": "Должна остаться хотя бы одна норма.",
+    "settings.duplicateDate": "На эту дату уже задана норма.",
     "backup.title": "Резервные копии данных",
     "backup.subtitle": "Точка восстановления создаётся при каждом сохранении. Здесь можно скачать данные или вернуться к предыдущей версии.",
     "backup.automatic": "Автокопирование включено",
@@ -308,6 +320,7 @@ const translations = {
     "action.admin": "Administration",
     "action.changePhoto": "Change Porschik's photo",
     "action.editFeedingSettings": "Edit target history",
+    "action.edit": "Edit",
     "action.deleteWeight": "Delete weight",
     "replace.title": "A record already exists for this day",
     "replace.before": "Before",
@@ -324,8 +337,11 @@ const translations = {
     "settings.normIntro": "Set dates and percentages. The target changes smoothly each day between control points.",
     "settings.normDate": "Date",
     "settings.normPercent": "% of weight",
-    "settings.addNorm": "Add point",
-    "settings.removeNorm": "Remove point",
+    "settings.addNorm": "Add target",
+    "settings.removeNorm": "Delete target",
+    "settings.deleteConfirm": "Delete the {date} target ({percent})? This changes feeding calculations for related dates.",
+    "settings.oneRequired": "At least one target must remain.",
+    "settings.duplicateDate": "A target already exists for this date.",
     "backup.title": "Data backups",
     "backup.subtitle": "A restore point is created after every save. Download the data or return to an earlier version here.",
     "backup.automatic": "Automatic backups enabled",
@@ -666,6 +682,30 @@ function nearestThirtyDayChange() {
   };
 }
 
+function normAgeLabel(norm, index, norms) {
+  const isFuture = norm.date > today;
+  const isAdult = index === norms.length - 1;
+  const suffix = isAdult ? t("barf.adultStable") : isFuture ? t("barf.future") : "";
+  const age = ageOn(norm.date);
+  const ageLabel = state.lang === "en"
+    ? `${age.years ? `${age.years}y ` : ""}${age.months}mo ${age.days}d`
+    : `${age.years ? `${age.years}г ` : ""}${age.months}мес ${age.days}дн`;
+  return `<small><b>${escapeHtml(ageLabel)}</b>${suffix ? ` · ${escapeHtml(suffix)}` : ""}</small>`;
+}
+
+function normInlineEditorMarkup(norm, mode) {
+  return `<li class="norm-timeline-editor${mode === "add" ? " is-new" : ""}" data-norm-editor-row>
+    <div class="norm-inline-fields">
+      <label><span>${escapeHtml(t("settings.normDate"))}</span><input class="date-input" data-inline-norm-date type="date" value="${escapeHtml(norm.date)}" required></label>
+      <label><span>${escapeHtml(t("settings.normPercent"))}</span><span class="norm-inline-percent"><input class="number-input" data-inline-norm-percent type="number" min="1" max="12" step="0.1" inputmode="decimal" value="${escapeHtml(Number(norm.ratio * 100).toFixed(1))}" required><strong>%</strong></span></label>
+    </div>
+    <div class="norm-inline-form-actions">
+      <button class="norm-inline-action is-save" type="button" data-save-inline-norm><span aria-hidden="true">✓</span>${escapeHtml(t("action.save"))}</button>
+      <button class="norm-inline-action" type="button" data-cancel-inline-norm><span aria-hidden="true">×</span>${escapeHtml(t("action.cancel"))}</button>
+    </div>
+  </li>`;
+}
+
 function renderNormTimeline(plan, recommendation) {
   const currentRatio = document.getElementById("normCurrentRatio");
   if (currentRatio) currentRatio.textContent = formatRatio(plan.ratio);
@@ -679,20 +719,32 @@ function renderNormTimeline(plan, recommendation) {
     : "—";
   const timeline = document.getElementById("normTimelineList");
   if (!timeline) return;
-  timeline.innerHTML = activeFeedingNorms().map((norm, index, norms) => {
-    const isFuture = norm.date > today;
-    const isAdult = index === norms.length - 1;
-    const suffix = isAdult ? t("barf.adultStable") : isFuture ? t("barf.future") : "";
-    const age = ageOn(norm.date);
-    const ageLabel = state.lang === "en"
-      ? `${age.years ? `${age.years}y ` : ""}${age.months}mo ${age.days}d`
-      : `${age.years ? `${age.years}г ` : ""}${age.months}мес ${age.days}дн`;
-    return `<li${norm.date === plan.normStartDate ? ` class="is-active"` : ""}>
-      <span>${escapeHtml(formatDate(norm.date, { day: "2-digit", month: "short" }))}</span>
-      <strong>${escapeHtml(formatRatio(norm.ratio))}</strong>
-      <small><b>${escapeHtml(ageLabel)}</b>${suffix ? ` · ${escapeHtml(suffix)}` : ""}</small>
+  const norms = activeFeedingNorms();
+  const editor = state.normEditor;
+  const rows = norms.map((norm, index) => {
+    if (editor?.mode === "edit" && editor.originalDate === norm.date) {
+      return normInlineEditorMarkup(editor.draft, "edit");
+    }
+    const actions = state.authenticated ? `<div class="norm-row-actions">
+      <button class="norm-row-action" type="button" data-edit-inline-norm="${escapeHtml(norm.date)}" data-tooltip="${escapeHtml(t("action.edit"))}" aria-label="${escapeHtml(t("action.edit"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+      <button class="norm-row-action is-delete" type="button" data-delete-inline-norm="${escapeHtml(norm.date)}" data-tooltip="${escapeHtml(t("action.delete"))}" aria-label="${escapeHtml(t("settings.removeNorm"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></button>
+    </div>` : "";
+    return `<li data-norm-timeline-date="${escapeHtml(norm.date)}"${norm.date === plan.normStartDate ? ` class="is-active"` : ""}>
+      <div class="norm-timeline-summary">
+        <span>${escapeHtml(formatDate(norm.date, { day: "2-digit", month: "short" }))}</span>
+        <strong>${escapeHtml(formatRatio(norm.ratio))}</strong>
+        ${normAgeLabel(norm, index, norms)}
+      </div>
+      ${actions}
     </li>`;
-  }).join("");
+  }).reverse();
+  if (editor?.mode === "add") rows.unshift(normInlineEditorMarkup(editor.draft, "add"));
+  timeline.innerHTML = rows.join("");
+  const addButton = document.getElementById("normInlineAddButton");
+  if (addButton) {
+    addButton.hidden = !state.authenticated;
+    addButton.disabled = state.normSaving || Boolean(editor);
+  }
 }
 
 function updateDerivedUI() {
@@ -954,7 +1006,7 @@ class GrowthChart {
     }
     ctx.restore();
 
-    if (state.showFood) {
+    if (state.showGrowthTarget) {
       const targetPoints = records.map((record) => {
         const latest = latestWeightRecord(records, record.date);
         return {
@@ -975,7 +1027,7 @@ class GrowthChart {
       }
     }
 
-    if (state.showWeight && weights.length) {
+    if (state.showGrowthWeight && weights.length) {
       const weightPoints = records.filter((record) => Number.isFinite(record.weightKg)).map((record) => ({
         kind: "weight",
         key: `weight-${record.date}`,
@@ -999,7 +1051,7 @@ class GrowthChart {
       }
     }
 
-    if (state.showFood) {
+    if (state.showGrowthActual) {
       const mealColors = [coral, orange, yellow];
       for (const record of records) {
         const meals = record.meals.filter((meal) => !meal.skipped && Number(meal.grams) > 0);
@@ -1059,6 +1111,9 @@ class GrowthChart {
     ctx.fillText(t("chart.rightAxis"), 0, 0);
     ctx.restore();
 
+    this.canvas.dataset.showWeight = String(state.showGrowthWeight);
+    this.canvas.dataset.showActual = String(state.showGrowthActual);
+    this.canvas.dataset.showTarget = String(state.showGrowthTarget);
     if (renderHits) this.renderHitTargets();
   }
 
@@ -1322,10 +1377,14 @@ function drawNormChart() {
       return { date: record.date, ratio: ratioValue };
     })
     .filter((point) => Number.isFinite(point.ratio));
-  const yMax = Math.max(0.08, Math.ceil(Math.max(...normPoints.map((point) => point.ratio), ...actualPoints.map((point) => point.ratio)) * 100) / 100);
+  const visibleRatios = [
+    ...(state.showNormTarget ? normPoints : []),
+    ...(state.showNormActual ? actualPoints : [])
+  ].map((point) => point.ratio);
+  const yMax = Math.max(0.08, Math.ceil(Math.max(...visibleRatios) * 100) / 100);
   const yFor = (value) => area.bottom - (value / yMax) * (area.bottom - area.top);
   normInteractivePoints = [
-    ...norms.map((point) => ({
+    ...(state.showNormTarget ? norms : []).map((point) => ({
       kind: "norm",
       key: `norm-${point.date}`,
       date: point.date,
@@ -1333,7 +1392,7 @@ function drawNormChart() {
       x: xFor(point.date),
       y: yFor(point.ratio)
     })),
-    ...actualPoints.map((point) => ({
+    ...(state.showNormActual ? actualPoints : []).map((point) => ({
       kind: "actual",
       key: `actual-${point.date}`,
       date: point.date,
@@ -1374,17 +1433,19 @@ function drawNormChart() {
 
   const pastNorm = normPoints.filter((point) => point.date <= today);
   const futureNorm = normPoints.filter((point) => point.date >= today);
-  drawLine(pastNorm, cssColor("--coral"));
-  drawLine(futureNorm, cssColor("--coral"), true);
-  drawLine(actualPoints, cssColor("--blue"), false, 2.5);
+  if (state.showNormTarget) {
+    drawLine(pastNorm, cssColor("--coral"));
+    drawLine(futureNorm, cssColor("--coral"), true);
+  }
+  if (state.showNormActual) drawLine(actualPoints, cssColor("--blue"), false, 2.5);
 
-  for (const point of actualPoints) {
+  for (const point of state.showNormActual ? actualPoints : []) {
     ctx.fillStyle = cssColor("--blue");
     ctx.beginPath();
     ctx.arc(xFor(point.date), yFor(point.ratio), normHoveredKey === `actual-${point.date}` ? 6 : 3.5, 0, Math.PI * 2);
     ctx.fill();
   }
-  for (const norm of norms) {
+  for (const norm of state.showNormTarget ? norms : []) {
     ctx.fillStyle = cssColor("--coral");
     ctx.beginPath();
     ctx.arc(xFor(norm.date), yFor(norm.ratio), normHoveredKey === `norm-${norm.date}` ? 7 : 4.5, 0, Math.PI * 2);
@@ -1454,6 +1515,8 @@ function drawNormChart() {
   canvas.dataset.currentRatio = String(feedingPlanForDate(today, profile).ratio);
   canvas.dataset.adultDate = adultDate;
   canvas.dataset.adultRatio = String(norms.at(-1).ratio);
+  canvas.dataset.showTarget = String(state.showNormTarget);
+  canvas.dataset.showActual = String(state.showNormActual);
   const hoverProbe = [...normInteractivePoints].reverse().find((point) => point.kind === "actual");
   canvas.dataset.hoverX = hoverProbe ? String(hoverProbe.x) : "";
   canvas.dataset.hoverY = hoverProbe ? String(hoverProbe.y) : "";
@@ -1884,6 +1947,9 @@ function drawExpenseChart() {
     ctx.textAlign = "center";
     ctx.fillText(t("expense.empty"), width / 2, height / 2);
     canvas.dataset.points = "0";
+    canvas.dataset.showFood = String(state.showExpenseFood);
+    canvas.dataset.showDelivery = String(state.showExpenseDelivery);
+    canvas.dataset.showCumulative = String(state.showExpenseCumulative);
     return;
   }
   const plot = { left: width < 560 ? 48 : 66, right: width - (width < 560 ? 48 : 66), top: 24, bottom: height - 42 };
@@ -1895,7 +1961,10 @@ function drawExpenseChart() {
   const cumulative = [];
   let running = 0;
   for (const order of orders) { running += order.totalCost; cumulative.push(running); }
-  const maxOrder = Math.max(...orders.map((order) => order.totalCost), 10);
+  const visibleOrderTotals = orders.map((order) =>
+    (state.showExpenseFood ? order.kilograms * order.pricePerKg : 0)
+    + (state.showExpenseDelivery ? order.deliveryCost : 0));
+  const maxOrder = Math.max(...visibleOrderTotals, 10);
   const maxCumulative = Math.max(...cumulative, 10);
   const yOrder = (value) => plot.bottom - value / maxOrder * (plot.bottom - plot.top) * 0.88;
   const yCumulative = (value) => plot.bottom - value / maxCumulative * (plot.bottom - plot.top) * 0.88;
@@ -1925,31 +1994,54 @@ function drawExpenseChart() {
   orders.forEach((order, index) => {
     const x = xFor(times[index]);
     const foodCost = order.kilograms * order.pricePerKg;
-    const foodTop = yOrder(foodCost);
-    const totalTop = yOrder(order.totalCost);
+    const visibleFood = state.showExpenseFood ? foodCost : 0;
+    const visibleDelivery = state.showExpenseDelivery ? order.deliveryCost : 0;
+    const visibleTotal = visibleFood + visibleDelivery;
+    const foodTop = yOrder(visibleFood);
+    const totalTop = yOrder(visibleTotal);
     const highlighted = order.id === expenseHoveredId;
-    ctx.fillStyle = colorWithAlpha(cssColor("--coral"), highlighted ? 0.72 : 0.42);
-    ctx.beginPath(); ctx.roundRect(x - barWidth / 2, foodTop, barWidth, plot.bottom - foodTop, 4); ctx.fill();
-    if (order.deliveryCost > 0) {
+    if (state.showExpenseFood && foodCost > 0) {
+      ctx.fillStyle = colorWithAlpha(cssColor("--coral"), highlighted ? 0.72 : 0.42);
+      ctx.beginPath(); ctx.roundRect(x - barWidth / 2, foodTop, barWidth, plot.bottom - foodTop, 4); ctx.fill();
+    }
+    if (state.showExpenseDelivery && order.deliveryCost > 0) {
       ctx.fillStyle = colorWithAlpha(cssColor("--yellow"), highlighted ? 0.9 : 0.64);
       ctx.beginPath(); ctx.roundRect(x - barWidth / 2, totalTop, barWidth, Math.max(2, foodTop - totalTop), 4); ctx.fill();
     }
-    expenseChartPoints.push({ order, x, y: totalTop, bottom: plot.bottom, cumulative: cumulative[index], lineY: yCumulative(cumulative[index]), barWidth });
+    if (visibleTotal > 0 || state.showExpenseCumulative) {
+      const lineY = yCumulative(cumulative[index]);
+      expenseChartPoints.push({
+        order,
+        x,
+        y: visibleTotal > 0 ? totalTop : lineY,
+        bottom: plot.bottom,
+        cumulative: cumulative[index],
+        lineY,
+        barWidth,
+        hasBars: visibleTotal > 0,
+        hasCumulative: state.showExpenseCumulative
+      });
+    }
   });
-  ctx.strokeStyle = cssColor("--blue");
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  expenseChartPoints.forEach((point, index) => index ? ctx.lineTo(point.x, point.lineY) : ctx.moveTo(point.x, point.lineY));
-  ctx.stroke();
-  expenseChartPoints.forEach((point) => {
-    ctx.fillStyle = cssColor("--blue");
-    ctx.strokeStyle = cssColor("--surface-solid");
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(point.x, point.lineY, point.order.id === expenseHoveredId ? 6 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  });
+  if (state.showExpenseCumulative) {
+    ctx.strokeStyle = cssColor("--blue");
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    expenseChartPoints.forEach((point, index) => index ? ctx.lineTo(point.x, point.lineY) : ctx.moveTo(point.x, point.lineY));
+    ctx.stroke();
+    expenseChartPoints.forEach((point) => {
+      ctx.fillStyle = cssColor("--blue");
+      ctx.strokeStyle = cssColor("--surface-solid");
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(point.x, point.lineY, point.order.id === expenseHoveredId ? 6 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    });
+  }
   canvas.dataset.points = String(expenseChartPoints.length);
   canvas.dataset.minDate = new Date(minTime).toISOString().slice(0, 10);
   canvas.dataset.maxDate = new Date(maxTime).toISOString().slice(0, 10);
+  canvas.dataset.showFood = String(state.showExpenseFood);
+  canvas.dataset.showDelivery = String(state.showExpenseDelivery);
+  canvas.dataset.showCumulative = String(state.showExpenseCumulative);
 }
 
 function renderExpenses() {
@@ -1972,9 +2064,11 @@ function nearestExpensePoint(event) {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-  const bar = expenseChartPoints.find((point) => Math.abs(point.x - x) <= Math.max(12, point.barWidth) && y >= Math.min(point.y, point.lineY) - 12 && y <= point.bottom + 8);
+  const bar = expenseChartPoints.find((point) => point.hasBars && Math.abs(point.x - x) <= Math.max(12, point.barWidth) && y >= point.y - 12 && y <= point.bottom + 8);
   if (bar) return bar;
-  const nearest = expenseChartPoints.reduce((candidate, point) => Math.hypot(point.x - x, point.lineY - y) < Math.hypot(candidate.x - x, candidate.lineY - y) ? point : candidate, expenseChartPoints[0]);
+  const linePoints = expenseChartPoints.filter((point) => point.hasCumulative);
+  if (!linePoints.length) return null;
+  const nearest = linePoints.reduce((candidate, point) => Math.hypot(point.x - x, point.lineY - y) < Math.hypot(candidate.x - x, candidate.lineY - y) ? point : candidate, linePoints[0]);
   return Math.hypot(nearest.x - x, nearest.lineY - y) <= 20 ? nearest : null;
 }
 
@@ -2147,72 +2241,161 @@ async function uploadAvatar(file) {
   }
 }
 
-function normEditorRow(norm) {
-  return `<div class="norm-editor-row" data-interpolation="${norm.interpolation === "step" ? "step" : "linear"}">
-    <label><span>${escapeHtml(t("settings.normDate"))}</span><input class="date-input" data-norm-date type="date" value="${escapeHtml(norm.date)}" required></label>
-    <label><span>${escapeHtml(t("settings.normPercent"))}</span><span class="setting-value-control"><input class="number-input" data-norm-percent type="number" min="1" max="12" step="0.1" value="${escapeHtml(Number(norm.ratio * 100).toFixed(1))}" required><strong>%</strong></span></label>
-    <button class="norm-remove-button" type="button" data-remove-norm aria-label="${escapeHtml(t("settings.removeNorm"))}" title="${escapeHtml(t("settings.removeNorm"))}">×</button>
-  </div>`;
+function setNormInlineMessage(message = "", type = "") {
+  const element = document.getElementById("normInlineMessage");
+  if (!element) return;
+  element.textContent = message;
+  element.classList.toggle("is-error", type === "error");
 }
 
-function renderNormEditor(norms = activeFeedingNorms()) {
-  const editor = document.getElementById("normTimelineEditor");
-  if (editor) editor.innerHTML = norms.map(normEditorRow).join("");
+const NORM_TIMELINE_ANIMATION_MS = 560;
+
+function normTimelineRowPositions() {
+  return new Map([...document.querySelectorAll("#normTimelineList [data-norm-timeline-date]")].map((row) => [
+    row.dataset.normTimelineDate,
+    row.getBoundingClientRect().top
+  ]));
 }
 
-function openNormDialog() {
-  const dialog = document.getElementById("normDialog");
-  if (!dialog) return;
-  if (!state.authenticated) {
-    state.pendingSetting = "feedingNorms";
-    openAuthDialog();
-    return;
-  }
-  renderNormEditor();
-  document.getElementById("normMessage").textContent = "";
-  dialog.showModal();
+function animateNormTimelineShift(previousPositions) {
+  if (!previousPositions.size || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  requestAnimationFrame(() => {
+    document.querySelectorAll("#normTimelineList [data-norm-timeline-date]").forEach((row) => {
+      const previousTop = previousPositions.get(row.dataset.normTimelineDate);
+      if (!Number.isFinite(previousTop)) return;
+      const deltaY = previousTop - row.getBoundingClientRect().top;
+      if (Math.abs(deltaY) < 1) return;
+      row.animate([
+        { transform: `translateY(${deltaY}px)` },
+        { transform: "translateY(0)" }
+      ], {
+        duration: NORM_TIMELINE_ANIMATION_MS,
+        easing: "cubic-bezier(0.22, 0.72, 0.2, 1)",
+        fill: "both"
+      });
+    });
+  });
 }
 
-function readNormEditor() {
-  return [...document.querySelectorAll("#normTimelineEditor .norm-editor-row")].map((row) => ({
-    date: row.querySelector("[data-norm-date]").value,
-    ratio: Number(row.querySelector("[data-norm-percent]").value) / 100,
-    ...(row.dataset.interpolation === "step" ? { interpolation: "step" } : {})
-  }));
+function focusNormInlineEditor(delay = 0) {
+  const reveal = () => requestAnimationFrame(() => {
+    const row = document.querySelector("[data-norm-editor-row]");
+    row?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    row?.querySelector("[data-inline-norm-date]")?.focus({ preventScroll: true });
+  });
+  if (delay > 0 && !matchMedia("(prefers-reduced-motion: reduce)").matches) setTimeout(reveal, delay);
+  else reveal();
 }
 
-function addNormEditorPoint() {
-  const norms = readNormEditor();
+function beginNormEdit(date) {
+  if (!state.authenticated || state.normSaving) return;
+  const norm = activeFeedingNorms().find((item) => item.date === date);
+  if (!norm) return;
+  state.normEditor = { mode: "edit", originalDate: date, draft: { ...norm } };
+  setNormInlineMessage();
+  updateDerivedUI();
+  focusNormInlineEditor();
+}
+
+function beginNormAdd() {
+  if (!state.authenticated || state.normSaving || state.normEditor) return;
+  const previousPositions = normTimelineRowPositions();
+  const norms = activeFeedingNorms();
   let date = today;
   while (norms.some((norm) => norm.date === date)) date = addDays(date, 7);
-  norms.push({ date, ratio: feedingPlanForDate(date, activeDogProfile()).ratio });
-  renderNormEditor(norms.sort((a, b) => a.date.localeCompare(b.date)));
+  state.normEditor = {
+    mode: "add",
+    originalDate: "",
+    draft: { date, ratio: feedingPlanForDate(date, activeDogProfile()).ratio }
+  };
+  setNormInlineMessage();
+  updateDerivedUI();
+  animateNormTimelineShift(previousPositions);
+  focusNormInlineEditor(NORM_TIMELINE_ANIMATION_MS);
 }
 
-async function saveFeedingNorms() {
-  const message = document.getElementById("normMessage");
-  const inputs = [...document.querySelectorAll("#normTimelineEditor input")];
-  if (!inputs.length || inputs.some((input) => !input.checkValidity())) {
-    if (message) message.textContent = t("settings.error");
+function cancelNormInlineEditor() {
+  if (state.normSaving) return;
+  state.normEditor = null;
+  setNormInlineMessage();
+  updateDerivedUI();
+}
+
+async function persistFeedingNorms(norms) {
+  const response = await fetch("/api/profile", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ feedingSettings: { feedingNorms: norms } })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || t("settings.error"));
+  state.feedingSettings = payload.feedingSettings;
+}
+
+async function saveNormInlineEditor() {
+  const editor = state.normEditor;
+  const row = document.querySelector("[data-norm-editor-row]");
+  const dateInput = row?.querySelector("[data-inline-norm-date]");
+  const percentInput = row?.querySelector("[data-inline-norm-percent]");
+  if (!editor || !dateInput || !percentInput || !dateInput.checkValidity() || !percentInput.checkValidity()) {
+    setNormInlineMessage(t("settings.error"), "error");
     return;
   }
-  const nextSettings = { feedingNorms: readNormEditor() };
-  if (message) message.textContent = "";
+  const date = dateInput.value;
+  const ratio = Number(percentInput.value) / 100;
+  const existing = activeFeedingNorms();
+  if (existing.some((norm) => norm.date === date && norm.date !== editor.originalDate)) {
+    setNormInlineMessage(t("settings.duplicateDate"), "error");
+    dateInput.focus();
+    return;
+  }
+  const replacement = {
+    date,
+    ratio,
+    ...(editor.draft.interpolation === "step" ? { interpolation: "step" } : {})
+  };
+  const norms = editor.mode === "add"
+    ? [...existing, replacement]
+    : existing.map((norm) => norm.date === editor.originalDate ? replacement : norm);
+  state.normSaving = true;
+  row.classList.add("is-saving");
+  row.querySelectorAll("input, button").forEach((element) => { element.disabled = true; });
+  setNormInlineMessage();
   try {
-    const response = await fetch("/api/profile", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ feedingSettings: nextSettings })
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error || t("settings.error"));
-    state.feedingSettings = payload.feedingSettings;
+    await persistFeedingNorms(norms);
+    state.normEditor = null;
     renderAll();
-    document.getElementById("normDialog")?.close();
     toast(t("settings.saved"));
   } catch (error) {
-    if (message) message.textContent = error.message;
+    row.classList.remove("is-saving");
+    row.querySelectorAll("input, button").forEach((element) => { element.disabled = false; });
+    setNormInlineMessage(error.message || t("settings.error"), "error");
+  } finally {
+    state.normSaving = false;
+  }
+}
+
+async function deleteNormInline(date) {
+  if (!state.authenticated || state.normSaving) return;
+  const norms = activeFeedingNorms();
+  if (norms.length <= 1) {
+    setNormInlineMessage(t("settings.oneRequired"), "error");
+    return;
+  }
+  const norm = norms.find((item) => item.date === date);
+  if (!norm || !window.confirm(t("settings.deleteConfirm", { date: formatDate(date), percent: formatRatio(norm.ratio) }))) return;
+  state.normSaving = true;
+  setNormInlineMessage();
+  try {
+    await persistFeedingNorms(norms.filter((item) => item.date !== date));
+    state.normEditor = null;
+    renderAll();
+    toast(t("settings.saved"));
+  } catch (error) {
+    setNormInlineMessage(error.message || t("settings.error"), "error");
+  } finally {
+    state.normSaving = false;
   }
 }
 
@@ -2554,6 +2737,7 @@ async function confirmSelectedBackupRestore() {
 }
 
 function updateAuthUI() {
+  if (!state.authenticated) state.normEditor = null;
   const loginButton = document.getElementById("loginButton");
   const userChip = document.getElementById("userChip");
   const userLabel = document.getElementById("userLabel");
@@ -2567,6 +2751,7 @@ function updateAuthUI() {
     backupPanel.hidden = !state.authenticated;
     if (state.authenticated) loadRestorePoints();
   }
+  if (page === "dashboard") updateDerivedUI();
   renderHistoryTable();
 }
 
@@ -2659,8 +2844,6 @@ async function renderGoogleButton() {
             if (pendingSetting.startsWith("expense:")) {
               const id = pendingSetting.slice("expense:".length);
               openExpenseDialog(id === "new" ? null : orderForId(id));
-            } else {
-              openNormDialog();
             }
           }
         } catch (error) {
@@ -2682,10 +2865,14 @@ function openAuthDialog() {
   renderGoogleButton();
 }
 
-function wireEvents() {
-  document.addEventListener("click", (event) => {
-    if (event.target.closest("[data-edit-norms]")) openNormDialog();
+function wireChartToggle(id, stateKey, redraw) {
+  document.getElementById(id)?.addEventListener("change", (event) => {
+    state[stateKey] = event.target.checked;
+    redraw();
   });
+}
+
+function wireEvents() {
   document.getElementById("languageButton")?.addEventListener("click", () => {
     state.lang = state.lang === "ru" ? "en" : "ru";
     writeCookie("porschik_lang", state.lang);
@@ -2713,15 +2900,24 @@ function wireEvents() {
     const file = event.target.files?.[0];
     if (file) uploadAvatar(file);
   });
-  document.getElementById("normAddButton")?.addEventListener("click", addNormEditorPoint);
-  document.getElementById("normResetButton")?.addEventListener("click", () => renderNormEditor(DEFAULT_FEEDING_NORMS));
-  document.getElementById("normSaveButton")?.addEventListener("click", saveFeedingNorms);
-  document.getElementById("normTimelineEditor")?.addEventListener("click", (event) => {
-    const removeButton = event.target.closest("[data-remove-norm]");
-    if (!removeButton) return;
-    const rows = [...document.querySelectorAll("#normTimelineEditor .norm-editor-row")];
-    if (rows.length <= 1) return;
-    removeButton.closest(".norm-editor-row")?.remove();
+  document.getElementById("normInlineAddButton")?.addEventListener("click", beginNormAdd);
+  document.getElementById("normTimelineList")?.addEventListener("click", (event) => {
+    const editButton = event.target.closest("[data-edit-inline-norm]");
+    if (editButton) return beginNormEdit(editButton.dataset.editInlineNorm);
+    const deleteButton = event.target.closest("[data-delete-inline-norm]");
+    if (deleteButton) return deleteNormInline(deleteButton.dataset.deleteInlineNorm);
+    if (event.target.closest("[data-save-inline-norm]")) return saveNormInlineEditor();
+    if (event.target.closest("[data-cancel-inline-norm]")) cancelNormInlineEditor();
+  });
+  document.getElementById("normTimelineList")?.addEventListener("keydown", (event) => {
+    if (!state.normEditor) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelNormInlineEditor();
+    } else if (event.key === "Enter" && !event.target.closest("button")) {
+      event.preventDefault();
+      saveNormInlineEditor();
+    }
   });
   document.getElementById("downloadBackupButton")?.addEventListener("click", downloadBackup);
   document.getElementById("restoreBackupButton")?.addEventListener("click", restoreSelectedBackup);
@@ -2730,14 +2926,14 @@ function wireEvents() {
   document.querySelectorAll("[data-open-record]").forEach((button) => button.addEventListener("click", () => openRecordDialog(button.dataset.openRecord, today)));
   document.querySelectorAll("[data-close-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.closeDialog)?.close()));
   document.querySelectorAll("[data-record-tab]").forEach((button) => button.addEventListener("click", () => setRecordTab(button.dataset.recordTab)));
-  document.getElementById("showWeightSeries")?.addEventListener("change", (event) => {
-    state.showWeight = event.target.checked;
-    growthChart?.draw();
-  });
-  document.getElementById("showFoodSeries")?.addEventListener("change", (event) => {
-    state.showFood = event.target.checked;
-    growthChart?.draw();
-  });
+  wireChartToggle("showGrowthWeight", "showGrowthWeight", () => growthChart?.draw());
+  wireChartToggle("showGrowthActual", "showGrowthActual", () => growthChart?.draw());
+  wireChartToggle("showGrowthTarget", "showGrowthTarget", () => growthChart?.draw());
+  wireChartToggle("showNormTarget", "showNormTarget", drawNormChart);
+  wireChartToggle("showNormActual", "showNormActual", drawNormChart);
+  wireChartToggle("showExpenseFood", "showExpenseFood", drawExpenseChart);
+  wireChartToggle("showExpenseDelivery", "showExpenseDelivery", drawExpenseChart);
+  wireChartToggle("showExpenseCumulative", "showExpenseCumulative", drawExpenseChart);
   document.getElementById("weightValue")?.addEventListener("input", (event) => {
     document.getElementById("weightRange").value = event.target.value;
   });

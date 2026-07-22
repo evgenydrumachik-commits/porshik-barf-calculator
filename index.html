@@ -54,7 +54,7 @@
           <h2 id="dashboardTitle" data-i18n="dashboard.title">Как растёт и ест Поршик</h2>
           <p data-i18n="dashboard.subtitle">Вес, фактические порции и актуальная BARF-норма — на одной временной шкале.</p>
         </div>
-        <div class="stage-pill" id="stagePill"><span id="stagePillText">Щенячья фаза · 5,4%</span><button class="inline-edit-button" id="stagePillEdit" type="button" data-edit-norms aria-label="Изменить историю норм" data-i18n-aria="action.editFeedingSettings">✎</button></div>
+        <div class="stage-pill" id="stagePill"><span id="stagePillText">Щенячья фаза · 5,4%</span></div>
       </section>
 
       <section class="stats-grid" aria-label="Краткая сводка">
@@ -98,15 +98,11 @@
           </div>
         </div>
 
-        <div class="chart-toolbar">
-          <div class="series-toggles">
-            <label class="series-toggle"><input id="showWeightSeries" type="checkbox" checked><span data-i18n="chart.weightSeries">Вес</span></label>
-            <label class="series-toggle food"><input id="showFoodSeries" type="checkbox" checked><span data-i18n="chart.foodSeries">Питание</span></label>
-          </div>
-          <div class="chart-legend" aria-hidden="true">
-            <span class="legend-item"><i class="legend-mark" style="--mark: var(--blue)"></i><span data-i18n="chart.weightLegend">Вес, кг</span></span>
-            <span class="legend-item"><i class="legend-mark bar" style="--mark: var(--coral)"></i><span data-i18n="chart.actualDaily">Съедено за день</span></span>
-            <span class="legend-item"><i class="legend-mark target" style="--mark: var(--coral)"></i><span data-i18n="chart.targetDaily">Дневная норма</span></span>
+        <div class="chart-toolbar chart-toolbar-legend">
+          <div class="chart-legend chart-toggle-legend" aria-label="Серии графика">
+            <label class="legend-toggle"><input id="showGrowthWeight" type="checkbox" checked><i class="legend-mark" style="--mark: var(--blue)"></i><span data-i18n="chart.weightLegend">Вес, кг</span></label>
+            <label class="legend-toggle"><input id="showGrowthActual" type="checkbox" checked><i class="legend-mark bar" style="--mark: var(--coral)"></i><span data-i18n="chart.actualDaily">Съедено за день</span></label>
+            <label class="legend-toggle"><input id="showGrowthTarget" type="checkbox" checked><i class="legend-mark target" style="--mark: var(--coral)"></i><span data-i18n="chart.targetDaily">Дневная норма</span></label>
           </div>
         </div>
 
@@ -127,7 +123,7 @@
           <span class="eyebrow" data-i18n="feeding.eyebrow">BARF сегодня</span>
           <h2 id="feedingTodayTitle" data-i18n="feeding.title">Актуальная норма питания</h2>
           <p data-i18n="feeding.subtitle">Процент меняется по заданному плану, а число кормлений — по возрасту.</p>
-          <span class="feeding-status" id="feedingStatus"><span id="feedingStatusText">Норма пересчитывается…</span><button class="inline-edit-button" id="feedingStatusEdit" type="button" data-edit-norms aria-label="Изменить историю норм" data-i18n-aria="action.editFeedingSettings">✎</button></span>
+          <span class="feeding-status" id="feedingStatus"><span id="feedingStatusText">Норма пересчитывается…</span></span>
         </div>
         <div class="feeding-metrics">
           <article class="feeding-metric"><span data-i18n="feeding.daily">В день</span><strong id="dailyRecommendation">—</strong><small id="dailyRecommendationRatio">—</small></article>
@@ -145,13 +141,17 @@
             <strong id="normCurrentRatio">5,4%</strong>
             <span><b id="normCurrentDaily">—</b> <span data-i18n="feeding.daily">в день</span> · <b id="normCurrentMeal">—</b> <span data-i18n="feeding.perMeal">за приём</span></span>
           </div>
+          <div class="norm-timeline-heading">
+            <span data-i18n="settings.normTitle">История норм</span>
+            <button class="norm-inline-add" id="normInlineAddButton" type="button" aria-label="Добавить норму" title="Добавить норму" data-i18n-aria="settings.addNorm" hidden>+</button>
+          </div>
           <ol class="norm-timeline" id="normTimelineList"></ol>
-          <button class="button button-secondary norm-edit-button" type="button" data-edit-norms data-i18n="action.editFeedingSettings">Изменить историю норм</button>
+          <p class="form-message norm-inline-message" id="normInlineMessage" aria-live="polite"></p>
         </div>
         <div class="norm-chart-side">
-          <div class="norm-chart-legend" aria-hidden="true">
-            <span><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></span>
-            <span><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></span>
+          <div class="norm-chart-legend chart-toggle-legend" aria-label="Серии графика">
+            <label class="legend-toggle"><input id="showNormTarget" type="checkbox" checked><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></label>
+            <label class="legend-toggle"><input id="showNormActual" type="checkbox" checked><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></label>
           </div>
           <div class="norm-chart-wrap" id="normChartWrap">
             <canvas class="norm-canvas" id="normChart" role="img" aria-label="Норма и фактически съедено в процентах от веса"></canvas>
@@ -176,10 +176,10 @@
           <article><span data-i18n="expense.annualPace">Годовой темп</span><strong id="expenseAnnualPace">—</strong></article>
           <article><span data-i18n="expense.averageKg">Средняя цена/кг</span><strong id="expenseAverageKg">—</strong></article>
         </div>
-        <div class="expense-chart-legend" aria-hidden="true">
-          <span><i class="expense-legend-food"></i><span data-i18n="expense.foodCost">Стоимость еды</span></span>
-          <span><i class="expense-legend-delivery"></i><span data-i18n="expense.delivery">Доставка</span></span>
-          <span><i class="expense-legend-cumulative"></i><span data-i18n="expense.cumulative">Накопительно</span></span>
+        <div class="expense-chart-legend chart-toggle-legend" aria-label="Серии графика">
+          <label class="legend-toggle"><input id="showExpenseFood" type="checkbox" checked><i class="expense-legend-food"></i><span data-i18n="expense.foodCost">Стоимость еды</span></label>
+          <label class="legend-toggle"><input id="showExpenseDelivery" type="checkbox" checked><i class="expense-legend-delivery"></i><span data-i18n="expense.delivery">Доставка</span></label>
+          <label class="legend-toggle"><input id="showExpenseCumulative" type="checkbox" checked><i class="expense-legend-cumulative"></i><span data-i18n="expense.cumulative">Накопительно</span></label>
         </div>
         <div class="expense-chart-wrap" id="expenseChartWrap">
           <canvas class="expense-canvas" id="expenseChart" role="img" aria-label="График расходов на питание Поршика"></canvas>
@@ -240,17 +240,6 @@
       <div class="replace-comparison"><section><span data-i18n="replace.before">Было</span><div id="replaceBefore"></div></section><section><span data-i18n="replace.after">Станет</span><div id="replaceAfter"></div></section></div>
       <p class="replace-preserved" id="replacePreserved"></p>
       <div class="dialog-actions"><button class="button button-secondary" id="replaceCancelButton" type="button" data-i18n="action.cancel">Отмена</button><button class="button button-primary" id="replaceConfirmButton" type="button" data-i18n="replace.confirm">Заменить значение</button></div>
-    </div>
-  </dialog>
-
-  <dialog id="normDialog" aria-labelledby="normDialogTitle">
-    <div class="dialog-head"><h2 id="normDialogTitle" data-i18n="settings.normTitle">История норм</h2><button class="dialog-close" type="button" data-close-dialog="normDialog" aria-label="Закрыть">×</button></div>
-    <div class="dialog-body form-grid">
-      <p class="settings-recommended" data-i18n="settings.normIntro">Задайте даты и проценты. Между точками норма меняется плавно каждый день.</p>
-      <div class="norm-editor" id="normTimelineEditor"></div>
-      <button class="button button-secondary norm-add-button" id="normAddButton" type="button" data-i18n="settings.addNorm">Добавить точку</button>
-      <p class="form-message" id="normMessage" aria-live="polite"></p>
-      <div class="dialog-actions dialog-actions-split"><button class="button button-secondary" id="normResetButton" type="button" data-i18n="settings.reset">Вернуть план до взросления</button><span class="dialog-actions-end"><button class="button button-secondary" type="button" data-close-dialog="normDialog" data-i18n="action.cancel">Отмена</button><button class="button button-primary" id="normSaveButton" type="button" data-i18n="action.save">Сохранить</button></span></div>
     </div>
   </dialog>
 

@@ -113,6 +113,7 @@ const normChart = await evaluate(`({
   adultRatio: document.querySelector('#normChart').dataset.adultRatio,
   todayLabel: document.querySelector('#normChart').dataset.todayLabel,
   timelinePoints: document.querySelectorAll('#normTimelineList li').length,
+  timelineDates: [...document.querySelectorAll('#normTimelineList .norm-timeline-summary > span:first-child')].map((element) => element.textContent.trim()),
   timelineText: document.querySelector('#normTimelineList')?.textContent,
   dailyRatio: document.querySelector('#dailyRecommendationRatio')?.textContent
 })`);
@@ -127,19 +128,58 @@ const normHover = await evaluate(`(() => {
   const tooltip = document.querySelector('#normChartTooltip');
   return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
 })()`);
-await evaluate("document.querySelector('[data-edit-norms]')?.click()");
-await waitFor("document.querySelector('#normDialog')?.open");
+const legendToggles = await evaluate(`(() => {
+  const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showNormTarget', 'showNormActual', 'showExpenseFood', 'showExpenseDelivery', 'showExpenseCumulative'];
+  for (const id of ids) {
+    const input = document.getElementById(id);
+    input.checked = false;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  const hidden = {
+    growth: [document.querySelector('#growthChart').dataset.showWeight, document.querySelector('#growthChart').dataset.showActual, document.querySelector('#growthChart').dataset.showTarget],
+    norm: [document.querySelector('#normChart').dataset.showTarget, document.querySelector('#normChart').dataset.showActual],
+    expense: [document.querySelector('#expenseChart').dataset.showFood, document.querySelector('#expenseChart').dataset.showDelivery, document.querySelector('#expenseChart').dataset.showCumulative]
+  };
+  for (const id of ids) {
+    const input = document.getElementById(id);
+    input.checked = true;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  return { count: document.querySelectorAll('.chart-toggle-legend input[type="checkbox"]').length, hidden };
+})()`);
+await evaluate("document.querySelector('[data-edit-inline-norm]')?.click()");
+await waitFor("document.querySelector('[data-norm-editor-row]')");
 const normEditor = await evaluate(`({
-  rows: document.querySelectorAll('#normTimelineEditor .norm-editor-row').length,
-  dates: [...document.querySelectorAll('[data-norm-date]')].map((input) => input.value),
-  percents: [...document.querySelectorAll('[data-norm-percent]')].map((input) => input.value)
+  timelineRows: document.querySelectorAll('#normTimelineList > li').length,
+  editButtons: document.querySelectorAll('[data-edit-inline-norm]').length,
+  deleteButtons: document.querySelectorAll('[data-delete-inline-norm]').length,
+  actionText: [...document.querySelectorAll('.norm-row-action')].map((button) => button.textContent.trim()),
+  tooltips: [...document.querySelectorAll('.norm-row-action')].map((button) => button.dataset.tooltip),
+  date: document.querySelector('[data-inline-norm-date]')?.value,
+  percent: document.querySelector('[data-inline-norm-percent]')?.value,
+  dialogPresent: Boolean(document.querySelector('#normDialog'))
 })`);
-await evaluate("document.querySelector('#normSaveButton')?.click()");
-await waitFor("!document.querySelector('#normDialog')?.open");
+await evaluate("document.querySelector('[data-save-inline-norm]')?.click()");
+await waitFor("!document.querySelector('[data-norm-editor-row]')");
 const savedNorms = await evaluate(`(async () => {
   const payload = await (await fetch('/api/profile', { cache: 'no-store' })).json();
   return payload.feedingSettings?.feedingNorms || [];
 })()`);
+await evaluate("document.querySelector('#normInlineAddButton')?.click()");
+await waitFor("document.querySelector('[data-norm-editor-row].is-new')");
+await waitFor("[...document.querySelectorAll('[data-norm-timeline-date]')].every((row) => row.getAnimations().length > 0)");
+const normAdd = await evaluate(`({
+  timelineRows: document.querySelectorAll('#normTimelineList > li').length,
+  firstIsEditor: document.querySelector('#normTimelineList > li:first-child')?.hasAttribute('data-norm-editor-row'),
+  animated: document.querySelector('[data-norm-editor-row]')?.classList.contains('is-new'),
+  editorAnimationName: getComputedStyle(document.querySelector('[data-norm-editor-row]')).animationName,
+  editorAnimationMs: Number.parseFloat(getComputedStyle(document.querySelector('[data-norm-editor-row]')).animationDuration) * 1000,
+  shiftedRows: [...document.querySelectorAll('[data-norm-timeline-date]')].filter((row) => row.getAnimations().length > 0).length,
+  date: document.querySelector('[data-inline-norm-date]')?.value,
+  percent: document.querySelector('[data-inline-norm-percent]')?.value
+})`);
+await evaluate("document.querySelector('[data-cancel-inline-norm]')?.click()");
+await waitFor("!document.querySelector('[data-norm-editor-row]')");
 await command("Emulation.setDeviceMetricsOverride", {
   width: 1440,
   height: 1800,
@@ -340,7 +380,10 @@ const mobile = await evaluate(`(() => ({
   overflow: document.documentElement.scrollWidth - innerWidth,
   stickyActions: getComputedStyle(document.querySelector('.mobile-actions')).display,
   chartHeight: Math.round(document.querySelector('.chart-canvas').getBoundingClientRect().height),
-  historyButtonVisible: document.querySelector('.chart-actions .button-secondary').getBoundingClientRect().width > 0
+  historyButtonVisible: document.querySelector('.chart-actions .button-secondary').getBoundingClientRect().width > 0,
+  legendChecks: document.querySelectorAll('.chart-toggle-legend input[type="checkbox"]').length,
+  legendVisible: getComputedStyle(document.querySelector('.chart-toggle-legend')).display,
+  minLegendTapHeight: Math.min(...[...document.querySelectorAll('.legend-toggle')].map((label) => label.getBoundingClientRect().height))
 }))()`);
 await screenshot("/tmp/porschik-cdp-mobile.png");
 
@@ -367,7 +410,7 @@ const normActualLine = await evaluate(`({
 })`);
 await screenshot("/tmp/porschik-cdp-barf-after-flows.png");
 
-const report = { desktop, normChart, normHover, normEditor, savedNorms, normActualLine, puppyMeals, adultMeals, feedingFormNoComment, feedingTooltip, pointEdit, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
+const report = { desktop, normChart, normHover, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, feedingFormNoComment, feedingTooltip, pointEdit, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
 console.log(JSON.stringify(report, null, 2));
 
 if (desktop.overflow > 0 || mobile.overflow > 0 || historyMobile.overflow > 0) process.exitCode = 1;
@@ -375,9 +418,13 @@ if (desktop.tableOnHome || desktop.commentInputs || feedingFormNoComment.comment
 if (!desktop.pawDecoration?.includes("🐾") || desktop.avatarWidth < 80) process.exitCode = 1;
 if (desktop.foodSegments < 20 || !desktop.chartSubtitle?.includes("составные столбики")) process.exitCode = 1;
 if (normChart.normPoints < 100 || normChart.actualPoints < 1 || normChart.currentRatio !== "0.054" || normChart.adultDate !== "2026-10-28" || normChart.adultRatio !== "0.03" || normChart.timelinePoints !== 4) process.exitCode = 1;
+if (normChart.timelineDates.join(",") !== "28 окт.,22 июл.,01 июл.,01 мая") process.exitCode = 1;
 if (!normChart.todayLabel?.includes("22 июля") || !normChart.timelineText?.includes("4мес 24дн") || !normChart.dailyRatio?.includes("5,4%")) process.exitCode = 1;
 if (!normHover.visible || !normHover.text.includes("Фактически съедено") || !feedingTooltip?.includes("Всего")) process.exitCode = 1;
-if (normEditor.rows !== 4 || normEditor.dates.join(",") !== "2026-05-01,2026-07-01,2026-07-22,2026-10-28" || normEditor.percents.join(",") !== "8.0,6.0,5.4,3.0") process.exitCode = 1;
+if (legendToggles.count !== 8 || Object.values(legendToggles.hidden).flat().some((value) => value !== "false")) process.exitCode = 1;
+if (normEditor.timelineRows !== 4 || normEditor.editButtons !== 3 || normEditor.deleteButtons !== 3 || normEditor.date !== "2026-10-28" || normEditor.percent !== "3.0" || normEditor.dialogPresent) process.exitCode = 1;
+if (normEditor.actionText.some(Boolean) || !normEditor.tooltips.includes("Изменить") || !normEditor.tooltips.includes("Удалить")) process.exitCode = 1;
+if (normAdd.timelineRows !== 5 || !normAdd.firstIsEditor || !normAdd.animated || normAdd.editorAnimationName !== "norm-row-in" || normAdd.editorAnimationMs < 500 || normAdd.shiftedRows !== 4 || !normAdd.date || !normAdd.percent) process.exitCode = 1;
 if (savedNorms.length !== 4 || savedNorms[1]?.date !== "2026-07-01" || savedNorms[1]?.interpolation !== "step" || savedNorms[2]?.ratio !== 0.054) process.exitCode = 1;
 if (normActualLine.points < 1 || !normActualLine.summary.includes("Среднее")) process.exitCode = 1;
 if (!replacementPreview.after?.includes("8,1 кг") || !replacementPreview.preserved?.includes("питание")) process.exitCode = 1;
@@ -388,6 +435,7 @@ if (historyDesktop.targetCells !== historyDesktop.rows || historyDesktop.differe
 if (!historyDesktop.targetHeader || !historyDesktop.differenceHeader || historyDesktop.commentHeader || historyDesktop.actionsHeader) process.exitCode = 1;
 if (historyDesktop.manualBackupButton || !historyDesktop.automaticBadge?.includes("Автокопирование")) process.exitCode = 1;
 if (!inlineCancelledWeight?.includes("7,95") || !inlineSavedWeight?.includes("8")) process.exitCode = 1;
+if (mobile.legendChecks !== 8 || mobile.legendVisible === "none" || mobile.minLegendTapHeight < 44) process.exitCode = 1;
 if (inlineDraft.rows !== historyDesktop.rows + 1 || inlineDraft.weight !== "—" || inlineDraft.meal1 !== "—" || historyAfterDraft !== historyDesktop.rows) process.exitCode = 1;
 if (!historyDesktop.backupPanelVisible || !backupExport.ok || backupExport.records !== historyAfterDraft) process.exitCode = 1;
 if (automaticBackups.options < 2 || !backupRestored?.includes("восстановлены")) process.exitCode = 1;

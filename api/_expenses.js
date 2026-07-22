@@ -1,11 +1,5 @@
 const { randomUUID } = require("crypto");
-
-const CURRENT_EXPENSE_PATH = "porschik/expenses.json";
-const EXPENSE_SNAPSHOT_PREFIX = "porschik/expenses/";
-
-function hasBlobToken() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
+const { hasDatabase, query, storageUnavailableError } = require("./_db");
 
 function finiteNumber(value, label, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
   const number = Number(String(value ?? "").replace(",", "."));
@@ -52,68 +46,31 @@ function normalizeExpenseOrders(orders) {
   return orders.map(normalizeExpenseOrder).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
 
-async function listExpenseSnapshots() {
-  if (!hasBlobToken()) return [];
-  const { list } = require("@vercel/blob");
-  const result = await list({ prefix: EXPENSE_SNAPSHOT_PREFIX, limit: 1000 });
-  return result.blobs
-    .filter((entry) => entry.pathname.endsWith(".json"))
-    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
-}
-
 async function readExpenseOrders() {
-  if (!hasBlobToken()) return { storageReady: false, orders: [] };
-  const { get } = require("@vercel/blob");
-  let blob = await get(CURRENT_EXPENSE_PATH, { access: "public", headers: { "Cache-Control": "no-store" } });
-  if (!blob || blob.statusCode !== 200 || !blob.stream) {
-    const latest = (await listExpenseSnapshots())[0];
-    if (!latest) {
-      await persistCurrentExpenseOrders([]);
-      return { storageReady: true, orders: [] };
-    }
-    blob = await get(latest.pathname, { access: "public", headers: { "Cache-Control": "no-store" } });
-    if (!blob || blob.statusCode !== 200 || !blob.stream) return { storageReady: true, orders: [] };
-    const migrated = JSON.parse(await new Response(blob.stream).text());
-    const orders = normalizeExpenseOrders(migrated.orders);
-    await persistCurrentExpenseOrders(orders);
-    return { storageReady: true, orders };
-  }
-  const payload = JSON.parse(await new Response(blob.stream).text());
-  return { storageReady: true, orders: normalizeExpenseOrders(payload.orders) };
+  if (!hasDatabase()) return { storageReady: false, orders: [] };
+  const rows = await query("SELECT expenses FROM porschik_state WHERE id = 1");
+  return { storageReady: true, orders: normalizeExpenseOrders(rows[0]?.expenses || []) };
 }
 
 async function persistCurrentExpenseOrders(orders, timestamp = new Date().toISOString()) {
-  const { put } = require("@vercel/blob");
   const normalized = normalizeExpenseOrders(orders);
-  await put(CURRENT_EXPENSE_PATH, JSON.stringify({
-    schemaVersion: 1,
-    updatedAt: timestamp,
-    orders: normalized
-  }, null, 2), {
-    access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    cacheControlMaxAge: 60,
-    contentType: "application/json"
-  });
+  await query(
+    `INSERT INTO porschik_state (id, expenses, updated_at)
+     VALUES (1, $1::jsonb, $2)
+     ON CONFLICT (id) DO UPDATE SET expenses = EXCLUDED.expenses, updated_at = EXCLUDED.updated_at`,
+    [JSON.stringify(normalized), timestamp]
+  );
   return normalized;
 }
 
 async function writeExpenseOrders(orders) {
-  if (!hasBlobToken()) {
-    const error = new Error("Vercel Blob ещё не подключён");
-    error.statusCode = 503;
-    throw error;
-  }
+  if (!hasDatabase()) throw storageUnavailableError();
   const normalized = normalizeExpenseOrders(orders);
-  const { put } = require("@vercel/blob");
   const timestamp = new Date().toISOString();
-  const path = `${EXPENSE_SNAPSHOT_PREFIX}${timestamp.replaceAll(":", "-")}-${randomUUID()}.json`;
-  await put(path, JSON.stringify({ schemaVersion: 1, exportedAt: timestamp, orders: normalized }, null, 2), {
-    access: "public",
-    cacheControlMaxAge: 60,
-    contentType: "application/json"
-  });
+  await query(
+    "INSERT INTO porschik_expense_snapshots (id, created_at, orders) VALUES ($1, $2, $3::jsonb)",
+    [randomUUID(), timestamp, JSON.stringify(normalized)]
+  );
   await persistCurrentExpenseOrders(normalized, timestamp);
   return normalized;
 }

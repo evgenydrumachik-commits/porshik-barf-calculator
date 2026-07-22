@@ -1,16 +1,16 @@
 # Graph Report - Калькулятор еды для Поршика  (2026-07-22)
 
 ## Corpus Check
-- 51 files · ~302,773 words
+- 54 files · ~303,431 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 550 nodes · 1153 edges · 30 communities (19 shown, 11 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.8)
+- 738 nodes · 1453 edges · 43 communities (31 shown, 12 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 51 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2548555d`
+- Built from commit: `4e1a19b7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -42,18 +42,31 @@
 - [[_COMMUNITY_Community 27|Community 27]]
 - [[_COMMUNITY_Community 28|Community 28]]
 - [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `t()` - 48 edges
-2. `writeRecords()` - 18 edges
-3. `formatNumber()` - 18 edges
-4. `updateDerivedUI()` - 18 edges
-5. `drawNormChart()` - 18 edges
-6. `toast()` - 16 edges
-7. `renderAll()` - 16 edges
-8. `createDailyBackup()` - 15 edges
-9. `renderHistoryTable()` - 15 edges
-10. `Задача: принципиальный редизайн приложения «Поршик»` - 15 edges
+1. `t()` - 53 edges
+2. `query()` - 25 edges
+3. `writeRecords()` - 24 edges
+4. `hasDatabase()` - 23 edges
+5. `updateDerivedUI()` - 22 edges
+6. `createDailyBackup()` - 20 edges
+7. `formatNumber()` - 18 edges
+8. `toast()` - 18 edges
+9. `drawNormChart()` - 18 edges
+10. `renderAll()` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `isEmailAllowed()` --calls--> `require`  [INFERRED]
@@ -64,14 +77,14 @@
   api/_users.js → tests/api-records.test.mjs
 - `isEmailAllowed()` --calls--> `require`  [INFERRED]
   api/_auth.js → tests/api-records.test.mjs
-- `writeProfile()` --calls--> `randomUUID()`  [INFERRED]
-  api/_profile.js → sites-app/legacy-api/_weights.js
+- `normalizeExpenseOrder()` --calls--> `randomUUID()`  [INFERRED]
+  api/_expenses.js → sites-app/legacy-api/_weights.js
 
-## Communities (30 total, 11 thin omitted)
+## Communities (43 total, 12 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
-Nodes (54): action, appendAuditEvent(), { authorizeRequest }, blobSafeStamp(), buildRecordsPayload(), {
+Nodes (58): action, appendAuditEvent(), { authorizeRequest }, blobSafeStamp(), buildRecordsPayload(), {
   buildRecordsPayload,
   createDailyBackup,
   listRestorePoints,
@@ -88,7 +101,7 @@ Nodes (54): action, appendAuditEvent(), { authorizeRequest }, blobSafeStamp(), b
   readRecords,
   restoreRecordsFromPath,
   writeRecords
-}, buildStorageState() (+46 more)
+}, buildStorageState() (+50 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.20
@@ -99,12 +112,12 @@ Cohesion: 0.06
 Nodes (34): 10. Состояния интерфейса, 11. Доступность и качество, 12. Критерии приёмки, 13. Обязательная проверка результата, 14. Референс для продуктового правила, 1. Цель, 2. Продуктовые принципы, 3.1. Главная страница `/` (+26 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.06
-Nodes (46): authorizeRequest(), buildClearCookie(), buildClearRememberedSessionCookie(), buildRememberedSessionCookie(), buildSessionCookie(), createRememberedSession(), hasBlobToken(), isAdminEmail() (+38 more)
+Cohesion: 0.10
+Nodes (34): authorizeRequest(), buildClearCookie(), buildClearRememberedSessionCookie(), buildRememberedSessionCookie(), buildSessionCookie(), { createHash, randomBytes }, createRememberedSession(), hasBlobToken() (+26 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.33
-Nodes (5): dependencies, @vercel/blob, private, scripts, test
+Cohesion: 0.25
+Nodes (7): dependencies, @neondatabase/serverless, @vercel/blob, private, scripts, migrate:neon, test
 
 ### Community 7 - "Community 7"
 Cohesion: 0.13
@@ -120,8 +133,8 @@ Nodes (30): action, { authorizeRequest }, blobSafeStamp(), buildRecordsPayload()
 }, createDailyBackup(), ensureDailyBackup(), hasBlobToken() (+22 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.08
-Nodes (53): activeDogProfile(), activeFeedingNorms(), addNormEditorPoint(), buildMealControls(), colorWithAlpha(), comparisonDelta(), cssColor(), drawBarfChart() (+45 more)
+Cohesion: 0.14
+Nodes (26): addNormEditorPoint(), readNormEditor(), addDays(), addMonths(), ageOn(), daysBetween(), DEFAULT_FEEDING_NORMS, DOG_PROFILE (+18 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.08
@@ -132,8 +145,8 @@ Cohesion: 0.10
 Nodes (24): { buildClearCookie }, authorizeRequest(), buildClearCookie(), buildSessionCookie(), isAdminEmail(), isEmailAllowed(), parseCookies(), shouldUseSecureCookies() (+16 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.07
-Nodes (80): addHistoryDraft(), applyAvatar(), applyTheme(), applyTranslations(), avatarDataUrlFromFile(), cancelInlineEditor(), confirmRecordReplacement(), confirmSelectedBackupRestore() (+72 more)
+Cohesion: 0.09
+Nodes (30): addHistoryDraft(), applyAvatar(), applyTheme(), applyTranslations(), expenseChartPoints, expenseFormValues(), expenseMetrics(), init() (+22 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.09
@@ -144,40 +157,88 @@ Cohesion: 0.22
 Nodes (12): browserErrors, command(), evaluate(), message, navigate(), pending, report, { resolve, reject } (+4 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.18
-Nodes (18): { authorizeRequest }, decodeAvatarDataUrl(), DEFAULT_FEEDING_NORMS, defaultProfile(), hasBlobToken(), normalizeFeedingSettings(), persistProfile(), { randomUUID } (+10 more)
+Cohesion: 0.05
+Nodes (41): Autoscaling, Branching, Check Status Quo, code:block1 (https://neon.com/docs/llms.txt), code:bash (npx skills add neondatabase/agent-skills --skill neon-postgr), code:bash (npx -y neon@latest init --agent <agent-name>), code:typescript (import { drizzle } from "drizzle-orm/node-postgres";), code:typescript (import { drizzle } from "drizzle-orm/node-postgres";) (+33 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.09
-Nodes (21): Azure Static Web Apps, Blob data layout, code:bash (npm install), code:bash (npm test), code:bash (DEV_AUTH=1 node tests/dev-server.mjs), code:bash (node tests/dev-server.mjs), code:bash (npm test), code:text (index.html                 Dashboard) (+13 more)
+Nodes (22): Azure Static Web Apps, Blob data layout, code:bash (npm install), code:bash (npm test), code:bash (DEV_AUTH=1 node tests/dev-server.mjs), code:bash (node tests/dev-server.mjs), code:bash (npm test), code:text (index.html                 Dashboard) (+14 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.15
-Nodes (19): { authorizeRequest }, finiteNumber(), hasBlobToken(), id, listExpenseSnapshots(), normalizeExpenseOrder(), { normalizeExpenseOrder, readExpenseOrders, writeExpenseOrders }, normalizeExpenseOrders() (+11 more)
+Nodes (21): query(), { authorizeRequest }, finiteNumber(), hasBlobToken(), { hasDatabase, query, storageUnavailableError }, id, listExpenseSnapshots(), normalizeExpenseOrder() (+13 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.25
 Nodes (10): browserErrors, command(), evaluate(), handlers, message, navigate(), pending, report (+2 more)
 
+### Community 30 - "Community 30"
+Cohesion: 0.20
+Nodes (12): databaseUrl(), getSqlClient(), hasDatabase(), storageUnavailableError(), { authorizeRequest }, email, filtered, hasBlobToken() (+4 more)
+
+### Community 31 - "Community 31"
+Cohesion: 0.06
+Nodes (33): API surface (ergonomic client), Beta services, Client configuration, code:bash (npm install @neon/sdk), code:ts (const { data: uri } = await neon.postgres.connectionString({), code:ts (await neon.snapshots.restore(projectId, snapshotId, {), code:ts (import { raw } from "@neon/sdk";), code:ts (const { data } = await raw.createProjectBranch({) (+25 more)
+
+### Community 32 - "Community 32"
+Cohesion: 0.17
+Nodes (19): { authorizeRequest }, decodeAvatarDataUrl(), DEFAULT_FEEDING_NORMS, defaultProfile(), hasBlobToken(), { hasDatabase, query, storageUnavailableError }, normalizeFeedingSettings(), persistProfile() (+11 more)
+
+### Community 33 - "Community 33"
+Cohesion: 0.15
+Nodes (12): computedHash, computedHash, skillPath, source, sourceType, skillPath, source, sourceType (+4 more)
+
+### Community 34 - "Community 34"
+Cohesion: 0.05
+Nodes (42): Architecture: how Neon fits, Branch configuration, Branch-First Dev Flow, Check Status Quo, Choosing the Right Skill, code:block1 (https://neon.com/docs/llms.txt), code:bash (npm i @neon/env), code:typescript (import { parseEnv } from "@neon/env";) (+34 more)
+
+### Community 35 - "Community 35"
+Cohesion: 0.17
+Nodes (11): { DEFAULT_AVATAR_URL, normalizeFeedingSettings }, expenses, migratedAt, { normalizeExpenseOrders }, { normalizeRecords }, profile, records, require (+3 more)
+
+### Community 36 - "Community 36"
+Cohesion: 0.13
+Nodes (35): activeDogProfile(), buildMealControls(), cancelNormInlineEditor(), colorWithAlpha(), comparisonDelta(), confirmRecordReplacement(), drawBarfChart(), drawCanvasPill() (+27 more)
+
+### Community 37 - "Community 37"
+Cohesion: 0.18
+Nodes (31): avatarDataUrlFromFile(), confirmSelectedBackupRestore(), createDailyBackupFromHistory(), deleteExpense(), deleteRecord(), deleteWeightValue(), downloadBackup(), loadExpenses() (+23 more)
+
+### Community 38 - "Community 38"
+Cohesion: 0.30
+Nodes (12): cancelInlineEditor(), discardHistoryDraft(), handleHistoryAction(), handleHistoryKeydown(), inlineEditorError(), openInlineEditor(), openRecordDialog(), populateFeedingForm() (+4 more)
+
+### Community 40 - "Community 40"
+Cohesion: 0.18
+Nodes (8): auth, blob, expense, expenses, record, require, users, weights
+
+### Community 41 - "Community 41"
+Cohesion: 0.31
+Nodes (10): activeFeedingNorms(), animateNormTimelineShift(), beginNormAdd(), beginNormEdit(), deleteNormInline(), focusNormInlineEditor(), normTimelineRowPositions(), persistFeedingNorms() (+2 more)
+
+### Community 42 - "Community 42"
+Cohesion: 0.20
+Nodes (9): apiFiles, auth, calls, db, expenses, profile, records, require (+1 more)
+
 ## Knowledge Gaps
-- **210 isolated node(s):** `cleanUrls`, `private`, `test`, `@vercel/blob`, `routes` (+205 more)
+- **324 isolated node(s):** `cleanUrls`, `private`, `test`, `migrate:neon`, `@neondatabase/serverless` (+319 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `randomUUID()` connect `Community 0` to `Community 26`, `Community 28`, `Community 7`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `randomUUID()` connect `Community 0` to `Community 32`, `Community 28`, `Community 7`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Why does `normalizeExpenseOrder()` connect `Community 28` to `Community 24`, `Community 0`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **Why does `require` connect `Community 0` to `Community 3`, `Community 14`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **Are the 2 inferred relationships involving `writeRecords()` (e.g. with `require` and `randomUUID()`) actually correct?**
-  _`writeRecords()` has 2 INFERRED edges - model-reasoned connections that need verification._
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `hasDatabase()` connect `Community 30` to `Community 32`, `Community 0`, `Community 3`, `Community 28`?**
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Are the 15 inferred relationships involving `query()` (e.g. with `readAllowedEmails()` and `writeAllowedEmails()`) actually correct?**
+  _`query()` has 15 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 5 inferred relationships involving `writeRecords()` (e.g. with `hasDatabase()` and `storageUnavailableError()`) actually correct?**
+  _`writeRecords()` has 5 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 12 inferred relationships involving `hasDatabase()` (e.g. with `readAllowedEmails()` and `writeAllowedEmails()`) actually correct?**
+  _`hasDatabase()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `cleanUrls`, `private`, `test` to the rest of the system?**
-  _210 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.09962406015037593 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.05714285714285714 - nodes in this community are weakly interconnected._
+  _324 weakly-connected nodes found - possible documentation gaps or missing edges._

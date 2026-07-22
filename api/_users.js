@@ -1,8 +1,4 @@
-const USERS_BLOB_PATH = "porschik/users.json";
-
-function hasBlobToken() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
+const { hasDatabase, query, storageUnavailableError } = require("./_db");
 
 function normalizeEmail(email) {
   const e = String(email || "").trim().toLowerCase();
@@ -15,36 +11,18 @@ function normalizeEmail(email) {
 }
 
 async function readAllowedEmails() {
-  if (!hasBlobToken()) {
-    return [];
-  }
-
-  const { get } = require("@vercel/blob");
-  const blob = await get(USERS_BLOB_PATH, {
-    access: "public",
-    headers: { "Cache-Control": "no-store" }
-  });
-  if (!blob || blob.statusCode !== 200 || !blob.stream) {
-    return [];
-  }
-  const payload = JSON.parse(await new Response(blob.stream).text());
-  return Array.isArray(payload.emails) ? payload.emails.map(String) : [];
+  if (!hasDatabase()) return [];
+  const rows = await query("SELECT email FROM porschik_users ORDER BY email");
+  return rows.map((row) => String(row.email));
 }
 
 async function writeAllowedEmails(emails) {
-  if (!hasBlobToken()) {
-    const error = new Error("Vercel Blob ещё не подключён");
-    error.statusCode = 503;
-    throw error;
-  }
-
-  const { put } = require("@vercel/blob");
+  if (!hasDatabase()) throw storageUnavailableError();
   const normalized = [...new Set(emails.map(String))].filter(Boolean);
-  await put(USERS_BLOB_PATH, JSON.stringify({ emails: normalized }, null, 2), {
-    access: "public",
-    allowOverwrite: true,
-    contentType: "application/json"
-  });
+  await query("DELETE FROM porschik_users");
+  for (const email of normalized) {
+    await query("INSERT INTO porschik_users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING", [email]);
+  }
   return normalized;
 }
 

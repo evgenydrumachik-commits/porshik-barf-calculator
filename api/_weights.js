@@ -1,8 +1,7 @@
-const LEGACY_BLOB_PATH = "porschik/weights.json";
-const STATE_BLOB_PATH = "porschik/state.json";
-const SNAPSHOT_PREFIX = "porschik/weights/";
-const DAILY_BACKUP_PREFIX = "porschik/backups/daily/";
 const { randomUUID } = require("crypto");
+const { hasDatabase, query, storageUnavailableError } = require("./_db");
+
+const RESTORE_PATH_PREFIX = "db:backup:";
 
 const seedRecords = [
   { id: "2026-05-01", date: "2026-05-01", weightKg: 2.5, meals: [], comment: "Первый замер" },
@@ -28,10 +27,6 @@ const seedRecords = [
   { id: "2026-07-21", date: "2026-07-21", weightKg: null, meals: [{ slot: 2, grams: 213, skipped: false }, { slot: 3, grams: 100, skipped: false }], comment: "" },
   { id: "2026-07-22", date: "2026-07-22", weightKg: null, meals: [{ slot: 1, grams: 151, skipped: false }], comment: "" }
 ];
-
-function hasBlobToken() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
 
 function parseLocalizedNumber(value) {
   if (value === null || value === undefined || value === "") {
@@ -168,10 +163,6 @@ function isoStamp() {
   return new Date().toISOString();
 }
 
-function blobSafeStamp(date = new Date()) {
-  return date.toISOString().replace(/[:.]/g, "-");
-}
-
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
@@ -185,245 +176,122 @@ function buildRecordsPayload(records, extra = {}) {
   };
 }
 
-async function readBlobPayload(pathname) {
-  const { get } = require("@vercel/blob");
-  const blob = await get(pathname, {
-    access: "public",
-    headers: { "Cache-Control": "no-store" }
-  });
-  if (!blob || blob.statusCode !== 200 || !blob.stream) return null;
-  return JSON.parse(await new Response(blob.stream).text());
-}
-
-function restorePoint(entry, type) {
-  const uploadedAt = entry?.uploadedAt instanceof Date
-    ? entry.uploadedAt.toISOString()
-    : new Date(entry?.uploadedAt || Date.now()).toISOString();
+function restorePoint(row) {
   return {
-    pathname: String(entry?.pathname || ""),
-    uploadedAt,
-    type
+    pathname: `${RESTORE_PATH_PREFIX}${row.id}`,
+    uploadedAt: new Date(row.created_at).toISOString(),
+    type: row.type
   };
-}
-
-function normalizeRestorePoints(points) {
-  const byPath = new Map();
-  for (const point of Array.isArray(points) ? points : []) {
-    const pathname = String(point?.pathname || "");
-    const validSnapshot = pathname.startsWith(SNAPSHOT_PREFIX);
-    const validBackup = pathname.startsWith(DAILY_BACKUP_PREFIX);
-    if (!pathname || (!validSnapshot && !validBackup)) continue;
-    const uploadedAt = new Date(point?.uploadedAt || 0);
-    if (Number.isNaN(uploadedAt.getTime())) continue;
-    byPath.set(pathname, {
-      pathname,
-      uploadedAt: uploadedAt.toISOString(),
-      type: validBackup ? "backup" : "snapshot"
-    });
-  }
-  return [...byPath.values()].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
-}
-
-function normalizeAuditEvents(events) {
-  return (Array.isArray(events) ? events : [])
-    .filter((event) => event && typeof event === "object")
-    .map((event) => ({ ...event, timestamp: String(event.timestamp || isoStamp()) }));
-}
-
-function buildStorageState(records, { restorePoints = [], auditEvents = [] } = {}) {
-  return {
-    schemaVersion: 2,
-    storageSchemaVersion: 1,
-    updatedAt: isoStamp(),
-    records: normalizeRecords(records),
-    restorePoints: normalizeRestorePoints(restorePoints),
-    auditEvents: normalizeAuditEvents(auditEvents)
-  };
-}
-
-async function persistStorageState(state) {
-  const { put } = require("@vercel/blob");
-  const payload = buildStorageState(state.records, state);
-  await put(STATE_BLOB_PATH, JSON.stringify(payload, null, 2), {
-    access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    cacheControlMaxAge: 60,
-    contentType: "application/json"
-  });
-  return payload;
-}
-
-async function listBlobs(prefix, limit = 1000) {
-  if (!hasBlobToken()) return [];
-  const { list } = require("@vercel/blob");
-  const result = await list({ prefix, limit });
-  return result.blobs
-    .filter((entry) => entry.pathname.endsWith(".json"))
-    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
 }
 
 async function listSnapshots() {
-  return listBlobs(SNAPSHOT_PREFIX);
+  return listRestorePoints("snapshot");
 }
 
 async function listDailyBackups() {
-  return listBlobs(DAILY_BACKUP_PREFIX);
-}
-
-async function migrateLegacyState() {
-  const [backups, snapshots] = await Promise.all([listDailyBackups(), listSnapshots()]);
-  const latestSnapshot = snapshots[0];
-  const payload = latestSnapshot
-    ? await readBlobPayload(latestSnapshot.pathname)
-    : await readBlobPayload(LEGACY_BLOB_PATH);
-  const records = payload?.records || seedRecords;
-  const restorePoints = [
-    ...backups.map((entry) => restorePoint(entry, "backup")),
-    ...snapshots.map((entry) => restorePoint(entry, "snapshot"))
-  ];
-  return persistStorageState(buildStorageState(records, { restorePoints }));
-}
-
-async function readStorageState() {
-  if (!hasBlobToken()) {
-    return buildStorageState(seedRecords);
-  }
-  const payload = await readBlobPayload(STATE_BLOB_PATH);
-  if (payload && Array.isArray(payload.records)) {
-    return buildStorageState(payload.records, {
-      restorePoints: payload.restorePoints,
-      auditEvents: payload.auditEvents
-    });
-  }
-  return migrateLegacyState();
+  return listRestorePoints("backup");
 }
 
 async function readRecords() {
-  if (!hasBlobToken()) {
+  if (!hasDatabase()) {
     return { storageReady: false, records: normalizeRecords(seedRecords) };
   }
-  const state = await readStorageState();
+  const rows = await query("SELECT records FROM porschik_state WHERE id = 1");
   return {
     storageReady: true,
-    records: state.records
+    records: normalizeRecords(rows[0]?.records || seedRecords)
   };
 }
 
-function appendAuditEvent(events, event) {
-  if (!event) return normalizeAuditEvents(events);
-  return normalizeAuditEvents([...events, { timestamp: isoStamp(), ...event }]);
+async function putRestorePoint(records, type, date = new Date(), id = randomUUID()) {
+  const normalized = normalizeRecords(records);
+  await query(
+    "INSERT INTO porschik_backups (id, created_at, type, records) VALUES ($1, $2, $3, $4::jsonb)",
+    [id, date.toISOString(), type, JSON.stringify(normalized)]
+  );
+  return restorePoint({ id, created_at: date.toISOString(), type });
 }
 
-function hasDailyBackup(restorePoints, day) {
-  return restorePoints.some((point) => point.type === "backup" && point.uploadedAt.slice(0, 10) === day);
-}
-
-async function putSnapshot(records, date = new Date()) {
-  const { put } = require("@vercel/blob");
-  const snapshotPath = `${SNAPSHOT_PREFIX}${blobSafeStamp(date)}-${randomUUID()}.json`;
-  await put(snapshotPath, JSON.stringify(buildRecordsPayload(records), null, 2), {
-    access: "public",
-    cacheControlMaxAge: 60,
-    contentType: "application/json"
-  });
-  return restorePoint({ pathname: snapshotPath, uploadedAt: date }, "snapshot");
-}
-
-async function putDailyBackup(records, date = new Date()) {
-  const { put } = require("@vercel/blob");
-  const day = todayKey(date);
-  const backupPath = `${DAILY_BACKUP_PREFIX}${day}/${blobSafeStamp(date)}-${randomUUID()}.json`;
-  await put(backupPath, JSON.stringify(buildRecordsPayload(records, {
-    backupType: "daily",
-    backupDate: day
-  }), null, 2), {
-    access: "public",
-    cacheControlMaxAge: 60,
-    contentType: "application/json"
-  });
-  return restorePoint({ pathname: backupPath, uploadedAt: date }, "backup");
+async function persistRecords(records, date = new Date()) {
+  await query(
+    `INSERT INTO porschik_state (id, records, updated_at)
+     VALUES (1, $1::jsonb, $2)
+     ON CONFLICT (id) DO UPDATE SET records = EXCLUDED.records, updated_at = EXCLUDED.updated_at`,
+    [JSON.stringify(normalizeRecords(records)), date.toISOString()]
+  );
 }
 
 async function writeRecords(records, { auditEvent = null } = {}) {
-  if (!hasBlobToken()) {
-    const error = new Error("Vercel Blob ещё не подключён");
-    error.statusCode = 503;
-    throw error;
-  }
+  if (!hasDatabase()) throw storageUnavailableError();
 
   const normalized = normalizeRecords(records);
-  const state = await readStorageState();
   const date = new Date();
-  const snapshot = await putSnapshot(normalized, date);
-  const restorePoints = [snapshot, ...state.restorePoints];
-  const day = todayKey(date);
-  if (!hasDailyBackup(restorePoints, day)) {
-    restorePoints.unshift(await putDailyBackup(normalized, date));
+  await putRestorePoint(normalized, "snapshot", date);
+  const daily = await query(
+    "SELECT id FROM porschik_backups WHERE type = 'backup' AND created_at >= $1 AND created_at < $2 LIMIT 1",
+    [`${todayKey(date)}T00:00:00.000Z`, `${todayKey(new Date(date.getTime() + 86_400_000))}T00:00:00.000Z`]
+  );
+  if (!daily.length) {
+    await putRestorePoint(normalized, "backup", date);
   }
-  await persistStorageState(buildStorageState(normalized, {
-    restorePoints,
-    auditEvents: appendAuditEvent(state.auditEvents, auditEvent)
-  }));
+  await persistRecords(normalized, date);
+  if (auditEvent) await writeAuditEvent(auditEvent);
   return normalized;
 }
 
-async function listRestorePoints() {
-  if (!hasBlobToken()) return [];
-  return (await readStorageState()).restorePoints;
+async function listRestorePoints(type = null) {
+  if (!hasDatabase()) return [];
+  const rows = type
+    ? await query("SELECT id, created_at, type FROM porschik_backups WHERE type = $1 ORDER BY created_at DESC LIMIT 1000", [type])
+    : await query("SELECT id, created_at, type FROM porschik_backups ORDER BY created_at DESC LIMIT 1000");
+  return rows.map(restorePoint);
 }
 
 async function ensureDailyBackup(records, date = new Date()) {
-  const state = await readStorageState();
-  const day = todayKey(date);
-  if (hasDailyBackup(state.restorePoints, day)) return null;
-  const point = await putDailyBackup(normalizeRecords(records), date);
-  await persistStorageState(buildStorageState(records, {
-    restorePoints: [point, ...state.restorePoints],
-    auditEvents: state.auditEvents
-  }));
+  const start = `${todayKey(date)}T00:00:00.000Z`;
+  const end = `${todayKey(new Date(date.getTime() + 86_400_000))}T00:00:00.000Z`;
+  const existing = await query(
+    "SELECT id FROM porschik_backups WHERE type = 'backup' AND created_at >= $1 AND created_at < $2 LIMIT 1",
+    [start, end]
+  );
+  if (existing.length) return null;
+  const point = await putRestorePoint(records, "backup", date);
   return { pathname: point.pathname, records: normalizeRecords(records) };
 }
 
 async function createDailyBackup(records, date = new Date(), { auditEvent = null } = {}) {
-  if (!hasBlobToken()) {
-    const error = new Error("Vercel Blob ещё не подключён");
-    error.statusCode = 503;
-    throw error;
-  }
+  if (!hasDatabase()) throw storageUnavailableError();
 
   const normalized = normalizeRecords(records);
-  const state = await readStorageState();
-  const point = await putDailyBackup(normalized, date);
-  await persistStorageState(buildStorageState(normalized, {
-    restorePoints: [point, ...state.restorePoints],
-    auditEvents: appendAuditEvent(state.auditEvents, auditEvent
-      ? { ...auditEvent, backupPath: point.pathname }
-      : null)
-  }));
+  const point = await putRestorePoint(normalized, "backup", date);
+  await persistRecords(normalized, date);
+  if (auditEvent) await writeAuditEvent({ ...auditEvent, backupPath: point.pathname });
   return { pathname: point.pathname, records: normalized };
 }
 
-async function readRecordsFromPath(pathname) {
-  const payload = await readBlobPayload(pathname);
-  if (!payload || !Array.isArray(payload.records)) {
-    const error = new Error("Не удалось прочитать выбранную резервную копию");
-    error.statusCode = 400;
-    throw error;
-  }
-  return normalizeRecords(payload.records);
+function restoreId(pathname) {
+  const value = String(pathname || "");
+  if (!value.startsWith(RESTORE_PATH_PREFIX)) return "";
+  return value.slice(RESTORE_PATH_PREFIX.length);
 }
 
-async function restoreRecordsFromPath(pathname, options = {}) {
-  if (
-    pathname !== LEGACY_BLOB_PATH
-    && !pathname.startsWith(SNAPSHOT_PREFIX)
-    && !pathname.startsWith(DAILY_BACKUP_PREFIX)
-  ) {
+async function readRecordsFromPath(pathname) {
+  const id = restoreId(pathname);
+  if (!id) {
     const error = new Error("Недопустимый путь резервной копии");
     error.statusCode = 400;
     throw error;
   }
+  const rows = await query("SELECT records FROM porschik_backups WHERE id = $1", [id]);
+  if (!Array.isArray(rows[0]?.records)) {
+    const error = new Error("Не удалось прочитать выбранную резервную копию");
+    error.statusCode = 400;
+    throw error;
+  }
+  return normalizeRecords(rows[0].records);
+}
+
+async function restoreRecordsFromPath(pathname, options = {}) {
   const records = await readRecordsFromPath(pathname);
   return writeRecords(records, {
     ...options,
@@ -434,18 +302,14 @@ async function restoreRecordsFromPath(pathname, options = {}) {
 }
 
 async function writeAuditEvent(event) {
-  if (!hasBlobToken()) return null;
-  const state = await readStorageState();
-  await persistStorageState(buildStorageState(state.records, {
-    restorePoints: state.restorePoints,
-    auditEvents: appendAuditEvent(state.auditEvents, event)
-  }));
-  return STATE_BLOB_PATH;
+  if (!hasDatabase()) return null;
+  const payload = { timestamp: isoStamp(), ...(event || {}) };
+  await query("INSERT INTO porschik_audit (event) VALUES ($1::jsonb)", [JSON.stringify(payload)]);
+  return "porschik_audit";
 }
 
 module.exports = {
   buildRecordsPayload,
-  buildStorageState,
   createDailyBackup,
   listDailyBackups,
   listRestorePoints,
@@ -453,7 +317,6 @@ module.exports = {
   normalizeMeals,
   normalizeRecord,
   normalizeRecords,
-  normalizeRestorePoints,
   parseWeightKg,
   readRecords,
   restoreRecordsFromPath,

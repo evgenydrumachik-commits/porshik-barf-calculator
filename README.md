@@ -71,7 +71,7 @@ Start the local static server and API with editing enabled:
 DEV_AUTH=1 node tests/dev-server.mjs
 ```
 
-Open <http://127.0.0.1:4173>. The local server treats the local test account as an administrator and stores its own persistent development state in `.local-data/dev-state.json`. That ignored file survives code updates and server restarts but is never used by production, which continues to use Vercel Blob. Set `DEV_DATA_PATH=/tmp/porschik-test.json` when a disposable isolated dataset is needed for automated checks.
+Open <http://127.0.0.1:4173>. The local server treats the local test account as an administrator and stores its own persistent development state in `.local-data/dev-state.json`. That ignored file survives code updates and server restarts but is never used directly by production, which uses Neon Postgres. Set `DEV_DATA_PATH=/tmp/porschik-test.json` when a disposable isolated dataset is needed for automated checks.
 
 To serve the public read-only experience instead:
 
@@ -83,38 +83,36 @@ The source is plain HTML, CSS, and JavaScript modules; no frontend build step is
 
 ## Production storage and authentication
 
-The production API uses Vercel Blob for records, profile data, avatars, user access, snapshots, and daily backups. Without a Blob token, the API falls back to bundled seed records for reads and rejects writes.
+The production API uses Neon Postgres for records, profile data, avatars, expenses, user access, remembered sessions, snapshots, daily backups, and audit events. It has no Vercel Blob runtime dependency. Without a database URL, the API falls back to bundled seed records for reads and rejects writes.
 
 Set these environment variables in the deployment environment:
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `BLOB_READ_WRITE_TOKEN` | Yes for persistence | Vercel Blob read/write token |
+| `DATABASE_URL` or `POSTGRES_URL` | Yes for persistence | Neon Postgres connection string; the Vercel Marketplace integration supplies this automatically |
 | `GOOGLE_CLIENT_ID` | Yes for Google login | Google OAuth client ID used to validate ID tokens |
 | `ADMIN_GOOGLE_EMAIL` | Recommended | Primary administrator email; defaults to the repository owner's configured fallback |
 
-Google sign-in verifies the token issuer, audience when `GOOGLE_CLIENT_ID` is set, email verification status, and whether the email is allowed. The administrator email is always allowed; additional addresses are stored in Blob and managed from `/admin`. Selecting “Remember me” creates a long-lived, device-specific session in Vercel Blob; it remains valid until the user signs out, browser data is cleared, or that email loses access.
+Google sign-in verifies the token issuer, audience when `GOOGLE_CLIENT_ID` is set, email verification status, and whether the email is allowed. The administrator email is always allowed; additional addresses are stored in Postgres and managed from `/admin`. Selecting “Remember me” creates a long-lived, device-specific session whose SHA-256 token hash is stored in Postgres; it remains valid until the user signs out, browser data is cleared, or that email loses access.
 
-### Blob data layout
+### Postgres data layout
 
-The API stores data under these prefixes:
+The schema is defined in `db/schema.sql`:
 
-- `porschik/state.json` for the current diary, restore-point index, and audit trail
-- `porschik/weights/` for immutable record snapshots
-- `porschik/backups/daily/` for daily restore points
-- `porschik/expenses.json` for current expense data
-- `porschik/expenses/` for immutable expense snapshots
-- `porschik/profile.json` for the avatar URL and feeding overrides
-- `porschik/avatar/` for uploaded profile images
-- `porschik/users.json` for additional allowed email addresses
+- `porschik_state` for the current diary, profile, and expenses
+- `porschik_backups` for immutable snapshots and daily restore points
+- `porschik_expense_snapshots` for expense history
+- `porschik_audit` for change events
+- `porschik_users` for additional allowed email addresses
+- `porschik_sessions` for hashed remembered-session tokens
 
-Existing snapshot-only stores are migrated automatically on the first request. After that one-time migration, normal reads use exact Blob paths and do not call Blob `list()`. Automatic snapshots, daily backups, restore points, expense history, audit events, and remembered sessions remain available without listing the store in normal application traffic.
+To initialize the schema and import local development data, run `npm run migrate:neon` with `DATABASE_URL` or `POSTGRES_URL` set. The import is idempotent for its initial restore points. Automatic snapshots, daily backups, restore, expense history, audit events, profile image upload, and remembered sessions remain available.
 
 ## Deployment
 
 ### Vercel
 
-The repository includes `vercel.json` with clean URLs enabled. Import the repository into Vercel, configure the environment variables above, attach a Vercel Blob store, and deploy. The serverless functions in `api/` are discovered automatically.
+The repository includes `vercel.json` with clean URLs enabled. Import the repository into Vercel, configure Google authentication, connect a Neon database through the Vercel Marketplace, run the migration, and deploy. The serverless functions in `api/` are discovered automatically.
 
 Before deploying, run:
 
@@ -126,7 +124,7 @@ Then verify `/`, `/history`, Google sign-in, a write operation, backup download,
 
 ### Azure Static Web Apps
 
-`staticwebapp.config.json` is included for an Azure Static Web Apps deployment protected by the `fo_operations_users` role. That configuration redirects unauthenticated visitors to the platform's Entra login and rewrites forbidden requests to `/403.html`. The API implementation in this repository is designed around Vercel Blob and Vercel-style serverless functions, so an Azure deployment also needs an API hosting and storage adapter compatible with that configuration.
+`staticwebapp.config.json` is included for an Azure Static Web Apps deployment protected by the `fo_operations_users` role. That configuration redirects unauthenticated visitors to the platform's Entra login and rewrites forbidden requests to `/403.html`. The API implementation in this repository uses Neon Postgres and Vercel-style serverless functions, so an Azure deployment also needs compatible API hosting and a reachable Postgres database.
 
 ## Project structure
 
