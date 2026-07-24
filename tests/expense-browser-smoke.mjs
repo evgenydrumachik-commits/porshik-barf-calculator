@@ -70,22 +70,33 @@ const splitChart = await evaluate(`(() => {
 })()`);
 
 await evaluate("document.querySelector('#addExpenseButton').click()");
-await waitFor("document.querySelector('#expenseDialog').open");
-await evaluate(`(() => {
-  const set = (id, value) => {
-    const input = document.querySelector(id);
+await waitFor("document.querySelector('[data-expense-editor-row].is-new')");
+const inlineEditor = await evaluate(`(() => {
+  const form = document.querySelector('[data-expense-editor-row]');
+  const set = (selector, value) => {
+    const input = form.querySelector(selector);
     input.value = value;
     input.dispatchEvent(new Event('input', { bubbles: true }));
   };
-  set('#expenseDate', '2026-07-22');
-  set('#expenseType', 'BARF');
-  set('#expenseDescription', 'Browser smoke order');
-  set('#expenseKilograms', '12');
-  set('#expensePriceKg', '6.5');
-  set('#expenseDelivery', '9');
-  document.querySelector('#expenseForm').requestSubmit();
+  set('[data-expense-date]', '2026-07-22');
+  set('[data-expense-type]', 'BARF');
+  set('[data-expense-description]', 'Browser smoke order');
+  set('[data-expense-kilograms]', '12');
+  set('[data-expense-price-kg]', '6.5');
+  set('[data-expense-delivery]', '9');
+  const result = {
+    dialogPresent: Boolean(document.querySelector('#expenseDialog')),
+    animated: getComputedStyle(form).animationName === 'norm-row-in',
+    total: form.querySelector('[data-expense-inline-total]').textContent.trim()
+  };
+  return result;
 })()`);
-await waitFor("!document.querySelector('#expenseDialog').open");
+await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 3000, deviceScaleFactor: 1, mobile: false });
+await new Promise((resolve) => setTimeout(resolve, 250));
+const inlineImage = await command("Page.captureScreenshot", { format: "png", captureBeyondViewport: false, fromSurface: true });
+await writeFile("output/playwright/expense-inline-editor.png", Buffer.from(inlineImage.data, "base64"));
+await evaluate("document.querySelector('[data-expense-editor-row]').requestSubmit()");
+await waitFor("!document.querySelector('[data-expense-editor-row]')");
 await waitFor("Number(document.querySelector('#expenseChart').dataset.points) === 1");
 
 const firstRender = await evaluate(`(() => ({
@@ -95,7 +106,10 @@ const firstRender = await evaluate(`(() => ({
   average: document.querySelector('#expenseAverageKg').textContent.trim(),
   count: document.querySelector('#expenseOrderCount').textContent.trim(),
   row: document.querySelector('#expenseOrderList').textContent.trim(),
-  points: Number(document.querySelector('#expenseChart').dataset.points)
+  points: Number(document.querySelector('#expenseChart').dataset.points),
+  expenseLeftAxis: document.querySelector('#expenseChart').dataset.leftAxis,
+  expenseRightAxis: document.querySelector('#expenseChart').dataset.rightAxis,
+  growthFoodAxisSide: document.querySelector('#growthChart').dataset.foodAxisSide
 }))()`);
 
 await navigate();
@@ -114,17 +128,22 @@ const tooltip = await evaluate(`(() => {
   return document.querySelector('#expenseChartTooltip').textContent.trim();
 })()`);
 
-await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 3000, deviceScaleFactor: 1, mobile: false });
 await new Promise((resolve) => setTimeout(resolve, 250));
 const image = await command("Page.captureScreenshot", { format: "png", captureBeyondViewport: false, fromSurface: true });
 await writeFile("output/playwright/split-growth-and-expenses.png", Buffer.from(image.data, "base64"));
 
-const report = { splitChart, firstRender, persisted: { ...persisted, apiOrders }, tooltip, browserErrors };
+const checks = {
+  split: splitChart.weightTop < splitChart.weightBottom && splitChart.weightBottom < splitChart.foodTop && splitChart.foodTop < splitChart.foodBottom,
+  chart: splitChart.height >= 500 && firstRender.points === 1,
+  totals: firstRender.total.includes("87") && firstRender.average.includes("6,5"),
+  inline: !inlineEditor.dialogPresent && inlineEditor.animated && inlineEditor.total.includes("87"),
+  axes: Boolean(firstRender.expenseLeftAxis && firstRender.expenseRightAxis && firstRender.growthFoodAxisSide === "left"),
+  persisted: persisted.orders === 1 && apiOrders === 1 && persisted.total.includes("87"),
+  errors: browserErrors.length === 0
+};
+const report = { splitChart, inlineEditor, firstRender, persisted: { ...persisted, apiOrders }, tooltip, browserErrors, checks };
 console.log(JSON.stringify(report, null, 2));
-if (!(splitChart.weightTop < splitChart.weightBottom && splitChart.weightBottom < splitChart.foodTop && splitChart.foodTop < splitChart.foodBottom)) process.exitCode = 1;
-if (splitChart.height < 500 || firstRender.points !== 1 || !firstRender.total.includes("87") || !firstRender.average.includes("6,5")) process.exitCode = 1;
-if (persisted.orders !== 1 || persisted.apiOrders !== 1 || !persisted.total.includes("87")) process.exitCode = 1;
-if (browserErrors.length) process.exitCode = 1;
+if (Object.values(checks).some((passed) => !passed)) process.exitCode = 1;
 
 socket.close();
 await fetch(`${endpoint}/json/close/${target.id}`);

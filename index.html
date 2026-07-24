@@ -76,47 +76,7 @@
         </article>
       </section>
 
-      <section class="panel chart-panel" aria-labelledby="growthChartTitle">
-        <div class="panel-topline">
-          <div class="panel-heading">
-            <h2 id="growthChartTitle" data-i18n="chart.title">Рост и питание Поршика</h2>
-            <p data-i18n="chart.subtitle">Синий — вес, составные столбики — съеденное за день по приёмам.</p>
-          </div>
-          <div class="chart-actions">
-            <button class="button button-blue" type="button" data-open-record="weight">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              <span data-i18n="action.addWeight">Добавить вес</span>
-            </button>
-            <button class="button button-primary" type="button" data-open-record="feeding">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              <span data-i18n="action.addFeeding">Добавить питание</span>
-            </button>
-            <a class="button button-secondary" href="/history">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg>
-              <span data-i18n="action.history">История и таблица</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="chart-toolbar chart-toolbar-legend">
-          <div class="chart-legend chart-toggle-legend" aria-label="Серии графика">
-            <label class="legend-toggle"><input id="showGrowthWeight" type="checkbox" checked><i class="legend-mark" style="--mark: var(--blue)"></i><span data-i18n="chart.weightLegend">Вес, кг</span></label>
-            <label class="legend-toggle"><input id="showGrowthActual" type="checkbox" checked><i class="legend-mark bar" style="--mark: var(--coral)"></i><span data-i18n="chart.actualDaily">Съедено за день</span></label>
-            <label class="legend-toggle"><input id="showGrowthTarget" type="checkbox" checked><i class="legend-mark target" style="--mark: var(--coral)"></i><span data-i18n="chart.targetDaily">Дневная норма</span></label>
-          </div>
-        </div>
-
-        <div class="chart-wrap" id="growthChartWrap" data-empty-label="Добавьте первую запись, чтобы увидеть историю.">
-          <canvas class="chart-canvas" id="growthChart" role="img" aria-label="График веса и фактического питания Поршика"></canvas>
-          <div class="chart-hit-layer" id="growthChartHitLayer"></div>
-          <div class="chart-tooltip" id="growthChartTooltip" role="tooltip" hidden></div>
-          <div class="loading-overlay" id="chartLoading"><span class="loader" aria-label="Загрузка"></span></div>
-        </div>
-        <div class="error-banner" id="loadError" hidden>
-          <span data-i18n="error.load">Не удалось загрузить дневник.</span>
-          <button class="button button-small button-secondary" id="retryLoadButton" type="button" data-i18n="action.retry">Повторить</button>
-        </div>
-      </section>
+      <div id="growthChartPanelMount"></div>
 
       <section class="panel feeding-card" aria-labelledby="feedingTodayTitle">
         <div class="feeding-copy">
@@ -128,7 +88,7 @@
         <div class="feeding-metrics">
           <article class="feeding-metric"><span data-i18n="feeding.daily">В день</span><strong id="dailyRecommendation">—</strong><small id="dailyRecommendationRatio">—</small></article>
           <article class="feeding-metric"><span data-i18n="feeding.perMeal">За приём</span><strong id="mealRecommendation">—</strong></article>
-          <article class="feeding-metric"><span data-i18n="feeding.meals">Приёмов</span><strong id="mealCountRecommendation">—</strong></article>
+          <article class="feeding-metric"><span data-i18n="feeding.meals">Приёмов в день</span><strong id="mealCountRecommendation">—</strong></article>
         </div>
       </section>
 
@@ -153,6 +113,14 @@
             <label class="legend-toggle"><input id="showNormTarget" type="checkbox" checked><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></label>
             <label class="legend-toggle"><input id="showNormActual" type="checkbox" checked><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></label>
           </div>
+          <div class="chart-date-range" data-chart-range="norm" aria-label="Диапазон дат графика">
+            <span class="chart-date-range-label" data-chart-range-label="norm"></span>
+            <div class="chart-date-range-track">
+              <span class="chart-date-range-window" data-chart-range-window="norm" aria-hidden="true"></span>
+              <input type="range" data-chart-range-start="norm" aria-label="Начало периода">
+              <input type="range" data-chart-range-end="norm" aria-label="Конец периода">
+            </div>
+          </div>
           <div class="norm-chart-wrap" id="normChartWrap">
             <canvas class="norm-canvas" id="normChart" role="img" aria-label="Норма и фактически съедено в процентах от веса"></canvas>
             <div class="chart-tooltip norm-chart-tooltip" id="normChartTooltip" role="tooltip" hidden></div>
@@ -166,26 +134,36 @@
           <div>
             <span class="eyebrow" data-i18n="expense.eyebrow">Расходы на питание</span>
             <h2 id="expenseTitle" data-i18n="expense.title">Сколько стоит питание Поршика</h2>
-            <p data-i18n="expense.subtitle">Заказы еды, доставка и накопительные расходы в одной истории.</p>
+            <p data-i18n="expense.subtitle">Заказы еды, доставка и динамика цены за килограмм в одной истории.</p>
           </div>
-          <button class="button button-primary" id="addExpenseButton" type="button" data-i18n="expense.add">Добавить заказ</button>
         </div>
         <div class="expense-metrics">
           <article><span data-i18n="expense.total">За всё время</span><strong id="expenseTotal">€0</strong></article>
           <article><span data-i18n="expense.year">В этом году</span><strong id="expenseYear">€0</strong></article>
-          <article><span data-i18n="expense.annualPace">Годовой темп</span><strong id="expenseAnnualPace">—</strong></article>
+          <article><span data-i18n="expense.annualPace">Прогноз к концу года</span><strong id="expenseAnnualPace">—</strong><small id="expenseAnnualPaceNote">—</small></article>
           <article><span data-i18n="expense.averageKg">Средняя цена/кг</span><strong id="expenseAverageKg">—</strong></article>
         </div>
         <div class="expense-chart-legend chart-toggle-legend" aria-label="Серии графика">
           <label class="legend-toggle"><input id="showExpenseFood" type="checkbox" checked><i class="expense-legend-food"></i><span data-i18n="expense.foodCost">Стоимость еды</span></label>
           <label class="legend-toggle"><input id="showExpenseDelivery" type="checkbox" checked><i class="expense-legend-delivery"></i><span data-i18n="expense.delivery">Доставка</span></label>
-          <label class="legend-toggle"><input id="showExpenseCumulative" type="checkbox" checked><i class="expense-legend-cumulative"></i><span data-i18n="expense.cumulative">Накопительно</span></label>
+          <label class="legend-toggle"><input id="showExpensePriceKg" type="checkbox" checked><i class="expense-legend-price"></i><span data-i18n="expense.priceTrend">Цена за кг</span></label>
+        </div>
+        <div class="chart-date-range" data-chart-range="expense" aria-label="Диапазон дат графика">
+          <span class="chart-date-range-label" data-chart-range-label="expense"></span>
+          <div class="chart-date-range-track">
+            <span class="chart-date-range-window" data-chart-range-window="expense" aria-hidden="true"></span>
+            <input type="range" data-chart-range-start="expense" aria-label="Начало периода">
+            <input type="range" data-chart-range-end="expense" aria-label="Конец периода">
+          </div>
         </div>
         <div class="expense-chart-wrap" id="expenseChartWrap">
           <canvas class="expense-canvas" id="expenseChart" role="img" aria-label="График расходов на питание Поршика"></canvas>
           <div class="chart-tooltip expense-chart-tooltip" id="expenseChartTooltip" role="tooltip" hidden></div>
         </div>
-        <div class="expense-list-head"><h3 data-i18n="expense.orders">Заказы</h3><span id="expenseOrderCount">0</span></div>
+        <div class="expense-list-head">
+          <div><h3 data-i18n="expense.orders">Заказы</h3><span id="expenseOrderCount">0</span></div>
+          <button class="expense-inline-add" id="addExpenseButton" type="button" data-i18n-aria="expense.add" title="Добавить заказ">+</button>
+        </div>
         <div class="expense-order-list" id="expenseOrderList"></div>
       </section>
 
@@ -241,24 +219,6 @@
       <p class="replace-preserved" id="replacePreserved"></p>
       <div class="dialog-actions"><button class="button button-secondary" id="replaceCancelButton" type="button" data-i18n="action.cancel">Отмена</button><button class="button button-primary" id="replaceConfirmButton" type="button" data-i18n="replace.confirm">Заменить значение</button></div>
     </div>
-  </dialog>
-
-  <dialog id="expenseDialog" aria-labelledby="expenseDialogTitle">
-    <div class="dialog-head"><h2 id="expenseDialogTitle" data-i18n="expense.dialogTitle">Заказ еды</h2><button class="dialog-close" type="button" data-close-dialog="expenseDialog" aria-label="Закрыть">×</button></div>
-    <form class="dialog-body form-grid" id="expenseForm">
-      <input id="expenseId" type="hidden">
-      <label class="field"><span class="field-label" data-i18n="form.date">Дата</span><input class="date-input" id="expenseDate" type="date" required></label>
-      <label class="field"><span class="field-label" data-i18n="expense.type">Тип еды</span><select class="select-input" id="expenseType" required><option>BARF</option><option data-i18n="expense.typeTreats">Лакомства</option><option data-i18n="expense.typeDry">Сухой корм</option><option data-i18n="expense.typeSupplements">Добавки</option><option data-i18n="expense.typeOther">Другое</option></select></label>
-      <label class="field"><span class="field-label" data-i18n="expense.description">Описание / поставщик</span><input class="text-input" id="expenseDescription" maxlength="120" placeholder="Например, BARF Complete"></label>
-      <div class="expense-form-grid">
-        <label class="field"><span class="field-label" data-i18n="expense.kilograms">Количество, кг</span><input class="number-input" id="expenseKilograms" type="number" min="0.01" max="500" step="0.01" inputmode="decimal" required></label>
-        <label class="field"><span class="field-label" data-i18n="expense.priceKg">Цена за кг, €</span><input class="number-input" id="expensePriceKg" type="number" min="0" max="1000" step="0.01" inputmode="decimal" required></label>
-        <label class="field"><span class="field-label" data-i18n="expense.deliveryCost">Доставка, €</span><input class="number-input" id="expenseDelivery" type="number" min="0" max="5000" step="0.01" inputmode="decimal" value="0" required></label>
-      </div>
-      <div class="expense-form-total"><span data-i18n="expense.orderTotal">Итого заказ</span><strong id="expenseFormTotal">€0</strong></div>
-      <p class="form-message" id="expenseFormMessage" aria-live="polite"></p>
-      <div class="dialog-actions dialog-actions-split"><button class="button button-danger" id="deleteExpenseButton" type="button" data-i18n="action.delete">Удалить</button><span class="dialog-actions-end"><button class="button button-secondary" type="button" data-close-dialog="expenseDialog" data-i18n="action.cancel">Отмена</button><button class="button button-primary" type="submit" data-i18n="action.save">Сохранить</button></span></div>
-    </form>
   </dialog>
 
   <dialog id="authDialog" aria-labelledby="authDialogTitle">

@@ -354,7 +354,7 @@ a {
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 13px;
   margin-bottom: 7px;
   color: var(--coral-deep);
   font-size: 0.82rem;
@@ -626,6 +626,107 @@ a {
 
 .chart-toggle-legend {
   width: 100%;
+}
+
+.chart-date-range {
+  display: grid;
+  grid-template-columns: max-content minmax(180px, 300px);
+  align-items: center;
+  gap: 10px 14px;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.chart-date-range-label {
+  white-space: nowrap;
+}
+
+.chart-date-range-track {
+  position: relative;
+  height: 28px;
+  --track: color-mix(in srgb, var(--border) 82%, transparent);
+}
+
+.chart-date-range-track::before,
+.chart-date-range-track::after {
+  position: absolute;
+  top: 13px;
+  height: 4px;
+  border-radius: 99px;
+  content: "";
+  pointer-events: none;
+}
+
+.chart-date-range-track::before {
+  right: 0;
+  left: 0;
+  background: var(--track);
+}
+
+.chart-date-range-track::after {
+  left: var(--range-start);
+  right: calc(100% - var(--range-end));
+  background: var(--blue);
+}
+
+.chart-date-range-window {
+  position: absolute;
+  z-index: 1;
+  top: 4px;
+  bottom: 4px;
+  left: calc(var(--range-start) + 9px);
+  right: calc(100% - var(--range-end) + 9px);
+  border-radius: 99px;
+  cursor: default;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.chart-date-range.is-range-movable .chart-date-range-window {
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.chart-date-range.is-range-dragging .chart-date-range-window {
+  cursor: grabbing;
+}
+
+.chart-date-range-track input {
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.chart-date-range-track input::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--surface-solid);
+  border-radius: 50%;
+  appearance: none;
+  background: var(--blue);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--text) 24%, transparent);
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.chart-date-range-track input:focus-visible::-webkit-slider-thumb {
+  outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.chart-date-range-track input:disabled::-webkit-slider-thumb {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .legend-toggle {
@@ -1062,7 +1163,8 @@ a {
   text-transform: uppercase;
 }
 
-.norm-inline-add {
+.norm-inline-add,
+.expense-inline-add {
   display: inline-grid;
   place-items: center;
   width: 36px;
@@ -1078,13 +1180,15 @@ a {
   transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
-.norm-inline-add:hover:not(:disabled) {
+.norm-inline-add:hover:not(:disabled),
+.expense-inline-add:hover:not(:disabled) {
   transform: translateY(-1px) rotate(90deg);
   background: color-mix(in srgb, var(--coral) 15%, var(--surface-solid));
   box-shadow: 0 8px 18px color-mix(in srgb, var(--coral) 16%, transparent);
 }
 
-.norm-inline-add:disabled {
+.norm-inline-add:disabled,
+.expense-inline-add:disabled {
   cursor: default;
   opacity: 0.45;
 }
@@ -1373,6 +1477,15 @@ a {
   letter-spacing: -0.04em;
 }
 
+.expense-metrics small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
 .expense-chart-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1398,7 +1511,7 @@ a {
 
 .expense-legend-food { background: color-mix(in srgb, var(--coral) 58%, transparent); }
 .expense-legend-delivery { background: color-mix(in srgb, var(--yellow) 70%, transparent); }
-.expense-chart-legend .expense-legend-cumulative {
+.expense-chart-legend .expense-legend-price {
   width: 20px;
   height: 3px;
   border-radius: 99px;
@@ -1427,6 +1540,12 @@ a {
 
 .expense-list-head {
   margin-top: 20px;
+}
+
+.expense-list-head > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .expense-list-head h3 {
@@ -1467,6 +1586,105 @@ a {
 }
 .expense-order-row span { color: var(--muted); }
 .expense-order-row button { min-width: 34px; min-height: 34px; }
+
+.expense-order-editor {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--coral) 38%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--coral) 7%, var(--surface-solid));
+}
+
+.expense-order-editor.is-new {
+  animation: norm-row-in 560ms cubic-bezier(0.22, 0.72, 0.2, 1) both;
+  will-change: opacity, transform;
+}
+
+.expense-order-editor.is-saving {
+  opacity: 0.62;
+}
+
+.expense-inline-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.expense-inline-fields label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.expense-inline-fields input,
+.expense-inline-fields select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+}
+
+.expense-inline-footer {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.expense-inline-total {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.expense-inline-total strong {
+  color: var(--coral);
+  font-size: 1.12rem;
+}
+
+.expense-inline-message {
+  min-height: 18px;
+  margin: 0;
+  color: var(--danger);
+}
+
+.expense-inline-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.expense-inline-action {
+  min-height: 36px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-solid);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.expense-inline-action:hover {
+  border-color: color-mix(in srgb, var(--blue) 30%, var(--border));
+  color: var(--text);
+}
+
+.expense-inline-action.is-save {
+  border-color: color-mix(in srgb, var(--mint-deep) 34%, var(--border));
+  color: var(--mint-deep);
+}
+
+.expense-inline-action.is-delete {
+  border-color: color-mix(in srgb, var(--danger) 24%, var(--border));
+  color: var(--danger);
+}
 
 .expense-empty {
   padding: 28px;
@@ -2405,6 +2623,10 @@ dialog::backdrop {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .expense-inline-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .history-backup-panel {
     grid-template-columns: 1fr;
   }
@@ -2573,13 +2795,15 @@ dialog::backdrop {
   }
 
   .norm-inline-add,
+  .expense-inline-add,
   .norm-row-action,
   .norm-inline-action,
   .legend-toggle {
     min-height: 44px;
   }
 
-  .norm-inline-add {
+  .norm-inline-add,
+  .expense-inline-add {
     min-width: 44px;
   }
 
@@ -2611,6 +2835,20 @@ dialog::backdrop {
   .expense-order-row .expense-order-kg,
   .expense-order-row .expense-order-unit {
     display: none;
+  }
+
+  .expense-inline-fields,
+  .expense-inline-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-inline-actions {
+    justify-content: stretch;
+  }
+
+  .expense-inline-action {
+    flex: 1;
+    min-height: 44px;
   }
 
   .expense-form-grid {
@@ -2688,6 +2926,12 @@ dialog::backdrop {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+
+  .chart-date-range {
+    grid-template-columns: max-content minmax(0, 1fr);
+    width: 100%;
+    gap: 8px;
   }
 }
 

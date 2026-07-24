@@ -129,7 +129,7 @@ const normHover = await evaluate(`(() => {
   return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
 })()`);
 const legendToggles = await evaluate(`(() => {
-  const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showNormTarget', 'showNormActual', 'showExpenseFood', 'showExpenseDelivery', 'showExpenseCumulative'];
+  const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showNormTarget', 'showNormActual', 'showExpenseFood', 'showExpenseDelivery', 'showExpensePriceKg'];
   for (const id of ids) {
     const input = document.getElementById(id);
     input.checked = false;
@@ -138,7 +138,7 @@ const legendToggles = await evaluate(`(() => {
   const hidden = {
     growth: [document.querySelector('#growthChart').dataset.showWeight, document.querySelector('#growthChart').dataset.showActual, document.querySelector('#growthChart').dataset.showTarget],
     norm: [document.querySelector('#normChart').dataset.showTarget, document.querySelector('#normChart').dataset.showActual],
-    expense: [document.querySelector('#expenseChart').dataset.showFood, document.querySelector('#expenseChart').dataset.showDelivery, document.querySelector('#expenseChart').dataset.showCumulative]
+    expense: [document.querySelector('#expenseChart').dataset.showFood, document.querySelector('#expenseChart').dataset.showDelivery, document.querySelector('#expenseChart').dataset.showPriceKg]
   };
   for (const id of ids) {
     const input = document.getElementById(id);

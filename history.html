@@ -31,34 +31,7 @@
         <p data-i18n="history.subtitle">Здесь можно подробно рассмотреть, добавить или отредактировать вес и каждый приём пищи.</p>
       </section>
 
-      <section class="panel chart-panel" aria-labelledby="growthChartTitle">
-        <div class="panel-topline">
-          <div class="panel-heading"><h2 id="growthChartTitle" data-i18n="chart.title">Рост и питание Поршика</h2><p data-i18n="chart.historySubtitle">Нажмите точку, чтобы отредактировать её данные.</p></div>
-          <div class="chart-actions">
-            <button class="button button-blue" type="button" data-open-record="weight" data-i18n="action.addWeight">Добавить вес</button>
-            <button class="button button-primary" type="button" data-open-record="feeding" data-i18n="action.addFeeding">Добавить питание</button>
-          </div>
-        </div>
-        <div class="chart-toolbar">
-          <div class="series-toggles">
-            <label class="series-toggle"><input id="showWeightSeries" type="checkbox" checked><span data-i18n="chart.weightSeries">Вес</span></label>
-            <label class="series-toggle food"><input id="showFoodSeries" type="checkbox" checked><span data-i18n="chart.foodSeries">Питание</span></label>
-          </div>
-          <div class="chart-legend" aria-hidden="true">
-            <span class="legend-item"><i class="legend-mark" style="--mark: var(--blue)"></i><span data-i18n="chart.weightLegend">Вес, кг</span></span>
-            <span class="legend-item"><i class="legend-mark" style="--mark: var(--coral)"></i><span data-i18n="chart.meal1">Приём 1</span></span>
-            <span class="legend-item"><i class="legend-mark square" style="--mark: var(--orange)"></i><span data-i18n="chart.meal2">Приём 2</span></span>
-            <span class="legend-item"><i class="legend-mark diamond" style="--mark: var(--yellow)"></i><span data-i18n="chart.meal3">Приём 3</span></span>
-          </div>
-        </div>
-        <div class="chart-wrap" id="growthChartWrap" data-empty-label="Добавьте первую запись, чтобы увидеть историю.">
-          <canvas class="chart-canvas" id="growthChart" role="img" aria-label="График веса и фактического питания Поршика"></canvas>
-          <div class="chart-hit-layer" id="growthChartHitLayer"></div>
-          <div class="chart-tooltip" id="growthChartTooltip" role="tooltip" hidden></div>
-          <div class="loading-overlay" id="chartLoading"><span class="loader" aria-label="Загрузка"></span></div>
-        </div>
-        <div class="error-banner" id="loadError" hidden><span data-i18n="error.load">Не удалось загрузить дневник.</span><button class="button button-small button-secondary" id="retryLoadButton" type="button" data-i18n="action.retry">Повторить</button></div>
-      </section>
+      <div id="growthChartPanelMount"></div>
 
       <section class="panel history-table-panel" aria-labelledby="historyTableTitle">
         <div class="panel-topline">
