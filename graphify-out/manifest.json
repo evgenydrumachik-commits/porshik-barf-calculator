@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/index.html": {
-    "mtime": 1784903933.1505067,
-    "ast_hash": "ef9552913112ec6c181b21db036cb255",
+    "mtime": 1784974237.8993676,
+    "ast_hash": "87c63a5316dc0fe6a53dea9d8972eafb",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/admin.html": {
@@ -240,13 +240,13 @@
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/app.mjs": {
-    "mtime": 1784903932.7929971,
-    "ast_hash": "04fcaf4c1b4ac5481a12a70811a9735e",
+    "mtime": 1784979401.8802319,
+    "ast_hash": "e627b587aa68f152ab344aab61d4f3a3",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/history.html": {
-    "mtime": 1784901258.2546377,
-    "ast_hash": "eb59a8ca976365a7a36d7b8dd7fb5af7",
+    "mtime": 1784974238.1515799,
+    "ast_hash": "b72979fc398f1e6583edda6df8810afc",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/dev-server.mjs": {
@@ -350,18 +350,18 @@
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/chart-date-range-browser-smoke.mjs": {
-    "mtime": 1784903984.9655697,
-    "ast_hash": "e00298a91d35cda90bb322436744faef",
+    "mtime": 1784973623.8523197,
+    "ast_hash": "7abf10eaae23b3f2f9d17bff25a3327d",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/growth-chart-panel.mjs": {
-    "mtime": 1784902401.9760306,
-    "ast_hash": "e052be0bf71410ad6782b361ed9c5748",
+    "mtime": 1784968163.936811,
+    "ast_hash": "24aefcc1a52e9b52bc3627c67cebacd7",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/growth-chart-component.test.mjs": {
-    "mtime": 1784901380.3293242,
-    "ast_hash": "38cfb861ec7d2087de6f913a0c13fbe7",
+    "mtime": 1784974238.7688708,
+    "ast_hash": "b2e6222ad488d096ca925e56cdea4117",
     "semantic_hash": ""
   },
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expense-metrics.test.mjs": {
@@ -372,6 +372,11 @@
   "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/expense-metrics.mjs": {
     "mtime": 1784903704.4719522,
     "ast_hash": "c1217be01cc32a0ca0a2a70a2c23bf67",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expense-chart-source.test.mjs": {
+    "mtime": 1784979402.1076934,
+    "ast_hash": "b4afe020ed2792c4e556289126d1f1e0",
     "semantic_hash": ""
   }
 }

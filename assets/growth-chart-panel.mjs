@@ -9,9 +9,16 @@ export function mountGrowthChartPanel() {
           <p data-i18n="chart.subtitle">Синий — вес, составные столбики — съеденное за день по приёмам.</p>
         </div>
         <div class="chart-actions">
-          <button class="button button-blue" type="button" data-open-record="weight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="action.addWeight">Добавить вес</span></button>
-          <button class="button button-primary" type="button" data-open-record="feeding"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="action.addFeeding">Добавить питание</span></button>
+          <button class="growth-quick-add-trigger" id="growthQuickAddButton" type="button" aria-expanded="false" data-i18n-aria="action.addRecord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           <a class="button button-secondary" href="/history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg><span data-i18n="action.history">История и таблица</span></a>
+        </div>
+      </div>
+      <div class="growth-quick-add" id="growthQuickAddForm" hidden>
+        <div class="table-scroll">
+          <table class="history-table">
+            <thead><tr><th data-i18n="table.date">Дата</th><th data-i18n="table.weight">Вес</th><th data-i18n="table.meal1">Приём 1</th><th data-i18n="table.meal2">Приём 2</th><th data-i18n="table.meal3">Приём 3</th><th data-i18n="table.actualMeals">Приёмов</th><th data-i18n="table.total">Всего</th><th data-i18n="table.target">Норма</th><th data-i18n="table.difference">Расхождение</th></tr></thead>
+            <tbody id="growthQuickAddRow"></tbody>
+          </table>
         </div>
       </div>
       <div class="chart-toolbar chart-toolbar-legend">

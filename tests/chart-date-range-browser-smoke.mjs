@@ -108,7 +108,35 @@ const reloaded = await evaluate(`(() => ({
     growth: document.querySelector('#growthChart').dataset.minDate,
     norm: document.querySelector('#normChart').dataset.minDate,
     expense: document.querySelector('#expenseChart').dataset.minDate
-  }
+  },
+  resetEnds: {
+    growth: document.querySelector('#growthChart').dataset.maxDate,
+    norm: document.querySelector('#normChart').dataset.maxDate,
+    expense: document.querySelector('#expenseChart').dataset.maxDate
+  },
+  rightThumbsRemainMovable: [...document.querySelectorAll('[data-chart-range]')].every((control) => {
+    const end = control.querySelector('[data-chart-range-end]');
+    if (Number(end.value) <= Number(end.min)) return true;
+    end.value = String(Number(end.value) - 1);
+    end.dispatchEvent(new Event('input', { bubbles: true }));
+    return document.querySelector({ growth: '#growthChart', norm: '#normChart', expense: '#expenseChart' }[control.dataset.chartRange]).dataset.maxDate
+      === new Date(Date.parse(control.dataset.minDate + 'T00:00:00Z') + Number(end.value) * 86400000).toISOString().slice(0, 10);
+  })
+}))()`);
+await evaluate(`(async () => {
+  const ranges = JSON.parse(localStorage.getItem('porschik_chart_date_ranges')) || {};
+  ranges.growth = { startDate: '2026-05-01', endDate: '2026-07-14' };
+  ranges.norm = { startDate: '2026-05-01', endDate: '2026-07-14' };
+  ranges.expense = { startDate: '2026-05-01', endDate: '2026-07-14' };
+  localStorage.setItem('porschik_chart_date_ranges', JSON.stringify(ranges));
+  await fetch('/api/weights', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: '2026-08-02', weightKg: 9, meals: [{ slot: 1, grams: 120, skipped: false }] }) });
+  await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'range-smoke-three', date: '2026-08-02', type: 'BARF', kilograms: 5, pricePerKg: 6.8, deliveryCost: 3 }) });
+})()`);
+await navigate();
+const factualRangeEnds = await evaluate(`(() => ({
+  growth: document.querySelector('#growthChart').dataset.maxDate,
+  norm: document.querySelector('#normChart').dataset.maxDate,
+  expense: document.querySelector('#expenseChart').dataset.maxDate
 }))()`);
 await evaluate(`(async () => {
   localStorage.removeItem('porschik_chart_date_ranges');
@@ -119,6 +147,8 @@ const longRangeLabel = await evaluate("document.querySelector('[data-chart-range
 await evaluate(`(async () => {
   await fetch('/api/expenses?id=range-smoke-one', { method: 'DELETE' });
   await fetch('/api/expenses?id=range-smoke-two', { method: 'DELETE' });
+  await fetch('/api/expenses?id=range-smoke-three', { method: 'DELETE' });
+  await fetch('/api/weights?id=2026-08-02', { method: 'DELETE' });
   await fetch('/api/weights?id=2027-05-02', { method: 'DELETE' });
 })()`);
 await evaluate("localStorage.removeItem('porschik_chart_date_ranges')");
@@ -129,6 +159,8 @@ if (firstRender.controls.some((control) => control.labelContainsYear || control.
 if (firstRender.controls.some((control) => !control.movedTogether)) process.exitCode = 1;
 if (firstRender.controls.some((control) => control.selected.startDate !== control.canvasMinDate) || firstRender.chartPoints < 100) process.exitCode = 1;
 if (firstRender.controls.some((control) => reloaded.ranges[control.key]?.startDate !== control.selected.startDate || reloaded.canvasDates[control.key] !== control.selected.startDate)) process.exitCode = 1;
+if (!reloaded.rightThumbsRemainMovable) process.exitCode = 1;
+if (factualRangeEnds.growth !== '2026-08-02' || factualRangeEnds.norm !== '2026-08-02' || factualRangeEnds.expense !== '2026-08-02') process.exitCode = 1;
 if (!/\b2026\b/.test(longRangeLabel) || !/\b2027\b/.test(longRangeLabel)) process.exitCode = 1;
 
 socket.close();

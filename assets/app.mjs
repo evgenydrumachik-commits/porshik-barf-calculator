@@ -20,9 +20,42 @@ import { calculateExpenseMetrics } from "./expense-metrics.mjs";
 const page = document.body.dataset.page || "dashboard";
 const today = todayInTimezone();
 const CHART_DATE_RANGES_STORAGE_KEY = "porschik_chart_date_ranges";
+const PAGE_SCROLL_STORAGE_KEY = `porschik_page_scroll:${location.pathname}`;
 const DAY_MS = 86_400_000;
+const chartRangeEndResetPending = new Set(["growth", "norm", "expense"]);
 let chartRangeSaveTimer = null;
 let chartRangeDrag = null;
+let pendingScrollRestore = null;
+
+function savePageScrollPosition() {
+  try {
+    sessionStorage.setItem(PAGE_SCROLL_STORAGE_KEY, JSON.stringify({ x: scrollX, y: scrollY }));
+  } catch {
+    // Scroll restoration is a convenience and must not affect the diary.
+  }
+}
+
+function pageWasReloaded() {
+  return performance.getEntriesByType("navigation")[0]?.type === "reload";
+}
+
+function restorePageScrollPosition() {
+  if (!pageWasReloaded() || pendingScrollRestore) return;
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(PAGE_SCROLL_STORAGE_KEY) || "null");
+    if (!Number.isFinite(saved?.x) || !Number.isFinite(saved?.y)) return;
+    pendingScrollRestore = saved;
+    const restore = () => scrollTo({ left: saved.x, top: saved.y, behavior: "instant" });
+    requestAnimationFrame(() => requestAnimationFrame(restore));
+    setTimeout(restore, 160);
+  } catch {
+    // A blocked storage policy should keep the browser's normal scroll behavior.
+  }
+}
+
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+addEventListener("pagehide", savePageScrollPosition);
+addEventListener("beforeunload", savePageScrollPosition);
 
 const state = {
   records: [],
@@ -39,6 +72,7 @@ const state = {
   activeRecordTab: "weight",
   editingOriginalDate: "",
   pendingRecordAction: null,
+  growthQuickAddOpen: false,
   pendingSetting: null,
   avatarUrl: "/assets/porschik.jpg",
   feedingSettings: {
@@ -104,12 +138,19 @@ function formatChartDateRange(startDate, endDate) {
   return `${formatDate(startDate, options)} — ${formatDate(endDate, options)}`;
 }
 
-function chartDateRange(key, minDate, maxDate) {
+function chartDateRange(key, minDate, maxDate, { ensureEndDate = "" } = {}) {
   if (!document.querySelector(`[data-chart-range="${key}"]`)) return { startDate: minDate, endDate: maxDate };
   const saved = state.chartDateRanges[key] || {};
   const startDate = saved.startDate >= minDate && saved.startDate <= maxDate ? saved.startDate : minDate;
-  const endDate = saved.endDate >= minDate && saved.endDate <= maxDate ? saved.endDate : maxDate;
-  const range = startDate <= endDate ? { startDate, endDate } : { startDate: minDate, endDate: maxDate };
+  const savedEndDate = saved.endDate >= minDate && saved.endDate <= maxDate ? saved.endDate : maxDate;
+  // Reset the right edge exactly once after a full page load. Subsequent redraws
+  // must respect the user's thumb position until the next reload.
+  const resetEndDate = ensureEndDate >= minDate && ensureEndDate <= maxDate ? ensureEndDate : "";
+  const shouldResetEnd = Boolean(resetEndDate) && chartRangeEndResetPending.has(key);
+  const endDate = shouldResetEnd ? resetEndDate : savedEndDate;
+  const adjustedStartDate = shouldResetEnd && startDate > endDate ? minDate : startDate;
+  const range = adjustedStartDate <= endDate ? { startDate: adjustedStartDate, endDate } : { startDate: minDate, endDate: maxDate };
+  if (shouldResetEnd) chartRangeEndResetPending.delete(key);
   state.chartDateRanges[key] = range;
   syncChartDateRangeControl(key, minDate, maxDate, range);
   return range;
@@ -275,6 +316,7 @@ const translations = {
     "action.save": "Сохранить",
     "action.cancel": "Отмена",
     "action.theme": "Переключить тему",
+    "action.refresh": "Обновить страницу",
     "action.login": "Войти",
     "action.logout": "Выйти",
     "action.admin": "Администрирование",
@@ -495,6 +537,7 @@ const translations = {
     "action.save": "Save",
     "action.cancel": "Cancel",
     "action.theme": "Toggle theme",
+    "action.refresh": "Refresh page",
     "action.login": "Sign in",
     "action.logout": "Sign out",
     "action.admin": "Administration",
@@ -1109,9 +1152,12 @@ class GrowthChart {
 
     const allRecords = this.records || [];
     const availableStart = allRecords[0]?.date;
-    const availableEnd = allRecords.at(-1)?.date;
+    const availableEnd = [allRecords.at(-1)?.date || today, today].sort().at(-1);
+    const latestActualDate = allRecords.filter((record) => record.meals.length).at(-1)?.date || "";
     if (!availableStart || !availableEnd) setChartDateRangeUnavailable("growth");
-    const range = availableStart && availableEnd ? chartDateRange("growth", availableStart, availableEnd) : null;
+    const range = availableStart && availableEnd
+      ? chartDateRange("growth", availableStart, availableEnd, { ensureEndDate: latestActualDate })
+      : null;
     const records = range ? allRecords.filter((record) => record.date >= range.startDate && record.date <= range.endDate) : allRecords;
     this.wrap.classList.toggle("is-empty", records.length === 0);
     this.points = [];
@@ -1132,9 +1178,8 @@ class GrowthChart {
     this.canvas.dataset.weightBottom = String(Math.round(weightArea.bottom));
     this.canvas.dataset.foodTop = String(Math.round(foodArea.top));
     this.canvas.dataset.foodBottom = String(Math.round(foodArea.bottom));
-    const times = records.map((record) => Date.parse(`${record.date}T00:00:00Z`));
-    let minTime = Math.min(...times);
-    let maxTime = Math.max(...times);
+    let minTime = Date.parse(`${range?.startDate || records[0].date}T00:00:00Z`);
+    let maxTime = Date.parse(`${range?.endDate || records.at(-1).date}T00:00:00Z`);
     if (minTime === maxTime) {
       minTime -= 7 * 86_400_000;
       maxTime += 7 * 86_400_000;
@@ -1553,8 +1598,9 @@ function drawNormChart() {
   const startDate = norms[0].date;
   const adultDate = norms.at(-1).date;
   const latestRecordDate = state.records.at(-1)?.date || today;
+  const latestActualDate = state.records.filter((record) => record.meals.length).at(-1)?.date || "";
   const endDate = [adultDate, today, latestRecordDate].sort().at(-1);
-  const range = chartDateRange("norm", startDate, endDate);
+  const range = chartDateRange("norm", startDate, endDate, { ensureEndDate: latestActualDate });
   const minTime = Date.parse(`${range.startDate}T00:00:00Z`);
   const maxTime = Math.max(minTime + DAY_MS, Date.parse(`${range.endDate}T00:00:00Z`));
   const xFor = (date) => area.left + ((Date.parse(`${date}T00:00:00Z`) - minTime) / (maxTime - minTime)) * (area.right - area.left);
@@ -1721,7 +1767,10 @@ function drawNormChart() {
 function renderHistoryTable() {
   const body = document.getElementById("historyTableBody");
   const mobileList = document.getElementById("mobileRecordList");
-  if (!body || !mobileList) return;
+  if (!body || !mobileList) {
+    renderGrowthQuickRow();
+    return;
+  }
   state.inlineEditor = null;
   const addRowButton = document.getElementById("addHistoryRowButton");
   if (addRowButton) addRowButton.hidden = !state.authenticated;
@@ -1804,6 +1853,47 @@ function renderHistoryTable() {
     </article>
   `;
   }).join("");
+  renderGrowthQuickRow();
+}
+
+function renderGrowthQuickRow() {
+  const body = document.getElementById("growthQuickAddRow");
+  if (!body || !state.growthQuickAddOpen) return;
+  const record = recordForDate(today) || state.historyDraft;
+  if (!record) return;
+  const isDraft = record === state.historyDraft;
+  const mealText = (slot) => {
+    const meal = record.meals.find((item) => item.slot === slot);
+    if (!meal) return "—";
+    return meal.skipped ? t("tooltip.skipped") : `${formatNumber(meal.grams)} ${t("unit.g")}`;
+  };
+  const key = isDraft ? "draft" : record.date;
+  const editableCell = (field, content) => {
+    const attributes = ` data-inline-key="${key}" data-inline-record="${record.date}"${isDraft ? " data-inline-draft=\"true\"" : ""} data-inline-field="${field}" tabindex="0" role="button" title="${escapeHtml(t("inline.edit"))}"`;
+    return `<td class="editable-cell"${attributes}><span class="editable-cell-value">${content}</span></td>`;
+  };
+  const weight = Number.isFinite(record.weightKg) ? record.weightKg : latestWeightRecord(state.records, record.date)?.weightKg;
+  const target = recommendationFor(weight || 0, record.date, activeDogProfile()).dailyGrams;
+  const actual = actualDailyGrams(record);
+  const difference = record.meals.length ? intakeDifferencePercent(actual, target) : null;
+  const differenceContent = !Number.isFinite(difference)
+    ? "—"
+    : `<span class="intake-difference is-${difference > 0.5 ? "over" : difference < -0.5 ? "under" : "on-target"}">${difference > 0.05 ? "+" : ""}${formatNumber(difference, 1)}%</span>`;
+  const deleteAttributes = isDraft
+    ? `data-discard-history-draft="true" aria-label="${escapeHtml(t("action.discardDraft"))}"`
+    : `data-delete-record="${record.date}" aria-label="${escapeHtml(t("action.delete"))}"`;
+  const deleteButton = `<button class="row-delete-button" type="button" ${deleteAttributes}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></button>`;
+  body.innerHTML = `<tr${isDraft ? ` class="history-draft-row" data-draft-label="${escapeHtml(t("history.draftLabel"))}" aria-label="${escapeHtml(t("history.draft"))}"` : ""}>
+    ${editableCell("date", `<span class="date-cell-content"><strong>${escapeHtml(formatDate(record.date))}</strong>${deleteButton}</span>`)}
+    ${editableCell("weight", Number.isFinite(record.weightKg) ? `${formatNumber(record.weightKg, 2)} ${escapeHtml(t("unit.kg"))}` : "—")}
+    ${editableCell("meal-1", escapeHtml(mealText(1)))}
+    ${editableCell("meal-2", escapeHtml(mealText(2)))}
+    ${editableCell("meal-3", escapeHtml(mealText(3)))}
+    <td class="derived-cell">${actualMealCount(record) || "—"}</td>
+    <td class="derived-cell">${record.meals.length ? `${formatNumber(actual)} ${escapeHtml(t("unit.g"))}` : "—"}</td>
+    <td class="derived-cell target-cell">${target ? `${formatNumber(Math.round(target))} ${escapeHtml(t("unit.g"))}` : "—"}</td>
+    <td class="derived-cell difference-cell">${differenceContent}</td>
+  </tr>`;
 }
 
 function addHistoryDraft() {
@@ -2139,7 +2229,7 @@ function updateExpenseInlineTotal(form) {
   if (total) total.textContent = formatCurrency(expenseEditorValues(form).totalCost);
 }
 
-async function loadExpenses() {
+async function loadExpenses(retry = true) {
   try {
     const response = await fetch("/api/expenses", { credentials: "same-origin", cache: "no-store" });
     if (!response.ok) throw new Error(t("expense.loadError"));
@@ -2148,6 +2238,12 @@ async function loadExpenses() {
       .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
     renderExpenses();
   } catch {
+    // A local server may still be accepting connections just after a manual refresh.
+    // Retry once before showing an empty spending history to the user.
+    if (retry) {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      return loadExpenses(false);
+    }
     state.expenses = [];
     renderExpenses();
     toast(t("expense.loadError"), "error");
@@ -2203,9 +2299,10 @@ function drawExpenseChart() {
   expenseChartPoints = [];
   const allOrders = state.expenses;
   const availableStart = allOrders[0]?.date;
-  const availableEnd = [allOrders.at(-1)?.date || today, today].sort().at(-1);
+  const latestOrderDate = allOrders.at(-1)?.date || "";
+  const availableEnd = [latestOrderDate || today, today].sort().at(-1);
   if (!availableStart) setChartDateRangeUnavailable("expense");
-  const range = availableStart ? chartDateRange("expense", availableStart, availableEnd) : null;
+  const range = availableStart ? chartDateRange("expense", availableStart, availableEnd, { ensureEndDate: latestOrderDate }) : null;
   const orders = range ? allOrders.filter((order) => order.date >= range.startDate && order.date <= range.endDate) : allOrders;
   if (!orders.length) {
     ctx.fillStyle = cssColor("--muted");
@@ -2219,9 +2316,8 @@ function drawExpenseChart() {
     return;
   }
   const plot = { left: width < 560 ? 58 : 78, right: width - (width < 560 ? 58 : 78), top: 24, bottom: height - 42 };
-  const times = orders.map((order) => Date.parse(`${order.date}T00:00:00Z`));
-  let minTime = Math.min(...times);
-  let maxTime = Math.max(...times, Date.parse(`${range?.endDate || today}T00:00:00Z`));
+  let minTime = Date.parse(`${range?.startDate || orders[0].date}T00:00:00Z`);
+  let maxTime = Date.parse(`${range?.endDate || orders.at(-1).date}T00:00:00Z`);
   if (minTime === maxTime) { minTime -= 15 * 86_400_000; maxTime += 15 * 86_400_000; }
   const xFor = (time) => plot.left + (time - minTime) / (maxTime - minTime) * (plot.right - plot.left);
   const visibleOrderTotals = orders.map((order) =>
@@ -2274,8 +2370,8 @@ function drawExpenseChart() {
   ctx.fillText(t("expense.rightAxis"), 0, 0);
   ctx.restore();
   const barWidth = Math.max(10, Math.min(28, (plot.right - plot.left) / Math.max(orders.length * 2.4, 8)));
-  orders.forEach((order, index) => {
-    const x = xFor(times[index]);
+  orders.forEach((order) => {
+    const x = xFor(Date.parse(`${order.date}T00:00:00Z`));
     const foodCost = order.kilograms * order.pricePerKg;
     const visibleFood = state.showExpenseFood ? foodCost : 0;
     const visibleDelivery = state.showExpenseDelivery ? order.deliveryCost : 0;
@@ -2886,6 +2982,41 @@ async function submitFeeding(event) {
   }
 }
 
+function openGrowthQuickAdd(date = today) {
+  if (!state.authenticated) {
+    state.pendingRecordAction = { type: "quick-add", date };
+    openAuthDialog();
+    return;
+  }
+  const form = document.getElementById("growthQuickAddForm");
+  const button = document.getElementById("growthQuickAddButton");
+  if (!form) return;
+  if (!recordForDate(date) && !state.historyDraft) {
+    state.historyDraft = { date, weightKg: null, meals: [], comment: "" };
+  }
+  state.growthQuickAddOpen = true;
+  form.hidden = false;
+  renderGrowthQuickRow();
+  button?.setAttribute("aria-expanded", "true");
+  requestAnimationFrame(() => {
+    form.classList.add("is-open");
+  });
+}
+
+function closeGrowthQuickAdd() {
+  const form = document.getElementById("growthQuickAddForm");
+  const button = document.getElementById("growthQuickAddButton");
+  if (!form) return;
+  state.growthQuickAddOpen = false;
+  if (state.historyDraft?.date === today) state.historyDraft = null;
+  state.inlineEditor = null;
+  button?.setAttribute("aria-expanded", "false");
+  form.classList.remove("is-open");
+  const hide = () => { if (!state.growthQuickAddOpen) form.hidden = true; };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) hide();
+  else setTimeout(hide, 360);
+}
+
 async function deleteWeightValue() {
   const date = document.getElementById("weightDate")?.value;
   const record = recordForDate(date);
@@ -3154,7 +3285,8 @@ async function renderGoogleButton() {
           if (state.pendingRecordAction) {
             const action = state.pendingRecordAction;
             state.pendingRecordAction = null;
-            openRecordDialog(action.type, action.date);
+            if (action.type === "quick-add") openGrowthQuickAdd(action.date);
+            else openRecordDialog(action.type, action.date);
           }
           if (state.pendingSetting) {
             const pendingSetting = state.pendingSetting;
@@ -3191,6 +3323,11 @@ function wireChartToggle(id, stateKey, redraw) {
 }
 
 function wireEvents() {
+  document.getElementById("refreshButton")?.addEventListener("click", () => {
+    savePageScrollPosition();
+    location.reload();
+  });
+
   document.getElementById("languageButton")?.addEventListener("click", () => {
     state.lang = state.lang === "ru" ? "en" : "ru";
     writeCookie("porschik_lang", state.lang);
@@ -3241,6 +3378,12 @@ function wireEvents() {
   document.getElementById("restoreBackupButton")?.addEventListener("click", restoreSelectedBackup);
   document.getElementById("confirmRestoreButton")?.addEventListener("click", confirmSelectedBackupRestore);
   document.getElementById("retryLoadButton")?.addEventListener("click", loadRecords);
+  document.getElementById("growthQuickAddButton")?.addEventListener("click", () => {
+    if (state.growthQuickAddOpen) closeGrowthQuickAdd();
+    else openGrowthQuickAdd();
+  });
+  document.getElementById("growthQuickAddRow")?.addEventListener("click", handleHistoryAction);
+  document.getElementById("growthQuickAddRow")?.addEventListener("keydown", handleHistoryKeydown);
   document.querySelectorAll("[data-open-record]").forEach((button) => button.addEventListener("click", () => openRecordDialog(button.dataset.openRecord, today)));
   document.querySelectorAll("[data-close-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.closeDialog)?.close()));
   document.querySelectorAll("[data-record-tab]").forEach((button) => button.addEventListener("click", () => setRecordTab(button.dataset.recordTab)));
@@ -3380,6 +3523,7 @@ async function init() {
   setRecordTab("weight");
   await Promise.all([loadRecords(), loadExpenses(), loadProfile(), loadAuthConfig(), refreshAuthStatus()]);
   renderAll();
+  restorePageScrollPosition();
 }
 
 init();
