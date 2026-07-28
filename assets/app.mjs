@@ -9,6 +9,7 @@ import {
   formatAge,
   intakeDifferencePercent,
   intakeRatioFor,
+  isDailyIntakeComplete,
   latestWeightRecord,
   recommendationFor,
   sortDailyRecords,
@@ -95,6 +96,7 @@ const state = {
   showExpenseFood: true,
   showExpenseDelivery: true,
   showExpensePriceKg: true,
+  expenseProjectionInfoOpen: false,
   chartDateRanges: readChartDateRanges()
 };
 
@@ -154,6 +156,29 @@ function chartDateRange(key, minDate, maxDate, { ensureEndDate = "" } = {}) {
   state.chartDateRanges[key] = range;
   syncChartDateRangeControl(key, minDate, maxDate, range);
   return range;
+}
+
+function snapChartRangeEndToActualData(key, endDate) {
+  if (!endDate) return;
+  const saved = state.chartDateRanges[key] || {};
+  state.chartDateRanges[key] = {
+    startDate: saved.startDate && saved.startDate <= endDate ? saved.startDate : endDate,
+    endDate
+  };
+}
+
+function snapDailyChartRangesToActualData() {
+  const latestActualDate = state.records
+    .filter((record) => Number.isFinite(record.weightKg) || record.meals.some((meal) => Number.isFinite(meal.grams)))
+    .at(-1)?.date || "";
+  snapChartRangeEndToActualData("growth", latestActualDate);
+  snapChartRangeEndToActualData("norm", latestActualDate);
+  persistChartDateRanges();
+}
+
+function snapExpenseChartRangeToActualData() {
+  snapChartRangeEndToActualData("expense", state.expenses.at(-1)?.date || "");
+  persistChartDateRanges();
 }
 
 function syncChartDateRangeControl(key, minDate, maxDate, range) {
@@ -345,9 +370,9 @@ const translations = {
     "settings.oneRequired": "Должна остаться хотя бы одна норма.",
     "settings.duplicateDate": "На эту дату уже задана норма.",
     "backup.title": "Резервные копии данных",
-    "backup.subtitle": "Точка восстановления создаётся при каждом сохранении. Здесь можно скачать данные или вернуться к предыдущей версии.",
+    "backup.subtitle": "Скачиваемый файл содержит дневник, нормы, фотографию и расходы. Точки восстановления позволяют вернуться к предыдущей версии дневника.",
     "backup.automatic": "Автокопирование включено",
-    "backup.download": "Скачать backup",
+    "backup.download": "Скачать полный backup",
     "backup.restorePoint": "Версия для восстановления",
     "backup.loading": "Загружаем список…",
     "backup.empty": "Резервных копий пока нет",
@@ -355,7 +380,7 @@ const translations = {
     "backup.restore": "Восстановить",
     "backup.daily": "Копия дня",
     "backup.snapshot": "Автокопия",
-    "backup.downloaded": "Backup скачан.",
+    "backup.downloaded": "Полный backup скачан.",
     "backup.restored": "Данные восстановлены из резервной копии.",
     "backup.confirmTitle": "Восстановить резервную копию?",
     "backup.confirm": "Восстановить данные из «{name}»? Текущие записи будут заменены.",
@@ -376,7 +401,7 @@ const translations = {
     "barf.future": "Будущий план",
     "barf.current": "Сейчас",
     "barf.adultStable": "Стабильная взрослая норма",
-    "barf.completeDays": "Фактическая линия не включает сегодняшний незавершённый день.",
+    "barf.completeDays": "Фактическая линия показывает полностью отмеченные дни, включая сегодняшний.",
     "barf.percentAxis": "% от веса",
     "expense.eyebrow": "Расходы на питание",
     "expense.title": "Сколько стоит питание Поршика",
@@ -384,9 +409,15 @@ const translations = {
     "expense.add": "Добавить заказ",
     "expense.total": "За всё время",
     "expense.year": "В этом году",
-    "expense.annualPace": "Прогноз к концу года",
-    "expense.annualPaceNote": "По среднему темпу с первого заказа — {date}",
-    "expense.averageKg": "Средняя цена/кг",
+    "expense.annualPace": "Прогноз на следующие 12 месяцев",
+    "expense.annualPaceValue": "{total} · {kilograms} кг",
+    "expense.annualPaceNote": "{start} — {end}",
+    "expense.annualPaceBreakdown": "Корм {food} + доставка {delivery}",
+    "expense.projectionInfo": "Показать формулу прогноза",
+    "expense.averageKg": "Последняя цена/кг",
+    "expense.projectionTitle": "Формула прогноза на 12 месяцев",
+    "expense.projectionFormula": "Kфакт = Σ фактически съедено ÷ Σ нормы за завершённые дни последних 30 дней. Прогноз = Σ365 [(вес дня × норма дня × Kфакт) ÷ 1000 × цена дня] + (прогнозные кг ÷ кг в последнем заказе × доставка последнего заказа).",
+    "expense.projectionInputs": "Расчёт: {plannedKg} кг по нормам × {actualFactor}% фактического потребления ({actualDays} заверш. дней из последних 30) = {projectedKg} кг; мясо {foodCost}, доставка {deliveryCost} ({deliveries} эквивалентных заказов по {orderKg} кг × {deliveryPerOrder}). Вес {startWeight} → {endWeight} кг; цена {priceKg}/кг до {inflationDate}, затем {inflatedPriceKg}/кг (+{inflation}%).",
     "expense.foodCost": "Стоимость еды",
     "expense.delivery": "Доставка",
     "expense.priceTrend": "Цена за кг",
@@ -566,9 +597,9 @@ const translations = {
     "settings.oneRequired": "At least one target must remain.",
     "settings.duplicateDate": "A target already exists for this date.",
     "backup.title": "Data backups",
-    "backup.subtitle": "A restore point is created after every save. Download the data or return to an earlier version here.",
+    "backup.subtitle": "The download contains the diary, feeding targets, photo, and expenses. Restore points return the diary to an earlier version.",
     "backup.automatic": "Automatic backups enabled",
-    "backup.download": "Download backup",
+    "backup.download": "Download full backup",
     "backup.restorePoint": "Version to restore",
     "backup.loading": "Loading backups…",
     "backup.empty": "No backups yet",
@@ -576,7 +607,7 @@ const translations = {
     "backup.restore": "Restore",
     "backup.daily": "Daily copy",
     "backup.snapshot": "Automatic copy",
-    "backup.downloaded": "Backup downloaded.",
+    "backup.downloaded": "Full backup downloaded.",
     "backup.restored": "Data was restored from the backup.",
     "backup.confirmTitle": "Restore backup?",
     "backup.confirm": "Restore data from “{name}”? Current records will be replaced.",
@@ -597,7 +628,7 @@ const translations = {
     "barf.future": "Future plan",
     "barf.current": "Current",
     "barf.adultStable": "Stable adult target",
-    "barf.completeDays": "The actual line excludes today's incomplete day.",
+    "barf.completeDays": "The actual line shows fully logged days, including today.",
     "barf.percentAxis": "% of body weight",
     "expense.eyebrow": "Food expenses",
     "expense.title": "What Porschik's food costs",
@@ -605,9 +636,15 @@ const translations = {
     "expense.add": "Add order",
     "expense.total": "All time",
     "expense.year": "This year",
-    "expense.annualPace": "Projected by year-end",
-    "expense.annualPaceNote": "At the average pace since the first order — {date}",
-    "expense.averageKg": "Average price/kg",
+    "expense.annualPace": "Projected next 12 months",
+    "expense.annualPaceValue": "{total} · {kilograms} kg",
+    "expense.annualPaceNote": "{start} — {end}",
+    "expense.annualPaceBreakdown": "Food {food} + delivery {delivery}",
+    "expense.projectionInfo": "Show forecast formula",
+    "expense.averageKg": "Latest price/kg",
+    "expense.projectionTitle": "12-month forecast formula",
+    "expense.projectionFormula": "Kactual = Σ actual intake ÷ Σ target intake for complete days in the last 30 days. Forecast = Σ365 [(daily weight × daily target × Kactual) ÷ 1000 × daily price] + (forecast kg ÷ kg in the latest order × latest delivery charge).",
+    "expense.projectionInputs": "Calculation: {plannedKg} kg by target × {actualFactor}% actual intake ({actualDays} complete days in the last 30) = {projectedKg} kg; food {foodCost}, delivery {deliveryCost} ({deliveries} equivalent {orderKg} kg orders × {deliveryPerOrder}). Weight {startWeight} → {endWeight} kg; price {priceKg}/kg until {inflationDate}, then {inflatedPriceKg}/kg (+{inflation}%).",
     "expense.foodCost": "Food cost",
     "expense.delivery": "Delivery",
     "expense.priceTrend": "Price per kg",
@@ -1111,14 +1148,13 @@ class GrowthChart {
     this.tooltip = tooltip;
     this.points = [];
     this.hoveredKey = "";
-    this.onActivate = () => {};
     this.resizeObserver = new ResizeObserver(() => this.draw());
     this.resizeObserver.observe(wrap);
     canvas.addEventListener("pointermove", (event) => this.handlePointerMove(event));
     canvas.addEventListener("pointerleave", () => this.hideTooltip());
     canvas.addEventListener("click", (event) => {
       const point = this.nearestPoint(event);
-      if (point) this.onActivate(point);
+      if (point) this.showTooltip(point);
     });
   }
 
@@ -1426,7 +1462,7 @@ class GrowthChart {
       button.addEventListener("pointerleave", () => this.hideTooltip());
       button.addEventListener("focus", () => this.showTooltip(point));
       button.addEventListener("blur", () => this.hideTooltip());
-      button.addEventListener("click", () => this.onActivate(point));
+      button.addEventListener("click", () => this.showTooltip(point));
       fragment.append(button);
     }
     this.hitLayer.append(fragment);
@@ -1520,7 +1556,6 @@ function initGrowthChart() {
     document.getElementById("growthChartHitLayer"),
     document.getElementById("growthChartTooltip")
   );
-  growthChart.onActivate = (point) => openRecordDialog(point.kind === "weight" ? "weight" : "feeding", point.record.date);
 }
 
 let normHoveredKey = "";
@@ -1575,6 +1610,7 @@ function initNormChartInteraction() {
   const canvas = document.getElementById("normChart");
   if (!canvas) return;
   canvas.addEventListener("pointermove", handleNormChartPointer);
+  canvas.addEventListener("click", handleNormChartPointer);
   canvas.addEventListener("pointerleave", hideNormTooltip);
 }
 
@@ -1591,14 +1627,15 @@ function drawNormChart() {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   ctx.fillStyle = cssColor("--surface-solid");
   ctx.fillRect(0, 0, width, height);
-  const area = { left: width < 560 ? 48 : 58, right: width - 18, top: 18, bottom: height - 38 };
+  const rightGutter = width < 560 ? 70 : 82;
+  const area = { left: width < 560 ? 48 : 58, right: width - rightGutter, top: 18, bottom: height - 38 };
   const profile = activeDogProfile();
   const norms = activeFeedingNorms();
   if (!norms.length) return;
   const startDate = norms[0].date;
   const adultDate = norms.at(-1).date;
   const latestRecordDate = state.records.at(-1)?.date || today;
-  const latestActualDate = state.records.filter((record) => record.meals.length).at(-1)?.date || "";
+  const latestActualDate = state.records.filter((record) => isDailyIntakeComplete(record, profile)).at(-1)?.date || "";
   const endDate = [adultDate, today, latestRecordDate].sort().at(-1);
   const range = chartDateRange("norm", startDate, endDate, { ensureEndDate: latestActualDate });
   const minTime = Date.parse(`${range.startDate}T00:00:00Z`);
@@ -1609,7 +1646,7 @@ function drawNormChart() {
     normPoints.push({ date, ratio: feedingPlanForDate(date, profile).ratio });
   }
   const actualPoints = state.records
-    .filter((record) => record.date >= range.startDate && record.date <= range.endDate && record.date < today && record.meals.length)
+    .filter((record) => record.date >= range.startDate && record.date <= range.endDate && isDailyIntakeComplete(record, profile))
     .map((record) => {
       const weight = latestWeightRecord(state.records, record.date)?.weightKg;
       const ratioValue = intakeRatioFor(actualDailyGrams(record), weight);
@@ -1759,6 +1796,7 @@ function drawNormChart() {
   canvas.dataset.showActual = String(state.showNormActual);
   canvas.dataset.minDate = range.startDate;
   canvas.dataset.maxDate = range.endDate;
+  canvas.dataset.rightGutter = String(rightGutter);
   const hoverProbe = [...normInteractivePoints].reverse().find((point) => point.kind === "actual");
   canvas.dataset.hoverX = hoverProbe ? String(hoverProbe.x) : "";
   canvas.dataset.hoverY = hoverProbe ? String(hoverProbe.y) : "";
@@ -2251,7 +2289,10 @@ async function loadExpenses(retry = true) {
 }
 
 function expenseMetrics() {
-  return calculateExpenseMetrics(state.expenses, today);
+  return calculateExpenseMetrics(state.expenses, today, {
+    records: state.records,
+    profile: activeDogProfile()
+  });
 }
 
 function renderExpenseList() {
@@ -2422,6 +2463,9 @@ function drawExpenseChart() {
   canvas.dataset.showPriceKg = String(state.showExpensePriceKg);
   canvas.dataset.leftAxis = t("expense.leftAxis");
   canvas.dataset.rightAxis = t("expense.rightAxis");
+  const hoverProbe = expenseChartPoints.at(-1);
+  canvas.dataset.hoverX = hoverProbe ? String(hoverProbe.x) : "";
+  canvas.dataset.hoverY = hoverProbe ? String(hoverProbe.y) : "";
 }
 
 function renderExpenses() {
@@ -2429,14 +2473,72 @@ function renderExpenses() {
   const values = {
     expenseTotal: formatCurrency(metrics.total),
     expenseYear: formatCurrency(metrics.year),
-    expenseAnnualPace: metrics.yearEndProjection === null ? "—" : formatCurrency(metrics.yearEndProjection, 0),
-    expenseAverageKg: metrics.averageKg === null ? "—" : `${formatCurrency(metrics.averageKg)}/${t("unit.kg")}`
+    expenseAnnualPace: metrics.rollingTwelveMonthProjection === null ? "—" : t("expense.annualPaceValue", {
+      total: formatCurrency(metrics.rollingTwelveMonthProjection, 0),
+      kilograms: formatNumber(metrics.projectedKilograms, 1)
+    }),
+    expenseAverageKg: metrics.latestPriceKg === null ? "—" : `${formatCurrency(metrics.latestPriceKg)}/${t("unit.kg")}`
   };
   Object.entries(values).forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
+  const totalBreakdown = document.getElementById("expenseTotalBreakdown");
+  if (totalBreakdown) totalBreakdown.textContent = t("expense.annualPaceBreakdown", {
+    food: formatCurrency(metrics.totalFoodCost),
+    delivery: formatCurrency(metrics.totalDeliveryCost)
+  });
+  const yearBreakdown = document.getElementById("expenseYearBreakdown");
+  if (yearBreakdown) yearBreakdown.textContent = t("expense.annualPaceBreakdown", {
+    food: formatCurrency(metrics.yearFoodCost),
+    delivery: formatCurrency(metrics.yearDeliveryCost)
+  });
   const paceNote = document.getElementById("expenseAnnualPaceNote");
-  if (paceNote) paceNote.textContent = metrics.firstOrderDate
-    ? t("expense.annualPaceNote", { date: formatDate(metrics.firstOrderDate, { day: "2-digit", month: "short" }) })
+  if (paceNote) paceNote.textContent = metrics.rollingTwelveMonthProjection !== null
+    ? t("expense.annualPaceNote", {
+      start: formatDate(metrics.projectionStartDate, { day: "2-digit", month: "short", year: "numeric" }),
+      end: formatDate(metrics.projectionEndDate, { day: "2-digit", month: "short", year: "numeric" })
+    })
     : "—";
+  const paceBreakdown = document.getElementById("expenseAnnualPaceBreakdown");
+  if (paceBreakdown) paceBreakdown.textContent = metrics.rollingTwelveMonthProjection !== null
+    ? t("expense.annualPaceBreakdown", {
+      food: formatCurrency(metrics.projectedFoodCost),
+      delivery: formatCurrency(metrics.projectedDeliveryCost)
+    })
+    : "—";
+  const projectionReport = document.getElementById("expenseProjectionReport");
+  const projectionInfoButton = document.getElementById("expenseProjectionInfoButton");
+  const projectionFormula = document.getElementById("expenseProjectionFormula");
+  const projectionInputs = document.getElementById("expenseProjectionInputs");
+  const hasProjection = metrics.rollingTwelveMonthProjection !== null;
+  if (!hasProjection) state.expenseProjectionInfoOpen = false;
+  if (projectionInfoButton) {
+    projectionInfoButton.hidden = !hasProjection;
+    projectionInfoButton.setAttribute("aria-expanded", String(hasProjection && state.expenseProjectionInfoOpen));
+  }
+  if (projectionReport) {
+    const reportOpen = hasProjection && state.expenseProjectionInfoOpen;
+    projectionReport.classList.toggle("is-open", reportOpen);
+    projectionReport.setAttribute("aria-hidden", String(!reportOpen));
+  }
+  if (projectionFormula) projectionFormula.textContent = hasProjection ? t("expense.projectionFormula") : "";
+  if (projectionInputs) projectionInputs.textContent = hasProjection
+    ? t("expense.projectionInputs", {
+      plannedKg: formatNumber(metrics.plannedKilograms, 1),
+      actualFactor: formatNumber(metrics.actualConsumptionFactor * 100, 1),
+      actualDays: metrics.actualConsumptionDays,
+      projectedKg: formatNumber(metrics.projectedKilograms, 1),
+      foodCost: formatCurrency(metrics.projectedFoodCost),
+      deliveryCost: formatCurrency(metrics.projectedDeliveryCost),
+      deliveries: formatNumber(metrics.projectedDeliveries, 1),
+      orderKg: formatNumber(metrics.latestOrderKg, 1),
+      deliveryPerOrder: formatCurrency(metrics.latestDeliveryCost),
+      startWeight: formatNumber(metrics.projectedStartWeightKg, 1),
+      endWeight: formatNumber(metrics.projectedEndWeightKg, 1),
+      priceKg: formatCurrency(metrics.latestPriceKg),
+      inflatedPriceKg: formatCurrency(metrics.latestPriceKg * (1 + metrics.inflationRate)),
+      inflation: formatNumber(metrics.inflationRate * 100),
+      inflationDate: formatDate(metrics.inflationDate, { day: "2-digit", month: "short", year: "numeric" })
+    })
+    : "";
   document.getElementById("expenseChart")?.setAttribute("aria-label", t("expense.chartAria"));
   renderExpenseList();
   drawExpenseChart();
@@ -2514,6 +2616,7 @@ async function saveExpenseInlineEditor(event) {
     state.expenses = (result.orders || []).map(normalizeClientExpense)
       .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
     state.expenseEditor = null;
+    snapExpenseChartRangeToActualData();
     renderExpenses();
     toast(t("expense.saved"));
   } catch (error) {
@@ -2920,6 +3023,7 @@ async function saveDailyRecord(body, { discardDraft = false } = {}) {
   if (!response.ok) throw new Error(payload.error || t("error.save"));
   state.records = sortDailyRecords((payload.records || []).map(normalizeClientRecord));
   if (discardDraft) state.historyDraft = null;
+  snapDailyChartRangesToActualData();
   renderAll();
   if (page === "history" && state.authenticated) loadRestorePoints();
 }
@@ -3121,7 +3225,7 @@ async function downloadBackup() {
     }
     const blob = await response.blob();
     const disposition = response.headers.get("Content-Disposition") || "";
-    const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] || `porschik-diary-backup-${today}.json`;
+    const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] || `porschik-full-backup-${today}.json`;
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -3335,6 +3439,10 @@ function wireEvents() {
     renderAll();
     if (page === "history" && state.authenticated) loadRestorePoints();
   });
+  document.getElementById("expenseProjectionInfoButton")?.addEventListener("click", () => {
+    state.expenseProjectionInfoOpen = !state.expenseProjectionInfoOpen;
+    renderExpenses();
+  });
   document.getElementById("themeButton")?.addEventListener("click", () => {
     state.theme = state.theme === "dark" ? "light" : "dark";
     applyTheme();
@@ -3473,7 +3581,7 @@ function wireEvents() {
   document.getElementById("expenseChart")?.addEventListener("pointerleave", hideExpenseTooltip);
   document.getElementById("expenseChart")?.addEventListener("click", (event) => {
     const point = nearestExpensePoint(event);
-    if (point) beginExpenseEditor(point.order);
+    if (point) showExpenseTooltip(point);
   });
   addEventListener("resize", () => { drawNormChart(); drawExpenseChart(); });
   document.querySelectorAll("dialog").forEach((dialog) => dialog.addEventListener("click", (event) => {

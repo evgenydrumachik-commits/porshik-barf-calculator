@@ -292,6 +292,17 @@ export function actualDailyGrams(record) {
   ), 0);
 }
 
+export function isDailyIntakeComplete(record, profile = DOG_PROFILE) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(record?.date || ""))) return false;
+  const requiredMeals = feedingPlanForDate(record.date, profile).mealsPerDay;
+  const mealsBySlot = new Map((record.meals || []).map((meal) => [Number(meal.slot), meal]));
+
+  return Array.from({ length: requiredMeals }, (_, index) => {
+    const meal = mealsBySlot.get(index + 1);
+    return meal && (meal.skipped || Number(meal.grams) > 0);
+  }).every(Boolean);
+}
+
 export function intakeDifferencePercent(actualGrams, targetGrams) {
   const actual = Number(actualGrams);
   const target = Number(targetGrams);

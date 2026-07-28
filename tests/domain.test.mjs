@@ -8,6 +8,7 @@ import {
   ageOn,
   feedingPlanForDate,
   feedingRatioForDate,
+  isDailyIntakeComplete,
   latestWeightRecord,
   intakeDifferencePercent,
   intakeRatioFor,
@@ -80,6 +81,34 @@ test("actual intake ignores skipped meals", () => {
   };
   assert.equal(actualMealCount(record), 2);
   assert.equal(actualDailyGrams(record), 405);
+});
+
+test("a daily intake is complete when every scheduled meal is entered or skipped", () => {
+  const date = "2026-07-26";
+  assert.equal(isDailyIntakeComplete({ date, meals: [
+    { slot: 1, grams: 165, skipped: false },
+    { slot: 2, grams: null, skipped: true },
+    { slot: 3, grams: 167, skipped: false }
+  ] }), true);
+  assert.equal(isDailyIntakeComplete({ date, meals: [
+    { slot: 1, grams: null, skipped: true },
+    { slot: 2, grams: null, skipped: true },
+    { slot: 3, grams: null, skipped: true }
+  ] }), true);
+  assert.equal(isDailyIntakeComplete({ date, meals: [
+    { slot: 1, grams: 165, skipped: false },
+    { slot: 2, grams: 168, skipped: false }
+  ] }), false);
+});
+
+test("the two scheduled adult meals determine a complete adult day", () => {
+  assert.equal(isDailyIntakeComplete({
+    date: "2026-10-28",
+    meals: [
+      { slot: 1, grams: null, skipped: true },
+      { slot: 2, grams: 120, skipped: false }
+    ]
+  }), true);
 });
 
 test("daily intake difference is expressed as a percentage of the target", () => {

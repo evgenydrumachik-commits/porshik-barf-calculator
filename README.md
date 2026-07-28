@@ -73,6 +73,8 @@ DEV_AUTH=1 node tests/dev-server.mjs
 
 Open <http://127.0.0.1:4173>. The local server treats the local test account as an administrator and stores its own persistent development state in `.local-data/dev-state.json`. That ignored file survives code updates and server restarts but is never used directly by production, which uses Neon Postgres. Set `DEV_DATA_PATH=/tmp/porschik-test.json` when a disposable isolated dataset is needed for automated checks.
 
+The downloadable full backup uses schema version 3 and contains all portable application data: diary records, the profile photo, feeding targets, and expense orders. Authentication sessions, access-control users, audit events, and internal database restore points are intentionally excluded.
+
 To serve the public read-only experience instead:
 
 ```bash

@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 import { loadDevState, saveDevState } from "./dev-state.mjs";
 
 const require = createRequire(import.meta.url);
-const { buildRecordsPayload, normalizeRecord, readRecords } = require("../api/_weights.js");
+const { buildFullBackupPayload } = require("../api/_backup.js");
+const { normalizeRecord, readRecords } = require("../api/_weights.js");
 const { RECOMMENDED_FEEDING_SETTINGS, normalizeFeedingSettings } = require("../api/_profile.js");
 const { normalizeExpenseOrder, normalizeExpenseOrders } = require("../api/_expenses.js");
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -69,13 +70,17 @@ const server = http.createServer(async (request, response) => {
         return json(response, 401, { error: "Нужен вход администратора" });
       }
       if (url.searchParams.has("export")) {
-        const filename = `porschik-diary-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        const filename = `porschik-full-backup-${new Date().toISOString().slice(0, 10)}.json`;
         response.writeHead(200, {
           "Content-Type": "application/json; charset=utf-8",
           "Content-Disposition": `attachment; filename="${filename}"`,
           "Cache-Control": "no-store"
         });
-        response.end(JSON.stringify(buildRecordsPayload(records, { exportType: "manual", storageReady: true }), null, 2));
+        response.end(JSON.stringify(buildFullBackupPayload({
+          records,
+          profile: { avatarUrl, feedingSettings, updatedAt: null },
+          expenses
+        }, { exportType: "manual", storageReady: true }), null, 2));
         return;
       }
       if (url.searchParams.has("backups")) return json(response, 200, { restorePoints });

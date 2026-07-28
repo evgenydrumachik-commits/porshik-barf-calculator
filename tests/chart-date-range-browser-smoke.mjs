@@ -138,6 +138,25 @@ const factualRangeEnds = await evaluate(`(() => ({
   norm: document.querySelector('#normChart').dataset.maxDate,
   expense: document.querySelector('#expenseChart').dataset.maxDate
 }))()`);
+await evaluate(`(() => {
+  const ranges = JSON.parse(localStorage.getItem('porschik_chart_date_ranges')) || {};
+  ranges.growth = { startDate: '2026-05-01', endDate: '2026-07-14' };
+  ranges.norm = { startDate: '2026-05-01', endDate: '2026-07-14' };
+  localStorage.setItem('porschik_chart_date_ranges', JSON.stringify(ranges));
+  const dialog = document.querySelector('#recordDialog');
+  document.querySelector('#feedingForm').hidden = true;
+  document.querySelector('#weightForm').hidden = false;
+  document.querySelector('#weightDate').value = '2026-08-03';
+  document.querySelector('#weightValue').value = '9.5';
+  dialog.showModal();
+  document.querySelector('#weightForm').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+})()`);
+await waitFor("document.querySelector('#growthChart')?.dataset.maxDate === '2026-08-03' && document.querySelector('#normChart')?.dataset.maxDate === '2026-08-03'");
+const savedWithoutReloadRangeEnds = await evaluate(`(() => ({
+  growth: document.querySelector('#growthChart').dataset.maxDate,
+  norm: document.querySelector('#normChart').dataset.maxDate,
+  saved: JSON.parse(localStorage.getItem('porschik_chart_date_ranges'))
+}))()`);
 await evaluate(`(async () => {
   localStorage.removeItem('porschik_chart_date_ranges');
   await fetch('/api/weights', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: '2027-05-02', weightKg: 12 }) });
@@ -149,11 +168,12 @@ await evaluate(`(async () => {
   await fetch('/api/expenses?id=range-smoke-two', { method: 'DELETE' });
   await fetch('/api/expenses?id=range-smoke-three', { method: 'DELETE' });
   await fetch('/api/weights?id=2026-08-02', { method: 'DELETE' });
+  await fetch('/api/weights?id=2026-08-03', { method: 'DELETE' });
   await fetch('/api/weights?id=2027-05-02', { method: 'DELETE' });
 })()`);
 await evaluate("localStorage.removeItem('porschik_chart_date_ranges')");
 
-console.log(JSON.stringify({ firstRender, reloaded }, null, 2));
+console.log(JSON.stringify({ firstRender, reloaded, savedWithoutReloadRangeEnds }, null, 2));
 if (firstRender.controls.length !== 3 || firstRender.controls.some((control) => !control.label)) process.exitCode = 1;
 if (firstRender.controls.some((control) => control.labelContainsYear || control.labelAndTrackGap > 16)) process.exitCode = 1;
 if (firstRender.controls.some((control) => !control.movedTogether)) process.exitCode = 1;
@@ -161,6 +181,8 @@ if (firstRender.controls.some((control) => control.selected.startDate !== contro
 if (firstRender.controls.some((control) => reloaded.ranges[control.key]?.startDate !== control.selected.startDate || reloaded.canvasDates[control.key] !== control.selected.startDate)) process.exitCode = 1;
 if (!reloaded.rightThumbsRemainMovable) process.exitCode = 1;
 if (factualRangeEnds.growth !== '2026-08-02' || factualRangeEnds.norm !== '2026-08-02' || factualRangeEnds.expense !== '2026-08-02') process.exitCode = 1;
+if (savedWithoutReloadRangeEnds.growth !== '2026-08-03' || savedWithoutReloadRangeEnds.norm !== '2026-08-03') process.exitCode = 1;
+if (savedWithoutReloadRangeEnds.saved.growth?.endDate !== '2026-08-03' || savedWithoutReloadRangeEnds.saved.norm?.endDate !== '2026-08-03') process.exitCode = 1;
 if (!/\b2026\b/.test(longRangeLabel) || !/\b2027\b/.test(longRangeLabel)) process.exitCode = 1;
 
 socket.close();

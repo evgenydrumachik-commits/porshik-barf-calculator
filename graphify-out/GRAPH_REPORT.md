@@ -1,16 +1,16 @@
-# Graph Report - Калькулятор еды для Поршика  (2026-07-25)
+# Graph Report - Калькулятор еды для Поршика  (2026-07-26)
 
 ## Corpus Check
-- 60 files · ~306,649 words
+- 62 files · ~308,819 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 791 nodes · 1579 edges · 48 communities (35 shown, 13 thin omitted)
+- 813 nodes · 1645 edges · 46 communities (33 shown, 13 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 51 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1d402bbd`
+- Built from commit: `f388319d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -56,10 +56,8 @@
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 44|Community 44]]
 - [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `t()` - 59 edges
@@ -69,8 +67,8 @@
 5. `updateDerivedUI()` - 22 edges
 6. `toast()` - 21 edges
 7. `createDailyBackup()` - 20 edges
-8. `formatNumber()` - 19 edges
-9. `drawNormChart()` - 19 edges
+8. `formatNumber()` - 20 edges
+9. `drawNormChart()` - 20 edges
 10. `renderAll()` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -85,28 +83,11 @@
 - `normalizeExpenseOrder()` --calls--> `randomUUID()`  [INFERRED]
   api/_expenses.js → sites-app/legacy-api/_weights.js
 
-## Communities (48 total, 13 thin omitted)
+## Communities (46 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.10
-Nodes (58): action, appendAuditEvent(), { authorizeRequest }, blobSafeStamp(), buildRecordsPayload(), {
-  buildRecordsPayload,
-  createDailyBackup,
-  listRestorePoints,
-  normalizeRecord,
-  readRecords,
-  restoreRecordsFromPath,
-  writeAuditEvent,
-  writeRecords
-}, {
-  buildRecordsPayload,
-  createDailyBackup,
-  listRestorePoints,
-  normalizeRecord,
-  readRecords,
-  restoreRecordsFromPath,
-  writeRecords
-}, buildStorageState() (+50 more)
+Cohesion: 0.07
+Nodes (70): buildFullBackupPayload(), { DEFAULT_AVATAR_URL, normalizeFeedingSettings }, { normalizeExpenseOrders }, { normalizeRecords }, query(), action, appendAuditEvent(), { authorizeRequest } (+62 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.20
@@ -118,7 +99,7 @@ Nodes (34): 10. Состояния интерфейса, 11. Доступнос�
 
 ### Community 3 - "Community 3"
 Cohesion: 0.11
-Nodes (26): authorizeRequest(), buildClearCookie(), buildClearRememberedSessionCookie(), buildRememberedSessionCookie(), buildSessionCookie(), { createHash, randomBytes }, { hasDatabase, query }, isAdminEmail() (+18 more)
+Nodes (20): buildClearCookie(), buildClearRememberedSessionCookie(), buildRememberedSessionCookie(), buildSessionCookie(), { buildClearCookie }, shouldUseSecureCookies(), { buildClearCookie, authorizeRequest }, { buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail } (+12 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.25
@@ -138,8 +119,8 @@ Nodes (30): action, { authorizeRequest }, blobSafeStamp(), buildRecordsPayload()
 }, createDailyBackup(), ensureDailyBackup(), hasBlobToken() (+22 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.14
-Nodes (25): activeFeedingNorms(), animateNormTimelineShift(), beginNormAdd(), beginNormEdit(), cancelNormInlineEditor(), comparisonDelta(), deleteNormInline(), feedingStatusLabel() (+17 more)
+Cohesion: 0.15
+Nodes (24): activeFeedingNorms(), animateNormTimelineShift(), beginNormAdd(), beginNormEdit(), cancelNormInlineEditor(), comparisonDelta(), deleteNormInline(), feedingStatusLabel() (+16 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.08
@@ -147,15 +128,15 @@ Nodes (25): dependencies, @cloudflare/vite-plugin, next, react, react-dom, react
 
 ### Community 14 - "Community 14"
 Cohesion: 0.10
-Nodes (26): { buildClearCookie }, { buildClearCookie, authorizeRequest }, { buildClearCookie, buildSessionCookie, verifyGoogleIdToken, isEmailAllowed, isAdminEmail }, authorizeRequest(), buildClearCookie(), buildSessionCookie(), isAdminEmail(), isEmailAllowed() (+18 more)
+Nodes (24): { buildClearCookie }, authorizeRequest(), buildClearCookie(), buildSessionCookie(), isAdminEmail(), isEmailAllowed(), parseCookies(), shouldUseSecureCookies() (+16 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.06
-Nodes (40): addHistoryDraft(), animateExpenseOrderShift(), applyAvatar(), applyTheme(), applyTranslations(), beginExpenseEditor(), chartDateAtOffset(), chartRangeEndResetPending (+32 more)
+Nodes (45): addHistoryDraft(), animateExpenseOrderShift(), applyAvatar(), applyTheme(), applyTranslations(), avatarDataUrlFromFile(), beginExpenseEditor(), chartDateAtOffset() (+37 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.09
-Nodes (21): backupPayloads, { buildRecordsPayload, normalizeRecord, readRecords }, expenses, feedingSettings, { normalizeExpenseOrder, normalizeExpenseOrders }, { normalizeRecord, readRecords }, persistState(), port (+13 more)
+Nodes (22): backupPayloads, { buildFullBackupPayload }, { buildRecordsPayload, normalizeRecord, readRecords }, expenses, feedingSettings, { normalizeExpenseOrder, normalizeExpenseOrders }, { normalizeRecord, readRecords }, persistState() (+14 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.22
@@ -178,16 +159,16 @@ Cohesion: 0.23
 Nodes (11): browserErrors, checks, command(), evaluate(), handlers, message, navigate(), pending (+3 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.14
-Nodes (25): addNormEditorPoint(), readNormEditor(), addDays(), addMonths(), ageOn(), daysBetween(), DEFAULT_FEEDING_NORMS, DOG_PROFILE (+17 more)
+Cohesion: 0.08
+Nodes (47): activeDogProfile(), addNormEditorPoint(), buildMealControls(), chartDateRange(), colorWithAlpha(), cssColor(), drawBarfChart(), drawCanvasPill() (+39 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.06
 Nodes (33): API surface (ergonomic client), Beta services, Client configuration, code:bash (npm install @neon/sdk), code:ts (const { data: uri } = await neon.postgres.connectionString({), code:ts (await neon.snapshots.restore(projectId, snapshotId, {), code:ts (import { raw } from "@neon/sdk";), code:ts (const { data } = await raw.createProjectBranch({) (+25 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.15
-Nodes (21): query(), { authorizeRequest }, finiteNumber(), hasBlobToken(), { hasDatabase, query, storageUnavailableError }, id, listExpenseSnapshots(), normalizeExpenseOrder() (+13 more)
+Cohesion: 0.08
+Nodes (31): { authorizeRequest }, finiteNumber(), hasBlobToken(), { hasDatabase, query, storageUnavailableError }, id, listExpenseSnapshots(), normalizeExpenseOrder(), { normalizeExpenseOrder, readExpenseOrders, writeExpenseOrders } (+23 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.15
@@ -198,24 +179,24 @@ Cohesion: 0.05
 Nodes (42): Architecture: how Neon fits, Branch configuration, Branch-First Dev Flow, Check Status Quo, Choosing the Right Skill, code:block1 (https://neon.com/docs/llms.txt), code:bash (npm i @neon/env), code:typescript (import { parseEnv } from "@neon/env";) (+34 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.18
-Nodes (31): avatarDataUrlFromFile(), confirmRecordReplacement(), confirmSelectedBackupRestore(), createDailyBackupFromHistory(), deleteExpense(), deleteExpenseInlineEditor(), deleteRecord(), deleteWeightValue() (+23 more)
+Cohesion: 0.29
+Nodes (17): confirmSelectedBackupRestore(), createDailyBackupFromHistory(), deleteRecord(), deleteWeightValue(), downloadBackup(), loadRecords(), loadRestorePoints(), openAuthDialog() (+9 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.14
-Nodes (19): chartDateRange(), colorWithAlpha(), cssColor(), dateSixMonthsLater(), drawBarfChart(), drawCanvasPill(), drawExpenseChart(), drawNormChart() (+11 more)
+Cohesion: 0.17
+Nodes (17): dateSixMonthsLater(), deleteExpense(), deleteExpenseInlineEditor(), drawExpenseChart(), expenseFormValues(), formatChartDateRange(), formatCurrency(), formatDate() (+9 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.17
 Nodes (19): { authorizeRequest }, decodeAvatarDataUrl(), DEFAULT_FEEDING_NORMS, defaultProfile(), hasBlobToken(), { hasDatabase, query, storageUnavailableError }, normalizeFeedingSettings(), persistProfile() (+11 more)
 
 ### Community 38 - "Community 38"
-Cohesion: 0.29
-Nodes (8): cancelExpenseInlineEditor(), escapeHtml(), expenseInlineEditorMarkup(), expenseTypeOptions(), normAgeLabel(), normEditorRow(), normInlineEditorMarkup(), renderExpenseList()
+Cohesion: 0.19
+Nodes (19): cancelExpenseInlineEditor(), confirmRecordReplacement(), escapeHtml(), expenseInlineEditorMarkup(), expenseTypeOptions(), handleNormChartPointer(), hideNormTooltip(), inlineEditorError() (+11 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.50
-Nodes (3): calculateExpenseMetrics(), metrics, orders
+Cohesion: 0.20
+Nodes (12): databaseUrl(), getSqlClient(), hasDatabase(), storageUnavailableError(), { authorizeRequest }, email, filtered, hasBlobToken() (+4 more)
 
 ### Community 40 - "Community 40"
 Cohesion: 0.18
@@ -226,23 +207,15 @@ Cohesion: 0.20
 Nodes (9): apiFiles, auth, calls, db, expenses, profile, records, require (+1 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.15
-Nodes (28): activeDogProfile(), buildMealControls(), cancelInlineEditor(), closeGrowthQuickAdd(), discardHistoryDraft(), handleHistoryAction(), handleHistoryKeydown(), inlineEditorError() (+20 more)
+Cohesion: 0.19
+Nodes (18): cancelInlineEditor(), closeGrowthQuickAdd(), discardHistoryDraft(), handleHistoryAction(), handleHistoryKeydown(), openGrowthQuickAdd(), openInlineEditor(), openRecordDialog() (+10 more)
 
-### Community 45 - "Community 45"
-Cohesion: 0.20
-Nodes (12): databaseUrl(), getSqlClient(), hasDatabase(), storageUnavailableError(), { authorizeRequest }, email, filtered, hasBlobToken() (+4 more)
-
-### Community 47 - "Community 47"
-Cohesion: 0.17
-Nodes (11): { DEFAULT_AVATAR_URL, normalizeFeedingSettings }, expenses, migratedAt, { normalizeExpenseOrders }, { normalizeRecords }, profile, records, require (+3 more)
-
-### Community 48 - "Community 48"
-Cohesion: 0.60
-Nodes (6): createRememberedSession(), hasBlobToken(), persistentSessionHash(), persistentSessionPath(), readRememberedSession(), revokeRememberedSession()
+### Community 44 - "Community 44"
+Cohesion: 0.25
+Nodes (14): authorizeRequest(), { createHash, randomBytes }, createRememberedSession(), hasBlobToken(), { hasDatabase, query }, isAdminEmail(), isEmailAllowed(), parseCookies() (+6 more)
 
 ## Knowledge Gaps
-- **334 isolated node(s):** `cleanUrls`, `private`, `test`, `migrate:neon`, `@neondatabase/serverless` (+329 more)
+- **347 isolated node(s):** `cleanUrls`, `private`, `test`, `migrate:neon`, `@neondatabase/serverless` (+342 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -253,7 +226,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Why does `normalizeExpenseOrder()` connect `Community 32` to `Community 24`, `Community 0`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
-- **Why does `hasDatabase()` connect `Community 45` to `Community 32`, `Community 0`, `Community 3`, `Community 37`, `Community 48`?**
+- **Why does `require` connect `Community 0` to `Community 44`, `Community 14`, `Community 39`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Are the 15 inferred relationships involving `query()` (e.g. with `readAllowedEmails()` and `writeAllowedEmails()`) actually correct?**
   _`query()` has 15 INFERRED edges - model-reasoned connections that need verification._
@@ -262,4 +235,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 12 inferred relationships involving `hasDatabase()` (e.g. with `readAllowedEmails()` and `writeAllowedEmails()`) actually correct?**
   _`hasDatabase()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `cleanUrls`, `private`, `test` to the rest of the system?**
-  _334 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _347 weakly-connected nodes found - possible documentation gaps or missing edges._

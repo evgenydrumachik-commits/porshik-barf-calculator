@@ -141,10 +141,15 @@
           </div>
         </div>
         <div class="expense-metrics">
-          <article><span data-i18n="expense.total">За всё время</span><strong id="expenseTotal">€0</strong></article>
-          <article><span data-i18n="expense.year">В этом году</span><strong id="expenseYear">€0</strong></article>
-          <article><span data-i18n="expense.annualPace">Прогноз к концу года</span><strong id="expenseAnnualPace">—</strong><small id="expenseAnnualPaceNote">—</small></article>
-          <article><span data-i18n="expense.averageKg">Средняя цена/кг</span><strong id="expenseAverageKg">—</strong></article>
+          <article><span data-i18n="expense.total">За всё время</span><strong id="expenseTotal">€0</strong><small class="expense-cost-breakdown" id="expenseTotalBreakdown">—</small></article>
+          <article><span data-i18n="expense.year">В этом году</span><strong id="expenseYear">€0</strong><small class="expense-cost-breakdown" id="expenseYearBreakdown">—</small></article>
+          <article class="expense-projection-metric"><span data-i18n="expense.annualPace">Прогноз на следующие 12 месяцев</span><div class="expense-projection-total-row"><strong class="expense-projection-total" id="expenseAnnualPace">—</strong><button class="expense-projection-info" id="expenseProjectionInfoButton" type="button" data-i18n-aria="expense.projectionInfo" aria-label="Показать формулу прогноза" aria-controls="expenseProjectionReport" aria-expanded="false" hidden>i</button></div><small class="expense-cost-breakdown" id="expenseAnnualPaceBreakdown">—</small><small id="expenseAnnualPaceNote">—</small></article>
+          <article><span data-i18n="expense.averageKg">Последняя цена/кг</span><strong id="expenseAverageKg">—</strong></article>
+        </div>
+        <div class="expense-projection-report" id="expenseProjectionReport" aria-hidden="true">
+          <strong data-i18n="expense.projectionTitle">Формула прогноза на 12 месяцев</strong>
+          <p id="expenseProjectionFormula"></p>
+          <small id="expenseProjectionInputs"></small>
         </div>
         <div class="expense-chart-legend chart-toggle-legend" aria-label="Серии графика">
           <label class="legend-toggle"><input id="showExpenseFood" type="checkbox" checked><i class="expense-legend-food"></i><span data-i18n="expense.foodCost">Стоимость еды</span></label>

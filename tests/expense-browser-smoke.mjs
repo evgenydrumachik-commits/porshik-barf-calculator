@@ -101,15 +101,40 @@ await waitFor("Number(document.querySelector('#expenseChart').dataset.points) ==
 
 const firstRender = await evaluate(`(() => ({
   total: document.querySelector('#expenseTotal').textContent.trim(),
+  totalBreakdown: document.querySelector('#expenseTotalBreakdown').textContent.trim(),
   year: document.querySelector('#expenseYear').textContent.trim(),
+  yearBreakdown: document.querySelector('#expenseYearBreakdown').textContent.trim(),
   pace: document.querySelector('#expenseAnnualPace').textContent.trim(),
+  paceBreakdown: document.querySelector('#expenseAnnualPaceBreakdown').textContent.trim(),
+  paceNote: document.querySelector('#expenseAnnualPaceNote').textContent.trim(),
+  projectionInfo: {
+    buttonHidden: document.querySelector('#expenseProjectionInfoButton').hidden,
+    buttonExpanded: document.querySelector('#expenseProjectionInfoButton').getAttribute('aria-expanded'),
+    reportOpen: document.querySelector('#expenseProjectionReport').classList.contains('is-open'),
+    reportHidden: document.querySelector('#expenseProjectionReport').getAttribute('aria-hidden')
+  },
   average: document.querySelector('#expenseAverageKg').textContent.trim(),
+  projectionFormula: document.querySelector('#expenseProjectionFormula').textContent.trim(),
+  projectionInputs: document.querySelector('#expenseProjectionInputs').textContent.trim(),
   count: document.querySelector('#expenseOrderCount').textContent.trim(),
   row: document.querySelector('#expenseOrderList').textContent.trim(),
   points: Number(document.querySelector('#expenseChart').dataset.points),
   expenseLeftAxis: document.querySelector('#expenseChart').dataset.leftAxis,
   expenseRightAxis: document.querySelector('#expenseChart').dataset.rightAxis,
   growthFoodAxisSide: document.querySelector('#growthChart').dataset.foodAxisSide
+}))()`);
+
+await evaluate("document.querySelector('#expenseProjectionInfoButton').click()");
+await waitFor("document.querySelector('#expenseProjectionReport').classList.contains('is-open')");
+const projectionInfoOpened = await evaluate(`(() => ({
+  expanded: document.querySelector('#expenseProjectionInfoButton').getAttribute('aria-expanded'),
+  reportHidden: document.querySelector('#expenseProjectionReport').getAttribute('aria-hidden')
+}))()`);
+await evaluate("document.querySelector('#expenseProjectionInfoButton').click()");
+await waitFor("!document.querySelector('#expenseProjectionReport').classList.contains('is-open')");
+const projectionInfoClosed = await evaluate(`(() => ({
+  expanded: document.querySelector('#expenseProjectionInfoButton').getAttribute('aria-expanded'),
+  reportHidden: document.querySelector('#expenseProjectionReport').getAttribute('aria-hidden')
 }))()`);
 
 await navigate();
@@ -124,8 +149,27 @@ const apiOrders = await evaluate("(async () => (await (await fetch('/api/expense
 const tooltip = await evaluate(`(() => {
   const canvas = document.querySelector('#expenseChart');
   const rect = canvas.getBoundingClientRect();
-  canvas.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 }));
+  canvas.dispatchEvent(new PointerEvent('pointermove', {
+    bubbles: true,
+    clientX: rect.left + Number(canvas.dataset.hoverX),
+    clientY: rect.top + Number(canvas.dataset.hoverY)
+  }));
   return document.querySelector('#expenseChartTooltip').textContent.trim();
+})()`);
+const chartClick = await evaluate(`(() => {
+  const canvas = document.querySelector('#expenseChart');
+  const rect = canvas.getBoundingClientRect();
+  canvas.dispatchEvent(new PointerEvent('click', {
+    bubbles: true,
+    clientX: rect.left + Number(canvas.dataset.hoverX),
+    clientY: rect.top + Number(canvas.dataset.hoverY)
+  }));
+  const tooltip = document.querySelector('#expenseChartTooltip');
+  return {
+    tooltipVisible: !tooltip.hidden,
+    tooltipText: tooltip.textContent.trim(),
+    editorOpen: Boolean(document.querySelector('[data-expense-editor-row]'))
+  };
 })()`);
 
 await new Promise((resolve) => setTimeout(resolve, 250));
@@ -135,13 +179,15 @@ await writeFile("output/playwright/split-growth-and-expenses.png", Buffer.from(i
 const checks = {
   split: splitChart.weightTop < splitChart.weightBottom && splitChart.weightBottom < splitChart.foodTop && splitChart.foodTop < splitChart.foodBottom,
   chart: splitChart.height >= 500 && firstRender.points === 1,
-  totals: firstRender.total.includes("87") && firstRender.average.includes("6,5"),
+  totals: firstRender.total.includes("87") && firstRender.totalBreakdown.includes("Корм 78") && firstRender.totalBreakdown.includes("доставка 9") && firstRender.yearBreakdown.includes("Корм 78") && firstRender.yearBreakdown.includes("доставка 9") && firstRender.average.includes("6,5") && firstRender.pace.includes("·") && firstRender.pace.includes("кг"),
+  projection: firstRender.projectionFormula.includes("365") && firstRender.projectionInputs.includes("5%") && firstRender.paceBreakdown.includes("+") && !firstRender.paceBreakdown.includes("=") && !firstRender.paceNote.includes("кг") && !firstRender.projectionInfo.buttonHidden && firstRender.projectionInfo.buttonExpanded === "false" && !firstRender.projectionInfo.reportOpen && firstRender.projectionInfo.reportHidden === "true" && projectionInfoOpened.expanded === "true" && projectionInfoOpened.reportHidden === "false" && projectionInfoClosed.expanded === "false" && projectionInfoClosed.reportHidden === "true",
   inline: !inlineEditor.dialogPresent && inlineEditor.animated && inlineEditor.total.includes("87"),
   axes: Boolean(firstRender.expenseLeftAxis && firstRender.expenseRightAxis && firstRender.growthFoodAxisSide === "left"),
   persisted: persisted.orders === 1 && apiOrders === 1 && persisted.total.includes("87"),
+  chartClick: chartClick.tooltipVisible && Boolean(chartClick.tooltipText) && !chartClick.editorOpen,
   errors: browserErrors.length === 0
 };
-const report = { splitChart, inlineEditor, firstRender, persisted: { ...persisted, apiOrders }, tooltip, browserErrors, checks };
+const report = { splitChart, inlineEditor, firstRender, projectionInfoOpened, projectionInfoClosed, persisted: { ...persisted, apiOrders }, tooltip, chartClick, browserErrors, checks };
 console.log(JSON.stringify(report, null, 2));
 if (Object.values(checks).some((passed) => !passed)) process.exitCode = 1;
 

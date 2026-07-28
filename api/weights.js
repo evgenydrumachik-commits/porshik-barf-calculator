@@ -1,6 +1,8 @@
 const { authorizeRequest } = require("./_auth");
+const { buildFullBackupPayload } = require("./_backup");
+const { readExpenseOrders } = require("./_expenses");
+const { readProfile } = require("./_profile");
 const {
-  buildRecordsPayload,
   createDailyBackup,
   listRestorePoints,
   normalizeRecord,
@@ -43,9 +45,20 @@ module.exports = async function handler(request, response) {
       }
 
       if (request.query.export) {
-        const { records, storageReady } = await readRecords();
-        const payload = buildRecordsPayload(records, { exportType: "manual", storageReady });
-        const filename = `porschik-diary-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        const [recordData, profile, expenseData] = await Promise.all([
+          readRecords(),
+          readProfile(),
+          readExpenseOrders()
+        ]);
+        const payload = buildFullBackupPayload({
+          records: recordData.records,
+          profile,
+          expenses: expenseData.orders
+        }, {
+          exportType: "manual",
+          storageReady: Boolean(recordData.storageReady && profile.storageReady && expenseData.storageReady)
+        });
+        const filename = `porschik-full-backup-${new Date().toISOString().slice(0, 10)}.json`;
         response.setHeader("Content-Type", "application/json; charset=utf-8");
         response.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
         response.status(200).send(JSON.stringify(payload, null, 2));

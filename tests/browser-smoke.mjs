@@ -128,6 +128,17 @@ const normHover = await evaluate(`(() => {
   const tooltip = document.querySelector('#normChartTooltip');
   return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
 })()`);
+const normClick = await evaluate(`(() => {
+  const canvas = document.querySelector('#normChart');
+  const rect = canvas.getBoundingClientRect();
+  canvas.dispatchEvent(new PointerEvent('click', {
+    bubbles: true,
+    clientX: rect.left + Number(canvas.dataset.hoverX),
+    clientY: rect.top + Number(canvas.dataset.hoverY)
+  }));
+  const tooltip = document.querySelector('#normChartTooltip');
+  return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
+})()`);
 const legendToggles = await evaluate(`(() => {
   const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showNormTarget', 'showNormActual', 'showExpenseFood', 'showExpenseDelivery', 'showExpensePriceKg'];
   for (const id of ids) {
@@ -228,14 +239,12 @@ await screenshot("output/playwright/growth-daily-bars-hover.png");
 console.log("feeding tooltip checked");
 
 await evaluate("document.querySelector('.chart-point-button')?.click()");
-await waitFor("document.querySelector('#recordDialog')?.open");
-console.log("chart point opened");
-const pointEdit = await evaluate(`({
-  tab: document.querySelector('[data-record-tab][aria-selected="true"]')?.dataset.recordTab,
-  date: document.querySelector('#weightDate')?.value,
-  value: document.querySelector('#weightValue')?.value
+await waitFor("!document.querySelector('#growthChartTooltip')?.hidden");
+const pointClick = await evaluate(`({
+  tooltip: document.querySelector('#growthChartTooltip')?.innerText,
+  recordDialogOpen: Boolean(document.querySelector('#recordDialog')?.open)
 })`);
-await evaluate("document.querySelector('#recordDialog').close()");
+console.log("chart point tooltip checked");
 
 await evaluate(`document.querySelector('.chart-actions [data-open-record="weight"]')?.click()`);
 await waitFor("document.querySelector('#recordDialog')?.open");
@@ -349,7 +358,12 @@ const backupExport = await evaluate(`(async () => {
   return {
     ok: response.ok,
     disposition: response.headers.get('Content-Disposition'),
-    records: payload.records?.length
+    schemaVersion: payload.schemaVersion,
+    backupType: payload.backupType,
+    records: payload.records?.length,
+    feedingNorms: payload.profile?.feedingSettings?.feedingNorms?.length,
+    avatar: payload.profile?.avatarUrl,
+    expenses: payload.expenses?.length
   };
 })()`);
 await waitFor("document.querySelector('#restorePointSelect')?.options.length > 1");
@@ -410,17 +424,17 @@ const normActualLine = await evaluate(`({
 })`);
 await screenshot("/tmp/porschik-cdp-barf-after-flows.png");
 
-const report = { desktop, normChart, normHover, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, feedingFormNoComment, feedingTooltip, pointEdit, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
+const report = { desktop, normChart, normHover, normClick, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, feedingFormNoComment, feedingTooltip, pointClick, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
 console.log(JSON.stringify(report, null, 2));
 
 if (desktop.overflow > 0 || mobile.overflow > 0 || historyMobile.overflow > 0) process.exitCode = 1;
-if (desktop.tableOnHome || desktop.commentInputs || feedingFormNoComment.commentField || puppyMeals !== 3 || adultMeals !== 2 || pointEdit.tab !== "weight") process.exitCode = 1;
+if (desktop.tableOnHome || desktop.commentInputs || feedingFormNoComment.commentField || puppyMeals !== 3 || adultMeals !== 2 || pointClick.recordDialogOpen || !pointClick.tooltip) process.exitCode = 1;
 if (!desktop.pawDecoration?.includes("🐾") || desktop.avatarWidth < 80) process.exitCode = 1;
 if (desktop.foodSegments < 20 || !desktop.chartSubtitle?.includes("составные столбики")) process.exitCode = 1;
 if (normChart.normPoints < 100 || normChart.actualPoints < 1 || normChart.currentRatio !== "0.054" || normChart.adultDate !== "2026-10-28" || normChart.adultRatio !== "0.03" || normChart.timelinePoints !== 4) process.exitCode = 1;
 if (normChart.timelineDates.join(",") !== "28 окт.,22 июл.,01 июл.,01 мая") process.exitCode = 1;
 if (!normChart.todayLabel?.includes("22 июля") || !normChart.timelineText?.includes("4мес 24дн") || !normChart.dailyRatio?.includes("5,4%")) process.exitCode = 1;
-if (!normHover.visible || !normHover.text.includes("Фактически съедено") || !feedingTooltip?.includes("Всего")) process.exitCode = 1;
+if (!normHover.visible || !normHover.text.includes("Фактически съедено") || !normClick.visible || !normClick.text.includes("Фактически съедено") || !feedingTooltip?.includes("Всего")) process.exitCode = 1;
 if (legendToggles.count !== 8 || Object.values(legendToggles.hidden).flat().some((value) => value !== "false")) process.exitCode = 1;
 if (normEditor.timelineRows !== 4 || normEditor.editButtons !== 3 || normEditor.deleteButtons !== 3 || normEditor.date !== "2026-10-28" || normEditor.percent !== "3.0" || normEditor.dialogPresent) process.exitCode = 1;
 if (normEditor.actionText.some(Boolean) || !normEditor.tooltips.includes("Изменить") || !normEditor.tooltips.includes("Удалить")) process.exitCode = 1;
@@ -437,7 +451,7 @@ if (historyDesktop.manualBackupButton || !historyDesktop.automaticBadge?.include
 if (!inlineCancelledWeight?.includes("7,95") || !inlineSavedWeight?.includes("8")) process.exitCode = 1;
 if (mobile.legendChecks !== 8 || mobile.legendVisible === "none" || mobile.minLegendTapHeight < 44) process.exitCode = 1;
 if (inlineDraft.rows !== historyDesktop.rows + 1 || inlineDraft.weight !== "—" || inlineDraft.meal1 !== "—" || historyAfterDraft !== historyDesktop.rows) process.exitCode = 1;
-if (!historyDesktop.backupPanelVisible || !backupExport.ok || backupExport.records !== historyAfterDraft) process.exitCode = 1;
+if (!historyDesktop.backupPanelVisible || !backupExport.ok || backupExport.schemaVersion !== 3 || backupExport.backupType !== "full" || backupExport.records !== historyAfterDraft || backupExport.feedingNorms !== 4 || !backupExport.avatar || backupExport.expenses < 1 || !backupExport.disposition?.includes("porschik-full-backup")) process.exitCode = 1;
 if (automaticBackups.options < 2 || !backupRestored?.includes("восстановлены")) process.exitCode = 1;
 if (historyMobile.tableVisible || !historyMobile.cardListVisible || historyMobile.cards !== historyAfterDraft) process.exitCode = 1;
 if (browserErrors.length) process.exitCode = 1;
