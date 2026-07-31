@@ -11,10 +11,16 @@ test("full backup contains every portable application data category", () => {
     records: [{ date: "2026-07-26", meals: [{ slot: 1, grams: 165 }] }],
     profile: {
       avatarUrl: "data:image/png;base64,aGVsbG8=",
-      feedingSettings: { feedingNorms: [
-        { date: "2026-05-01", ratio: 0.08 },
-        { date: "2026-07-22", ratio: 0.06 }
-      ] },
+      feedingSettings: {
+        feedingNorms: [
+          { date: "2026-05-01", ratio: 0.08 },
+          { date: "2026-07-22", ratio: 0.06 }
+        ],
+        mealCountChanges: [
+          { date: "2026-07-28", mealsPerDay: 2 },
+          { date: "2026-08-12", mealsPerDay: 3 }
+        ]
+      },
       updatedAt: "2026-07-26T10:00:00.000Z",
       storageReady: true
     },
@@ -29,12 +35,16 @@ test("full backup contains every portable application data category", () => {
     }]
   }, { exportType: "manual", storageReady: true });
 
-  assert.equal(payload.schemaVersion, 3);
+  assert.equal(payload.schemaVersion, 4);
   assert.equal(payload.backupType, "full");
   assert.equal(payload.exportType, "manual");
   assert.equal(payload.storageReady, true);
   assert.equal(payload.records.length, 1);
   assert.equal(payload.profile.feedingSettings.feedingNorms.length, 2);
+  assert.deepEqual(payload.profile.feedingSettings.mealCountChanges, [
+    { date: "2026-07-28", mealsPerDay: 2 },
+    { date: "2026-08-12", mealsPerDay: 3 }
+  ]);
   assert.equal(payload.profile.avatarUrl, "data:image/png;base64,aGVsbG8=");
   assert.equal(payload.profile.updatedAt, "2026-07-26T10:00:00.000Z");
   assert.equal(payload.expenses.length, 1);

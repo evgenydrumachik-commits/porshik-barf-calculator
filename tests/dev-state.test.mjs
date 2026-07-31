@@ -11,7 +11,7 @@ test("local development state survives a server-style reload", async () => {
   const fallback = {
     records: [{ id: "seed", date: "2026-05-01", meals: [] }],
     avatarUrl: "/assets/porschik.jpg",
-    feedingSettings: { feedingNorms: [] },
+    feedingSettings: { feedingNorms: [], mealCountChanges: [] },
     expenses: []
   };
 

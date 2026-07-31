@@ -8,7 +8,11 @@ const DEFAULT_FEEDING_NORMS = Object.freeze([
   Object.freeze({ date: "2026-07-22", ratio: 0.054 }),
   Object.freeze({ date: "2026-10-28", ratio: 0.03 })
 ]);
-const RECOMMENDED_FEEDING_SETTINGS = Object.freeze({ feedingNorms: DEFAULT_FEEDING_NORMS });
+const DEFAULT_MEAL_COUNT_CHANGES = Object.freeze([]);
+const RECOMMENDED_FEEDING_SETTINGS = Object.freeze({
+  feedingNorms: DEFAULT_FEEDING_NORMS,
+  mealCountChanges: DEFAULT_MEAL_COUNT_CHANGES
+});
 
 function decodeAvatarDataUrl(value) {
   const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(value || ""));
@@ -27,16 +31,16 @@ function decodeAvatarDataUrl(value) {
 }
 
 function normalizeFeedingSettings(value = {}) {
-  const source = Array.isArray(value.feedingNorms) && value.feedingNorms.length
+  const normSource = Array.isArray(value.feedingNorms) && value.feedingNorms.length
     ? value.feedingNorms
     : DEFAULT_FEEDING_NORMS;
-  if (source.length > 24) {
+  if (normSource.length > 24) {
     const error = new Error("Можно сохранить не более 24 контрольных точек нормы");
     error.statusCode = 400;
     throw error;
   }
   const seenDates = new Set();
-  const feedingNorms = source.map((item) => {
+  const feedingNorms = normSource.map((item) => {
     const date = String(item?.date || "").slice(0, 10);
     const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T00:00:00Z`) : null;
     if (!parsedDate || Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== date) {
@@ -60,7 +64,41 @@ function normalizeFeedingSettings(value = {}) {
     if (item?.interpolation === "step") normalized.interpolation = "step";
     return normalized;
   }).sort((a, b) => a.date.localeCompare(b.date));
-  return { feedingNorms };
+
+  const mealCountSource = Array.isArray(value.mealCountChanges)
+    ? value.mealCountChanges
+    : DEFAULT_MEAL_COUNT_CHANGES;
+  if (mealCountSource.length > 64) {
+    const error = new Error("Можно сохранить не более 64 изменений режима кормления");
+    error.statusCode = 400;
+    throw error;
+  }
+  const seenMealCountDates = new Set();
+  const mealCountChanges = mealCountSource.map((item) => {
+    const date = String(item?.date || "").slice(0, 10);
+    const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T00:00:00Z`) : null;
+    if (!parsedDate || Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== date) {
+      const error = new Error("Для каждого режима кормления нужна корректная дата");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (seenMealCountDates.has(date)) {
+      const error = new Error("На одну дату можно задать только один режим кормления");
+      error.statusCode = 400;
+      throw error;
+    }
+    seenMealCountDates.add(date);
+    if (item?.mode === "automatic") return { date, mode: "automatic" };
+    const mealsPerDay = Number(item?.mealsPerDay);
+    if (!Number.isInteger(mealsPerDay) || ![2, 3].includes(mealsPerDay)) {
+      const error = new Error("Количество приёмов в день должно быть 2 или 3");
+      error.statusCode = 400;
+      throw error;
+    }
+    return { date, mealsPerDay };
+  }).sort((a, b) => a.date.localeCompare(b.date));
+
+  return { feedingNorms, mealCountChanges };
 }
 
 function defaultProfile(storageReady = false) {
@@ -120,11 +158,18 @@ async function writeProfile(avatarDataUrl) {
 async function writeFeedingSettings(feedingSettings) {
   if (!hasDatabase()) throw storageUnavailableError();
   const current = await readProfile();
-  return persistProfile({ ...current, feedingSettings: normalizeFeedingSettings(feedingSettings) });
+  return persistProfile({
+    ...current,
+    feedingSettings: normalizeFeedingSettings({
+      ...current.feedingSettings,
+      ...(feedingSettings || {})
+    })
+  });
 }
 
 module.exports = {
   DEFAULT_FEEDING_NORMS,
+  DEFAULT_MEAL_COUNT_CHANGES,
   DEFAULT_AVATAR_URL,
   MAX_AVATAR_BYTES,
   RECOMMENDED_FEEDING_SETTINGS,

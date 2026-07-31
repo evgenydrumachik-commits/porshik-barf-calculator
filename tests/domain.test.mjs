@@ -12,6 +12,7 @@ import {
   latestWeightRecord,
   intakeDifferencePercent,
   intakeRatioFor,
+  mealCountPlanForDate,
   recommendationFor
 } from "../assets/domain.mjs";
 
@@ -61,6 +62,41 @@ test("adult phase begins at eight months", () => {
   assert.equal(adult.mealsPerDay, 2);
 });
 
+test("a manual meal count change starts on its date and persists across age phases", () => {
+  const profile = {
+    ...DOG_PROFILE,
+    mealCountChanges: [{ date: "2026-07-28", mealsPerDay: 2 }]
+  };
+  assert.equal(mealCountPlanForDate("2026-07-27", profile).mealsPerDay, 3);
+  assert.deepEqual(mealCountPlanForDate("2026-07-28", profile), {
+    mealsPerDay: 2,
+    mealCountSource: "manual",
+    mealCountStartDate: "2026-07-28",
+    ageBasedMealsPerDay: 3
+  });
+  assert.equal(mealCountPlanForDate("2026-11-01", profile).mealsPerDay, 2);
+});
+
+test("a later manual change can return to three meals until automatic mode is restored", () => {
+  const profile = {
+    ...DOG_PROFILE,
+    mealCountChanges: [
+      { date: "2026-07-28", mealsPerDay: 2 },
+      { date: "2026-08-12", mealsPerDay: 3 },
+      { date: "2026-11-15", mode: "automatic" }
+    ]
+  };
+  assert.equal(mealCountPlanForDate("2026-08-11", profile).mealsPerDay, 2);
+  assert.equal(mealCountPlanForDate("2026-08-12", profile).mealsPerDay, 3);
+  assert.equal(mealCountPlanForDate("2026-10-28", profile).mealsPerDay, 3);
+  assert.deepEqual(mealCountPlanForDate("2026-11-15", profile), {
+    mealsPerDay: 2,
+    mealCountSource: "automatic",
+    mealCountStartDate: "2026-11-15",
+    ageBasedMealsPerDay: 2
+  });
+});
+
 test("recommendation is calculated from current weight and phase", () => {
   const puppy = recommendationFor(8, "2026-07-18");
   assert.ok(Math.abs(puppy.dailyGrams - 441.14285714285717) < 1e-9);
@@ -69,6 +105,17 @@ test("recommendation is calculated from current weight and phase", () => {
   const adult = recommendationFor(8, "2026-10-28");
   assert.equal(adult.dailyGrams, 240);
   assert.equal(adult.mealGrams, 120);
+});
+
+test("switching meal count changes only the recommended portion, not the daily target", () => {
+  const threeMeals = recommendationFor(8, "2026-07-28");
+  const twoMeals = recommendationFor(8, "2026-07-28", {
+    ...DOG_PROFILE,
+    mealCountChanges: [{ date: "2026-07-28", mealsPerDay: 2 }]
+  });
+  assert.equal(twoMeals.dailyGrams, threeMeals.dailyGrams);
+  assert.ok(Math.abs(twoMeals.mealGrams - twoMeals.dailyGrams / 2) < 1e-12);
+  assert.ok(Math.abs(threeMeals.mealGrams - threeMeals.dailyGrams / 3) < 1e-12);
 });
 
 test("actual intake ignores skipped meals", () => {
@@ -109,6 +156,24 @@ test("the two scheduled adult meals determine a complete adult day", () => {
       { slot: 2, grams: 120, skipped: false }
     ]
   }), true);
+});
+
+test("two manual meals complete a puppy day while a saved third meal remains part of the total", () => {
+  const profile = {
+    ...DOG_PROFILE,
+    mealCountChanges: [{ date: "2026-07-28", mealsPerDay: 2 }]
+  };
+  const record = {
+    date: "2026-07-28",
+    meals: [
+      { slot: 1, grams: 200, skipped: false },
+      { slot: 2, grams: 210, skipped: false },
+      { slot: 3, grams: 40, skipped: false }
+    ]
+  };
+  assert.equal(isDailyIntakeComplete(record, profile), true);
+  assert.equal(actualMealCount(record), 3);
+  assert.equal(actualDailyGrams(record), 450);
 });
 
 test("daily intake difference is expressed as a percentage of the target", () => {

@@ -8,8 +8,9 @@ The application is public for reading. Authorized users can add and edit records
 
 - Dashboard with latest weight, 30-day weight change, and current recommended portion.
 - Combined growth and feeding chart with separate weight and meal series.
-- Automatic age, daily target, per-meal target, and planned meal count calculations.
+- Automatic age, daily target, per-meal target, and effective-dated planned meal count calculations.
 - An editable dated feeding-target timeline with smooth daily interpolation through the stable adult target.
+- Manual switches between two and three meals per day, with a saved effective date and an option to return to the age-based plan.
 - A compact comparison chart showing planned and actual intake as percentages of body weight; today's incomplete intake is excluded from the actual trend.
 - Weight and meal entry forms with duplicate-date comparison before replacement.
 - Full history page with inline editing, derived totals, deviation from target, and mobile-friendly records.
@@ -42,7 +43,9 @@ The default profile is defined in `assets/domain.mjs` and can be overridden by p
 - Stable adult target from `2026-10-28`: `3.0%`
 - The target percentage is interpolated linearly between dated control points
 - Adult meal phase: eight calendar months, beginning `2026-10-28`; meal count transitions on `2026-09-30`
-- Planned meals: three before the transition, two from the transition start
+- Age-based planned meals: three before the transition, two from the transition start
+- A manual two- or three-meal choice takes priority from its effective date until the next manual change or an explicit return to the age-based plan
+- The daily target stays unchanged when meal count changes; only the recommended per-meal amount is recalculated
 
 Actual intake counts only meals with grams; meals marked as skipped are retained as `Не ел` / `Skipped` and do not contribute to the daily total.
 
@@ -73,7 +76,7 @@ DEV_AUTH=1 node tests/dev-server.mjs
 
 Open <http://127.0.0.1:4173>. The local server treats the local test account as an administrator and stores its own persistent development state in `.local-data/dev-state.json`. That ignored file survives code updates and server restarts but is never used directly by production, which uses Neon Postgres. Set `DEV_DATA_PATH=/tmp/porschik-test.json` when a disposable isolated dataset is needed for automated checks.
 
-The downloadable full backup uses schema version 3 and contains all portable application data: diary records, the profile photo, feeding targets, and expense orders. Authentication sessions, access-control users, audit events, and internal database restore points are intentionally excluded.
+The downloadable full backup uses schema version 4 and contains all portable application data: diary records, the profile photo, feeding targets, dated meal-count changes, and expense orders. Authentication sessions, access-control users, audit events, and internal database restore points are intentionally excluded.
 
 To serve the public read-only experience instead:
 

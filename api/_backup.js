@@ -2,7 +2,7 @@ const { normalizeExpenseOrders } = require("./_expenses");
 const { DEFAULT_AVATAR_URL, normalizeFeedingSettings } = require("./_profile");
 const { normalizeRecords } = require("./_weights");
 
-const FULL_BACKUP_SCHEMA_VERSION = 3;
+const FULL_BACKUP_SCHEMA_VERSION = 4;
 
 function buildFullBackupPayload({ records = [], profile = {}, expenses = [] }, extra = {}) {
   return {

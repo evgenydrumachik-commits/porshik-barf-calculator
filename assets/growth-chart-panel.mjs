@@ -9,7 +9,7 @@ export function mountGrowthChartPanel() {
           <p data-i18n="chart.subtitle">Синий — вес, составные столбики — съеденное за день по приёмам.</p>
         </div>
         <div class="chart-actions">
-          <button class="growth-quick-add-trigger" id="growthQuickAddButton" type="button" aria-expanded="false" data-i18n-aria="action.addRecord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="add-icon-button growth-quick-add-trigger" id="growthQuickAddButton" type="button" aria-expanded="false" data-i18n-aria="action.addRecord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           <a class="button button-secondary" href="/history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg><span data-i18n="action.history">История и таблица</span></a>
         </div>
       </div>

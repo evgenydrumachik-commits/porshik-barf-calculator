@@ -136,7 +136,10 @@ const server = http.createServer(async (request, response) => {
       try {
         const body = await bodyJson(request);
         if (body.feedingSettings) {
-          feedingSettings = normalizeFeedingSettings(body.feedingSettings);
+          feedingSettings = normalizeFeedingSettings({
+            ...feedingSettings,
+            ...body.feedingSettings
+          });
           await persistState();
           return json(response, 200, { avatarUrl, feedingSettings, storageReady: true });
         }

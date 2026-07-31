@@ -17,12 +17,17 @@ test("dashboard and history mount the same growth-chart component", async () => 
     assert.doesNotMatch(page, /<section class="panel chart-panel"/);
     assert.match(page, /id="refreshButton"[\s\S]*id="languageButton"/);
   }
+  assert.ok(
+    dashboard.indexOf('id="feedingTodayTitle"') < dashboard.indexOf('id="growthChartPanelMount"'),
+    "the current feeding summary must appear before the growth chart on the dashboard"
+  );
   assert.match(app, /import \{ mountGrowthChartPanel \} from "\.\/growth-chart-panel\.mjs"/);
   assert.match(app, /async function init\(\) \{\s+mountGrowthChartPanel\(\);/);
   assert.match(component, /export function mountGrowthChartPanel\(\)/);
   assert.match(component, /id="showGrowthWeight"/);
   assert.match(component, /data-chart-range="growth"/);
-  assert.match(component, /id="growthQuickAddButton"/);
+  assert.match(component, /class="add-icon-button growth-quick-add-trigger" id="growthQuickAddButton"/);
+  assert.equal((dashboard.match(/class="add-icon-button /g) || []).length, 2);
   assert.match(component, /id="growthQuickAddForm"/);
   assert.match(component, /id="growthQuickAddRow"/);
   assert.match(component, /class="history-table"/);
@@ -30,6 +35,9 @@ test("dashboard and history mount the same growth-chart component", async () => 
   assert.doesNotMatch(component, /data-open-record="feeding"/);
   assert.match(app, /function renderGrowthQuickRow\(\)/);
   assert.match(app, /chartDateRange\("growth", availableStart, availableEnd, \{ ensureEndDate: latestActualDate \}\)/);
+  assert.match(app, /const defaultEndDate = addDays\(today, 3\)/);
+  assert.match(app, /const endDate = \[adultDate, defaultEndDate, latestRecordDate\]\.sort\(\)\.at\(-1\)/);
+  assert.match(app, /chartDateRange\("norm", startDate, endDate, \{ ensureEndDate: defaultEndDate \}\)/);
   assert.match(app, /const chartRangeEndResetPending = new Set\(\["growth", "norm", "expense"\]\)/);
   assert.match(app, /const shouldResetEnd = Boolean\(resetEndDate\) && chartRangeEndResetPending\.has\(key\)/);
   assert.match(app, /chartRangeEndResetPending\.delete\(key\)/);

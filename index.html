@@ -79,21 +79,28 @@
         </article>
       </section>
 
-      <div id="growthChartPanelMount"></div>
-
       <section class="panel feeding-card" aria-labelledby="feedingTodayTitle">
         <div class="feeding-copy">
           <span class="eyebrow" data-i18n="feeding.eyebrow">BARF сегодня</span>
           <h2 id="feedingTodayTitle" data-i18n="feeding.title">Актуальная норма питания</h2>
-          <p data-i18n="feeding.subtitle">Процент меняется по заданному плану, а число кормлений — по возрасту.</p>
+          <p data-i18n="feeding.subtitle">Дневная норма и число приёмов меняются по сохранённому плану.</p>
           <span class="feeding-status" id="feedingStatus"><span id="feedingStatusText">Норма пересчитывается…</span></span>
         </div>
         <div class="feeding-metrics">
           <article class="feeding-metric"><span data-i18n="feeding.daily">В день</span><strong id="dailyRecommendation">—</strong><small id="dailyRecommendationRatio">—</small></article>
           <article class="feeding-metric"><span data-i18n="feeding.perMeal">За приём</span><strong id="mealRecommendation">—</strong></article>
-          <article class="feeding-metric"><span data-i18n="feeding.meals">Приёмов в день</span><strong id="mealCountRecommendation">—</strong></article>
+          <article class="feeding-metric">
+            <span data-i18n="feeding.meals">Приёмов в день</span>
+            <div class="meal-count-metric-value">
+              <strong id="mealCountRecommendation">—</strong>
+              <button class="edit-icon-button meal-count-edit-button" id="mealCountEditButton" type="button" data-i18n-aria="mealCount.edit" aria-label="Изменить режим кормления" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+            </div>
+            <small class="meal-count-source" id="mealCountSource">—</small>
+          </article>
         </div>
       </section>
+
+      <div id="growthChartPanelMount"></div>
 
       <section class="panel norm-panel" id="normPanel" aria-labelledby="normPanelTitle">
         <div class="norm-panel-copy">
@@ -106,7 +113,7 @@
           </div>
           <div class="norm-timeline-heading">
             <span data-i18n="settings.normTitle">История норм</span>
-            <button class="norm-inline-add" id="normInlineAddButton" type="button" aria-label="Добавить норму" title="Добавить норму" data-i18n-aria="settings.addNorm" hidden>+</button>
+            <button class="add-icon-button norm-inline-add" id="normInlineAddButton" type="button" aria-label="Добавить норму" title="Добавить норму" data-i18n-aria="settings.addNorm" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           </div>
           <ol class="norm-timeline" id="normTimelineList"></ol>
           <p class="form-message norm-inline-message" id="normInlineMessage" aria-live="polite"></p>
@@ -170,7 +177,7 @@
         </div>
         <div class="expense-list-head">
           <div><h3 data-i18n="expense.orders">Заказы</h3><span id="expenseOrderCount">0</span></div>
-          <button class="expense-inline-add" id="addExpenseButton" type="button" data-i18n-aria="expense.add" title="Добавить заказ">+</button>
+          <button class="add-icon-button expense-inline-add" id="addExpenseButton" type="button" data-i18n-aria="expense.add" title="Добавить заказ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
         <div class="expense-order-list" id="expenseOrderList"></div>
       </section>
@@ -215,6 +222,42 @@
         </div>
         <p class="form-message" id="feedingFormMessage" aria-live="polite"></p>
         <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog="recordDialog" data-i18n="action.cancel">Отмена</button><button class="button button-primary" type="submit" data-i18n="action.save">Сохранить</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="mealCountDialog" aria-labelledby="mealCountDialogTitle">
+    <div class="dialog-head">
+      <h2 id="mealCountDialogTitle" data-i18n="mealCount.title">Режим кормления</h2>
+      <button class="dialog-close" type="button" data-close-dialog="mealCountDialog" aria-label="Закрыть">×</button>
+    </div>
+    <div class="dialog-body">
+      <form class="form-grid" id="mealCountForm">
+        <label class="field">
+          <span class="field-label" data-i18n="mealCount.effectiveDate">Действует с начала дня</span>
+          <input class="date-input" id="mealCountDate" type="date" required>
+        </label>
+        <fieldset class="meal-count-fieldset">
+          <legend data-i18n="mealCount.choose">Выберите количество приёмов</legend>
+          <div class="meal-count-options">
+            <label><input type="radio" name="mealsPerDay" value="2"><span><strong>2</strong><small data-i18n="mealCount.two">приёма в день</small></span></label>
+            <label><input type="radio" name="mealsPerDay" value="3"><span><strong>3</strong><small data-i18n="mealCount.three">приёма в день</small></span></label>
+          </div>
+        </fieldset>
+        <div class="meal-count-preview" id="mealCountPreview"></div>
+        <p class="meal-count-preserved" data-i18n="mealCount.preserved">Сохранённые приёмы пищи не удаляются. Если третий приём уже записан, он останется дополнительным.</p>
+        <div class="meal-count-history-head">
+          <strong data-i18n="mealCount.history">История изменений</strong>
+        </div>
+        <ol class="meal-count-history" id="mealCountHistory"></ol>
+        <p class="form-message" id="mealCountMessage" aria-live="polite"></p>
+        <div class="dialog-actions dialog-actions-split">
+          <button class="button button-secondary" id="mealCountAutoButton" type="button" data-i18n="mealCount.automatic">По возрастному плану</button>
+          <span class="dialog-actions-end">
+            <button class="button button-secondary" type="button" data-close-dialog="mealCountDialog" data-i18n="action.cancel">Отмена</button>
+            <button class="button button-primary" type="submit" data-i18n="action.save">Сохранить</button>
+          </span>
+        </div>
       </form>
     </div>
   </dialog>

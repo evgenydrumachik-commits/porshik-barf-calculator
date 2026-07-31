@@ -77,7 +77,8 @@ const state = {
   pendingSetting: null,
   avatarUrl: "/assets/porschik.jpg",
   feedingSettings: {
-    feedingNorms: DEFAULT_FEEDING_NORMS.map((item) => ({ ...item }))
+    feedingNorms: DEFAULT_FEEDING_NORMS.map((item) => ({ ...item })),
+    mealCountChanges: []
   },
   backupBusy: false,
   pendingBackupRestore: null,
@@ -370,7 +371,7 @@ const translations = {
     "settings.oneRequired": "Должна остаться хотя бы одна норма.",
     "settings.duplicateDate": "На эту дату уже задана норма.",
     "backup.title": "Резервные копии данных",
-    "backup.subtitle": "Скачиваемый файл содержит дневник, нормы, фотографию и расходы. Точки восстановления позволяют вернуться к предыдущей версии дневника.",
+    "backup.subtitle": "Скачиваемый файл содержит дневник, нормы, режимы кормления, фотографию и расходы. Точки восстановления позволяют вернуться к предыдущей версии дневника.",
     "backup.automatic": "Автокопирование включено",
     "backup.download": "Скачать полный backup",
     "backup.restorePoint": "Версия для восстановления",
@@ -390,10 +391,35 @@ const translations = {
     "backup.restoreError": "Не удалось восстановить данные.",
     "feeding.eyebrow": "BARF сегодня",
     "feeding.title": "Актуальная норма питания",
-    "feeding.subtitle": "Процент меняется по заданному плану, а число кормлений — по возрасту.",
+    "feeding.subtitle": "Дневная норма и число приёмов меняются по сохранённому плану.",
     "feeding.daily": "В день",
     "feeding.perMeal": "За приём",
     "feeding.meals": "Приёмов в день",
+    "mealCount.edit": "Изменить режим кормления",
+    "mealCount.title": "Режим кормления",
+    "mealCount.effectiveDate": "Действует с начала дня",
+    "mealCount.choose": "Выберите количество приёмов",
+    "mealCount.two": "приёма в день",
+    "mealCount.three": "приёма в день",
+    "mealCount.sourceAutomatic": "По возрастному плану",
+    "mealCount.sourceManual": "Вручную с {date}",
+    "mealCount.previewDaily": "Дневная норма",
+    "mealCount.previewMode": "Приёмов в день",
+    "mealCount.previewPerMeal": "Рекомендуемо за приём",
+    "mealCount.unchanged": "без изменений",
+    "mealCount.preserved": "Сохранённые приёмы пищи не удаляются. Если третий приём уже записан, он останется дополнительным.",
+    "mealCount.history": "История изменений",
+    "mealCount.historyEmpty": "Ручных изменений пока нет — действует возрастной план.",
+    "mealCount.automatic": "По возрастному плану",
+    "mealCount.automaticEntry": "По возрастному плану",
+    "mealCount.manualEntry": "{count} приёма в день",
+    "mealCount.extra": "дополнительный",
+    "mealCount.saved": "Режим кормления сохранён.",
+    "mealCount.error": "Не удалось сохранить режим кормления.",
+    "mealCount.duplicateDate": "Запись на эту дату будет заменена.",
+    "mealCount.deleteConfirm": "Удалить изменение режима от {date}? Расчёты связанных дней будут обновлены.",
+    "mealCount.delete": "Удалить изменение",
+    "mealCount.retroactive": "Будут пересчитаны завершённые дни начиная с этой даты.",
     "barf.title": "Норма и фактическое питание",
     "barf.subtitle": "План до взросления и сколько Поршик фактически съедает в % от веса.",
     "barf.norm": "Норма",
@@ -484,6 +510,7 @@ const translations = {
     "inline.cancel": "Отменить изменение",
     "inline.skipped": "Не ел",
     "inline.derived": "Рассчитывается автоматически по приёмам пищи",
+    "inline.notPlannedMeal": "Этот приём не предусмотрен режимом на выбранную дату",
     "inline.dateExists": "За эту дату уже существует другая запись.",
     "inline.invalidWeight": "Введите вес от 1 до 20 кг или оставьте поле пустым.",
     "inline.invalidMeal": "Введите от 1 до 1000 г, оставьте пустым или отметьте «Не ел».",
@@ -511,9 +538,9 @@ const translations = {
     "stage.puppy": "Щенячья фаза · {percent}%",
     "stage.transition": "Переход · {percent}%",
     "stage.adult": "Взрослая фаза · {percent}%",
-    "feeding.puppyStatus": "Щенячья фаза: {percent}% веса · 3 кормления",
-    "feeding.transitionStatus": "Переход к взрослой норме: {percent}% · 2 кормления",
-    "feeding.adultStatus": "Взрослая фаза: {percent}% веса · 2 кормления",
+    "feeding.puppyStatus": "Щенячья фаза: {percent}% веса · {count} приёма",
+    "feeding.transitionStatus": "Переход к взрослой норме: {percent}% · {count} приёма",
+    "feeding.adultStatus": "Взрослая фаза: {percent}% веса · {count} приёма",
     "tooltip.weight": "Вес",
     "tooltip.change": "Изменение",
     "tooltip.actualMeals": "Фактически приёмов",
@@ -597,7 +624,7 @@ const translations = {
     "settings.oneRequired": "At least one target must remain.",
     "settings.duplicateDate": "A target already exists for this date.",
     "backup.title": "Data backups",
-    "backup.subtitle": "The download contains the diary, feeding targets, photo, and expenses. Restore points return the diary to an earlier version.",
+    "backup.subtitle": "The download contains the diary, feeding targets, meal schedules, photo and expenses. Restore points return the diary to an earlier version.",
     "backup.automatic": "Automatic backups enabled",
     "backup.download": "Download full backup",
     "backup.restorePoint": "Version to restore",
@@ -617,10 +644,35 @@ const translations = {
     "backup.restoreError": "The data could not be restored.",
     "feeding.eyebrow": "BARF today",
     "feeding.title": "Current feeding target",
-    "feeding.subtitle": "The percentage follows the saved plan while meal count remains age-based.",
+    "feeding.subtitle": "The daily target and meal count follow the saved plan.",
     "feeding.daily": "Per day",
     "feeding.perMeal": "Per meal",
     "feeding.meals": "Meals a day",
+    "mealCount.edit": "Change feeding schedule",
+    "mealCount.title": "Feeding schedule",
+    "mealCount.effectiveDate": "Effective from the start of the day",
+    "mealCount.choose": "Choose the number of meals",
+    "mealCount.two": "meals a day",
+    "mealCount.three": "meals a day",
+    "mealCount.sourceAutomatic": "Age-based plan",
+    "mealCount.sourceManual": "Manual from {date}",
+    "mealCount.previewDaily": "Daily target",
+    "mealCount.previewMode": "Meals a day",
+    "mealCount.previewPerMeal": "Recommended per meal",
+    "mealCount.unchanged": "unchanged",
+    "mealCount.preserved": "Saved meals are never deleted. If a third meal is already recorded, it remains as an extra meal.",
+    "mealCount.history": "Change history",
+    "mealCount.historyEmpty": "No manual changes yet — the age-based plan applies.",
+    "mealCount.automatic": "Use age-based plan",
+    "mealCount.automaticEntry": "Age-based plan",
+    "mealCount.manualEntry": "{count} meals a day",
+    "mealCount.extra": "extra",
+    "mealCount.saved": "Feeding schedule saved.",
+    "mealCount.error": "The feeding schedule could not be saved.",
+    "mealCount.duplicateDate": "The entry on this date will be replaced.",
+    "mealCount.deleteConfirm": "Delete the schedule change from {date}? Calculations for related days will be updated.",
+    "mealCount.delete": "Delete change",
+    "mealCount.retroactive": "Complete days from this date will be recalculated.",
     "barf.title": "Target and actual feeding",
     "barf.subtitle": "The plan to adulthood and how much Porschik actually eats as a percentage of body weight.",
     "barf.norm": "Target",
@@ -711,6 +763,7 @@ const translations = {
     "inline.cancel": "Cancel change",
     "inline.skipped": "Skipped",
     "inline.derived": "Calculated automatically from individual meals",
+    "inline.notPlannedMeal": "This meal is not planned for the selected date",
     "inline.dateExists": "Another record already exists for this date.",
     "inline.invalidWeight": "Enter a weight from 1 to 20 kg or leave it blank.",
     "inline.invalidMeal": "Enter 1 to 1000 g, leave it blank or mark it as skipped.",
@@ -738,9 +791,9 @@ const translations = {
     "stage.puppy": "Puppy phase · {percent}%",
     "stage.transition": "Transition · {percent}%",
     "stage.adult": "Adult phase · {percent}%",
-    "feeding.puppyStatus": "Puppy phase: {percent}% of weight · 3 meals",
-    "feeding.transitionStatus": "Adult transition: {percent}% · 2 meals",
-    "feeding.adultStatus": "Adult phase: {percent}% of weight · 2 meals",
+    "feeding.puppyStatus": "Puppy phase: {percent}% of weight · {count} meals",
+    "feeding.transitionStatus": "Adult transition: {percent}% · {count} meals",
+    "feeding.adultStatus": "Adult phase: {percent}% of weight · {count} meals",
     "tooltip.weight": "Weight",
     "tooltip.change": "Change",
     "tooltip.actualMeals": "Actual meals",
@@ -831,6 +884,18 @@ function activeFeedingNorms() {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function activeMealCountChanges() {
+  return (Array.isArray(state.feedingSettings.mealCountChanges)
+    ? state.feedingSettings.mealCountChanges
+    : [])
+    .map((item) => item.mode === "automatic"
+      ? { date: String(item.date || "").slice(0, 10), mode: "automatic" }
+      : { date: String(item.date || "").slice(0, 10), mealsPerDay: Number(item.mealsPerDay) })
+    .filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.date)
+      && (item.mode === "automatic" || [2, 3].includes(item.mealsPerDay)))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function formatDate(isoDate, options = { day: "2-digit", month: "short", year: "numeric" }) {
   return new Intl.DateTimeFormat(state.lang === "en" ? "en-GB" : "ru-RU", {
     timeZone: "UTC",
@@ -914,6 +979,10 @@ function applyTranslations() {
   const languageButton = document.getElementById("languageButton");
   if (languageButton) languageButton.textContent = state.lang === "ru" ? "EN" : "RU";
   updateDerivedUI();
+  if (document.getElementById("mealCountDialog")?.open) {
+    renderMealCountHistory();
+    updateMealCountPreview();
+  }
 }
 
 function phaseLabel(plan) {
@@ -925,9 +994,10 @@ function phaseLabel(plan) {
 
 function feedingStatusLabel(plan) {
   const percent = formatNumber(plan.ratio * 100, 1);
-  if (plan.phase === "puppy") return t("feeding.puppyStatus", { percent });
-  if (plan.phase === "adult") return t("feeding.adultStatus", { percent });
-  return t("feeding.transitionStatus", { percent });
+  const count = plan.mealsPerDay;
+  if (plan.phase === "puppy") return t("feeding.puppyStatus", { percent, count });
+  if (plan.phase === "adult") return t("feeding.adultStatus", { percent, count });
+  return t("feeding.transitionStatus", { percent, count });
 }
 
 function nearestThirtyDayChange() {
@@ -990,7 +1060,7 @@ function renderNormTimeline(plan, recommendation) {
       return normInlineEditorMarkup(editor.draft, "edit");
     }
     const actions = state.authenticated ? `<div class="norm-row-actions">
-      <button class="norm-row-action" type="button" data-edit-inline-norm="${escapeHtml(norm.date)}" data-tooltip="${escapeHtml(t("action.edit"))}" aria-label="${escapeHtml(t("action.edit"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+      <button class="edit-icon-button" type="button" data-edit-inline-norm="${escapeHtml(norm.date)}" data-tooltip="${escapeHtml(t("action.edit"))}" aria-label="${escapeHtml(t("action.edit"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
       <button class="norm-row-action is-delete" type="button" data-delete-inline-norm="${escapeHtml(norm.date)}" data-tooltip="${escapeHtml(t("action.delete"))}" aria-label="${escapeHtml(t("settings.removeNorm"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></button>
     </div>` : "";
     return `<li data-norm-timeline-date="${escapeHtml(norm.date)}"${norm.date === plan.normStartDate ? ` class="is-active"` : ""}>
@@ -1046,6 +1116,14 @@ function updateDerivedUI() {
   if (mealRecommendation) mealRecommendation.textContent = latest ? `${formatNumber(Math.round(recommendation.mealGrams))} ${t("unit.g")}` : "—";
   const mealCount = document.getElementById("mealCountRecommendation");
   if (mealCount) mealCount.textContent = String(plan.mealsPerDay);
+  const mealCountSource = document.getElementById("mealCountSource");
+  if (mealCountSource) mealCountSource.textContent = plan.mealCountSource === "manual"
+    ? t("mealCount.sourceManual", {
+      date: formatDate(plan.mealCountStartDate, { day: "2-digit", month: "short", year: "numeric" })
+    })
+    : t("mealCount.sourceAutomatic");
+  const mealCountEditButton = document.getElementById("mealCountEditButton");
+  if (mealCountEditButton) mealCountEditButton.hidden = !state.authenticated;
   renderNormTimeline(plan, recommendation);
 
   const historyRecordCount = document.getElementById("historyRecordCount");
@@ -1634,10 +1712,10 @@ function drawNormChart() {
   if (!norms.length) return;
   const startDate = norms[0].date;
   const adultDate = norms.at(-1).date;
+  const defaultEndDate = addDays(today, 3);
   const latestRecordDate = state.records.at(-1)?.date || today;
-  const latestActualDate = state.records.filter((record) => isDailyIntakeComplete(record, profile)).at(-1)?.date || "";
-  const endDate = [adultDate, today, latestRecordDate].sort().at(-1);
-  const range = chartDateRange("norm", startDate, endDate, { ensureEndDate: latestActualDate });
+  const endDate = [adultDate, defaultEndDate, latestRecordDate].sort().at(-1);
+  const range = chartDateRange("norm", startDate, endDate, { ensureEndDate: defaultEndDate });
   const minTime = Date.parse(`${range.startDate}T00:00:00Z`);
   const maxTime = Math.max(minTime + DAY_MS, Date.parse(`${range.endDate}T00:00:00Z`));
   const xFor = (date) => area.left + ((Date.parse(`${date}T00:00:00Z`) - minTime) / (maxTime - minTime)) * (area.right - area.left);
@@ -1833,6 +1911,14 @@ function renderHistoryTable() {
     return `<td${classes ? ` class="${classes}"` : ""}${editAttributes}><span class="editable-cell-value">${content}</span></td>`;
   };
   const derivedCell = (content, className = "") => `<td class="derived-cell${className ? ` ${className}` : ""}" title="${escapeHtml(t("inline.derived"))}">${content}</td>`;
+  const mealCell = (record, slot) => {
+    const plannedMeals = feedingPlanForDate(record.date, activeDogProfile()).mealsPerDay;
+    const hasSavedMeal = record.meals.some((meal) => meal.slot === slot);
+    if (slot > plannedMeals && !hasSavedMeal) {
+      return `<td class="derived-cell meal-not-planned" title="${escapeHtml(t("inline.notPlannedMeal"))}">—</td>`;
+    }
+    return editableCell(record, `meal-${slot}`, escapeHtml(mealText(record, slot)), slot > plannedMeals ? "meal-extra-cell" : "");
+  };
   const deleteButton = (record) => {
     if (!state.authenticated) return "";
     const attributes = record.isDraft
@@ -1867,9 +1953,9 @@ function renderHistoryTable() {
     <tr${record.isDraft ? ` class="history-draft-row" data-draft-label="${escapeHtml(t("history.draftLabel"))}" aria-label="${escapeHtml(t("history.draft"))}"` : ""}>
       ${editableCell(record, "date", `<span class="date-cell-content"><strong>${escapeHtml(formatDate(record.date))}</strong>${deleteButton(record)}</span>`)}
       ${editableCell(record, "weight", Number.isFinite(record.weightKg) ? `${formatNumber(record.weightKg, 2)} ${escapeHtml(t("unit.kg"))}` : "—")}
-      ${editableCell(record, "meal-1", escapeHtml(mealText(record, 1)))}
-      ${editableCell(record, "meal-2", escapeHtml(mealText(record, 2)))}
-      ${editableCell(record, "meal-3", escapeHtml(mealText(record, 3)))}
+      ${mealCell(record, 1)}
+      ${mealCell(record, 2)}
+      ${mealCell(record, 3)}
       ${derivedCell(actualMealCount(record) || "—")}
       ${derivedCell(record.meals.length ? `${formatNumber(actualDailyGrams(record))} ${escapeHtml(t("unit.g"))}` : "—")}
       ${derivedCell(metrics.target ? `${formatNumber(Math.round(metrics.target))} ${escapeHtml(t("unit.g"))}` : "—", "target-cell")}
@@ -1910,6 +1996,15 @@ function renderGrowthQuickRow() {
     const attributes = ` data-inline-key="${key}" data-inline-record="${record.date}"${isDraft ? " data-inline-draft=\"true\"" : ""} data-inline-field="${field}" tabindex="0" role="button" title="${escapeHtml(t("inline.edit"))}"`;
     return `<td class="editable-cell"${attributes}><span class="editable-cell-value">${content}</span></td>`;
   };
+  const plannedMeals = feedingPlanForDate(record.date, activeDogProfile()).mealsPerDay;
+  const quickMealCell = (slot) => {
+    const hasSavedMeal = record.meals.some((meal) => meal.slot === slot);
+    if (slot > plannedMeals && !hasSavedMeal) {
+      return `<td class="derived-cell meal-not-planned" title="${escapeHtml(t("inline.notPlannedMeal"))}">—</td>`;
+    }
+    const cell = editableCell(`meal-${slot}`, escapeHtml(mealText(slot)));
+    return slot > plannedMeals ? cell.replace('class="editable-cell"', 'class="editable-cell meal-extra-cell"') : cell;
+  };
   const weight = Number.isFinite(record.weightKg) ? record.weightKg : latestWeightRecord(state.records, record.date)?.weightKg;
   const target = recommendationFor(weight || 0, record.date, activeDogProfile()).dailyGrams;
   const actual = actualDailyGrams(record);
@@ -1924,9 +2019,9 @@ function renderGrowthQuickRow() {
   body.innerHTML = `<tr${isDraft ? ` class="history-draft-row" data-draft-label="${escapeHtml(t("history.draftLabel"))}" aria-label="${escapeHtml(t("history.draft"))}"` : ""}>
     ${editableCell("date", `<span class="date-cell-content"><strong>${escapeHtml(formatDate(record.date))}</strong>${deleteButton}</span>`)}
     ${editableCell("weight", Number.isFinite(record.weightKg) ? `${formatNumber(record.weightKg, 2)} ${escapeHtml(t("unit.kg"))}` : "—")}
-    ${editableCell("meal-1", escapeHtml(mealText(1)))}
-    ${editableCell("meal-2", escapeHtml(mealText(2)))}
-    ${editableCell("meal-3", escapeHtml(mealText(3)))}
+    ${quickMealCell(1)}
+    ${quickMealCell(2)}
+    ${quickMealCell(3)}
     <td class="derived-cell">${actualMealCount(record) || "—"}</td>
     <td class="derived-cell">${record.meals.length ? `${formatNumber(actual)} ${escapeHtml(t("unit.g"))}` : "—"}</td>
     <td class="derived-cell target-cell">${target ? `${formatNumber(Math.round(target))} ${escapeHtml(t("unit.g"))}` : "—"}</td>
@@ -2312,7 +2407,7 @@ function renderExpenseList() {
       <span class="expense-order-kg">${formatNumber(order.kilograms, 2)} ${escapeHtml(t("unit.kg"))}</span>
       <span class="expense-order-unit">${formatCurrency(order.pricePerKg)}/${escapeHtml(t("unit.kg"))}</span>
       <strong>${formatCurrency(order.totalCost)}</strong>
-      <button class="icon-button" type="button" data-edit-expense="${escapeHtml(order.id)}" aria-label="${escapeHtml(t("action.edit"))}">✎</button>
+      <button class="edit-icon-button" type="button" data-edit-expense="${escapeHtml(order.id)}" aria-label="${escapeHtml(t("action.edit"))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
     </article>
   `;
   });
@@ -2834,16 +2929,24 @@ function cancelNormInlineEditor() {
   updateDerivedUI();
 }
 
-async function persistFeedingNorms(norms) {
+async function persistFeedingSettings(patch, errorKey = "settings.error") {
+  const feedingSettings = {
+    ...state.feedingSettings,
+    ...patch
+  };
   const response = await fetch("/api/profile", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ feedingSettings: { feedingNorms: norms } })
+    body: JSON.stringify({ feedingSettings })
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || t("settings.error"));
+  if (!response.ok) throw new Error(payload.error || t(errorKey));
   state.feedingSettings = payload.feedingSettings;
+}
+
+async function persistFeedingNorms(norms) {
+  return persistFeedingSettings({ feedingNorms: norms });
 }
 
 async function saveNormInlineEditor() {
@@ -2913,6 +3016,159 @@ async function deleteNormInline(date) {
   }
 }
 
+function setMealCountMessage(message = "", type = "") {
+  const element = document.getElementById("mealCountMessage");
+  if (!element) return;
+  element.textContent = message;
+  element.classList.toggle("is-error", type === "error");
+}
+
+function mealCountChangesWith(change) {
+  return [
+    ...activeMealCountChanges().filter((item) => item.date !== change.date),
+    change
+  ].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function renderMealCountHistory() {
+  const list = document.getElementById("mealCountHistory");
+  if (!list) return;
+  const changes = [...activeMealCountChanges()].reverse();
+  if (!changes.length) {
+    list.innerHTML = `<li class="meal-count-history-empty">${escapeHtml(t("mealCount.historyEmpty"))}</li>`;
+    return;
+  }
+  list.innerHTML = changes.map((change) => {
+    const label = change.mode === "automatic"
+      ? t("mealCount.automaticEntry")
+      : t("mealCount.manualEntry", { count: change.mealsPerDay });
+    return `<li>
+      <time datetime="${escapeHtml(change.date)}">${escapeHtml(formatDate(change.date, { day: "2-digit", month: "short", year: "numeric" }))}</time>
+      <strong>${escapeHtml(label)}</strong>
+      <button type="button" data-delete-meal-count="${escapeHtml(change.date)}" aria-label="${escapeHtml(t("mealCount.delete"))}" title="${escapeHtml(t("mealCount.delete"))}">×</button>
+    </li>`;
+  }).join("");
+}
+
+function selectedMealCount() {
+  return Number(document.querySelector('input[name="mealsPerDay"]:checked')?.value);
+}
+
+function updateMealCountPreview() {
+  const preview = document.getElementById("mealCountPreview");
+  const date = document.getElementById("mealCountDate")?.value;
+  const mealsPerDay = selectedMealCount();
+  if (!preview || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || "")) || ![2, 3].includes(mealsPerDay)) return;
+  const profile = activeDogProfile();
+  const currentPlan = feedingPlanForDate(date, profile);
+  const nextProfile = {
+    ...profile,
+    mealCountChanges: mealCountChangesWith({ date, mealsPerDay })
+  };
+  const nextPlan = feedingPlanForDate(date, nextProfile);
+  const weight = latestWeightRecord(state.records, date)?.weightKg || 0;
+  const currentRecommendation = recommendationFor(weight, date, profile);
+  const nextRecommendation = recommendationFor(weight, date, nextProfile);
+  const daily = currentRecommendation.dailyGrams
+    ? `${formatNumber(Math.round(currentRecommendation.dailyGrams))} ${t("unit.g")} · ${t("mealCount.unchanged")}`
+    : "—";
+  const currentMeal = currentRecommendation.mealGrams
+    ? `${formatNumber(Math.round(currentRecommendation.mealGrams))} ${t("unit.g")}`
+    : "—";
+  const nextMeal = nextRecommendation.mealGrams
+    ? `${formatNumber(Math.round(nextRecommendation.mealGrams))} ${t("unit.g")}`
+    : "—";
+  const notices = [
+    activeMealCountChanges().some((item) => item.date === date) ? t("mealCount.duplicateDate") : "",
+    date < today ? t("mealCount.retroactive") : ""
+  ].filter(Boolean);
+  preview.innerHTML = `
+    <div><span>${escapeHtml(t("mealCount.previewDaily"))}</span><strong>${escapeHtml(daily)}</strong></div>
+    <div><span>${escapeHtml(t("mealCount.previewMode"))}</span><strong>${currentPlan.mealsPerDay} → ${nextPlan.mealsPerDay}</strong></div>
+    <div><span>${escapeHtml(t("mealCount.previewPerMeal"))}</span><strong>${escapeHtml(currentMeal)} → ${escapeHtml(nextMeal)}</strong></div>
+    ${notices.length ? `<small>${escapeHtml(notices.join(" "))}</small>` : ""}
+  `;
+}
+
+function openMealCountDialog() {
+  if (!state.authenticated) return openAuthDialog();
+  const dialog = document.getElementById("mealCountDialog");
+  const dateInput = document.getElementById("mealCountDate");
+  if (!dialog || !dateInput) return;
+  dateInput.value = today;
+  const plan = feedingPlanForDate(today, activeDogProfile());
+  const radio = document.querySelector(`input[name="mealsPerDay"][value="${plan.mealsPerDay}"]`);
+  if (radio) radio.checked = true;
+  setMealCountMessage();
+  renderMealCountHistory();
+  updateMealCountPreview();
+  dialog.showModal();
+}
+
+function setMealCountBusy(busy) {
+  document.querySelectorAll("#mealCountForm input, #mealCountForm button").forEach((element) => {
+    element.disabled = busy;
+  });
+}
+
+async function saveMealCountChange(change, { close = true } = {}) {
+  setMealCountBusy(true);
+  setMealCountMessage();
+  try {
+    await persistFeedingSettings({
+      mealCountChanges: mealCountChangesWith(change)
+    }, "mealCount.error");
+    renderAll();
+    renderMealCountHistory();
+    updateMealCountPreview();
+    toast(t("mealCount.saved"));
+    if (close) document.getElementById("mealCountDialog")?.close();
+  } catch (error) {
+    setMealCountMessage(error.message || t("mealCount.error"), "error");
+  } finally {
+    setMealCountBusy(false);
+  }
+}
+
+async function submitMealCount(event) {
+  event.preventDefault();
+  const dateInput = document.getElementById("mealCountDate");
+  const mealsPerDay = selectedMealCount();
+  if (!dateInput?.checkValidity() || ![2, 3].includes(mealsPerDay)) {
+    setMealCountMessage(t("mealCount.error"), "error");
+    return;
+  }
+  await saveMealCountChange({ date: dateInput.value, mealsPerDay });
+}
+
+async function resetMealCountToAutomatic() {
+  const dateInput = document.getElementById("mealCountDate");
+  if (!dateInput?.checkValidity()) {
+    setMealCountMessage(t("mealCount.error"), "error");
+    return;
+  }
+  await saveMealCountChange({ date: dateInput.value, mode: "automatic" });
+}
+
+async function deleteMealCountChange(date) {
+  if (!state.authenticated || !window.confirm(t("mealCount.deleteConfirm", { date: formatDate(date) }))) return;
+  setMealCountBusy(true);
+  setMealCountMessage();
+  try {
+    await persistFeedingSettings({
+      mealCountChanges: activeMealCountChanges().filter((item) => item.date !== date)
+    }, "mealCount.error");
+    renderAll();
+    renderMealCountHistory();
+    updateMealCountPreview();
+    toast(t("mealCount.saved"));
+  } catch (error) {
+    setMealCountMessage(error.message || t("mealCount.error"), "error");
+  } finally {
+    setMealCountBusy(false);
+  }
+}
+
 function setRecordTab(type) {
   state.activeRecordTab = type;
   document.querySelectorAll("[data-record-tab]").forEach((button) => button.setAttribute("aria-selected", String(button.dataset.recordTab === type)));
@@ -2971,11 +3227,12 @@ function buildMealControls(date, meals = []) {
   container.innerHTML = Array.from({ length: count }, (_, index) => {
     const slot = index + 1;
     const meal = meals.find((item) => item.slot === slot);
+    const isExtra = slot > plan.mealsPerDay;
     const value = meal?.grams || Math.round(recommendationFor(latestWeightRecord(state.records, date)?.weightKg || 0, date, activeDogProfile()).mealGrams) || 100;
     return `
-      <div class="meal-row" data-meal-slot="${slot}">
+      <div class="meal-row${isExtra ? " is-extra" : ""}" data-meal-slot="${slot}">
         <div class="meal-row-head">
-          <span>${escapeHtml(t("form.meal", { slot }))}</span>
+          <span>${escapeHtml(t("form.meal", { slot }))}${isExtra ? `<small class="meal-extra-label">${escapeHtml(t("mealCount.extra"))}</small>` : ""}</span>
           <label class="skip-toggle"><input type="checkbox" data-meal-skip="${slot}" ${meal?.skipped ? "checked" : ""}><span>${escapeHtml(t("form.skipped"))}</span></label>
         </div>
         <div class="dual-control">
@@ -3463,6 +3720,22 @@ function wireEvents() {
     const file = event.target.files?.[0];
     if (file) uploadAvatar(file);
   });
+  document.getElementById("mealCountEditButton")?.addEventListener("click", openMealCountDialog);
+  document.getElementById("mealCountForm")?.addEventListener("submit", submitMealCount);
+  document.getElementById("mealCountDate")?.addEventListener("change", () => {
+    const date = document.getElementById("mealCountDate")?.value;
+    if (!date) return;
+    const plan = feedingPlanForDate(date, activeDogProfile());
+    const radio = document.querySelector(`input[name="mealsPerDay"][value="${plan.mealsPerDay}"]`);
+    if (radio) radio.checked = true;
+    updateMealCountPreview();
+  });
+  document.querySelectorAll('input[name="mealsPerDay"]').forEach((input) => input.addEventListener("change", updateMealCountPreview));
+  document.getElementById("mealCountAutoButton")?.addEventListener("click", resetMealCountToAutomatic);
+  document.getElementById("mealCountHistory")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-meal-count]");
+    if (button) deleteMealCountChange(button.dataset.deleteMealCount);
+  });
   document.getElementById("normInlineAddButton")?.addEventListener("click", beginNormAdd);
   document.getElementById("normTimelineList")?.addEventListener("click", (event) => {
     const editButton = event.target.closest("[data-edit-inline-norm]");
@@ -3521,11 +3794,10 @@ function wireEvents() {
   document.getElementById("feedingForm")?.addEventListener("submit", submitFeeding);
   document.getElementById("feedingDate")?.addEventListener("change", (event) => {
     const oldMeals = mealFormValues();
+    const savedMeals = recordForDate(event.target.value)?.meals;
     const nextPlan = feedingPlanForDate(event.target.value, activeDogProfile());
-    if (oldMeals.some((meal) => meal.slot > nextPlan.mealsPerDay) && !window.confirm(state.lang === "ru" ? "В выбранной фазе меньше плановых приёмов. Сохранить введённый дополнительный приём?" : "The selected phase has fewer planned meals. Keep the entered extra meal?")) {
-      oldMeals.splice(nextPlan.mealsPerDay);
-    }
-    buildMealControls(event.target.value, recordForDate(event.target.value)?.meals || oldMeals);
+    const meals = savedMeals || oldMeals.filter((meal) => meal.slot <= nextPlan.mealsPerDay);
+    buildMealControls(event.target.value, meals);
   });
   document.getElementById("mealsContainer")?.addEventListener("input", (event) => {
     const slot = event.target.dataset.mealValue || event.target.dataset.mealRange;

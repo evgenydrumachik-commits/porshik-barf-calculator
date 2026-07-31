@@ -32,7 +32,8 @@ test("feeding settings accept and sort dated norm points", () => {
     feedingNorms: [
       { date: "2026-07-22", ratio: 0.054 },
       { date: "2026-10-28", ratio: 0.03 }
-    ]
+    ],
+    mealCountChanges: []
   });
 });
 
@@ -46,8 +47,25 @@ test("feeding settings preserve a step change between periods", () => {
     feedingNorms: [
       { date: "2026-05-01", ratio: 0.08 },
       { date: "2026-07-01", ratio: 0.06, interpolation: "step" }
+    ],
+    mealCountChanges: []
+  });
+});
+
+test("feeding settings accept manual meal changes and an automatic reset", () => {
+  const normalized = normalizeFeedingSettings({
+    feedingNorms: [{ date: "2026-07-22", ratio: 0.054 }],
+    mealCountChanges: [
+      { date: "2026-11-15", mode: "automatic" },
+      { date: "2026-08-12", mealsPerDay: 3 },
+      { date: "2026-07-28", mealsPerDay: 2 }
     ]
   });
+  assert.deepEqual(normalized.mealCountChanges, [
+    { date: "2026-07-28", mealsPerDay: 2 },
+    { date: "2026-08-12", mealsPerDay: 3 },
+    { date: "2026-11-15", mode: "automatic" }
+  ]);
 });
 
 test("feeding settings reject duplicate dates and unsafe ratios", () => {
@@ -58,4 +76,13 @@ test("feeding settings reject duplicate dates and unsafe ratios", () => {
   assert.throws(() => normalizeFeedingSettings({ feedingNorms: [
     { date: "2026-07-22", ratio: 0.2 }
   ] }), /от 1% до 12%/);
+  assert.throws(() => normalizeFeedingSettings({
+    mealCountChanges: [
+      { date: "2026-07-28", mealsPerDay: 2 },
+      { date: "2026-07-28", mealsPerDay: 3 }
+    ]
+  }), /один режим/);
+  assert.throws(() => normalizeFeedingSettings({
+    mealCountChanges: [{ date: "2026-07-28", mealsPerDay: 4 }]
+  }), /2 или 3/);
 });

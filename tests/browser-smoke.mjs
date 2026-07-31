@@ -222,6 +222,67 @@ const adultMeals = await evaluate("document.querySelectorAll('#mealsContainer .m
 await evaluate("document.querySelector('#recordDialog').close()");
 console.log("feeding phase controls checked");
 
+const mealCountInitial = await evaluate(`({
+  count: document.querySelector('#mealCountRecommendation')?.textContent.trim(),
+  source: document.querySelector('#mealCountSource')?.textContent.trim(),
+  editVisible: !document.querySelector('#mealCountEditButton')?.hidden
+})`);
+await evaluate("document.querySelector('#mealCountEditButton')?.click()");
+await waitFor("document.querySelector('#mealCountDialog')?.open");
+const mealCountPreview = await evaluate(`(() => {
+  const date = document.querySelector('#mealCountDate');
+  date.value = '2026-07-28';
+  date.dispatchEvent(new Event('change', { bubbles: true }));
+  const radio = document.querySelector('input[name="mealsPerDay"][value="2"]');
+  radio.checked = true;
+  radio.dispatchEvent(new Event('change', { bubbles: true }));
+  return {
+    text: document.querySelector('#mealCountPreview')?.textContent.trim(),
+    history: document.querySelectorAll('#mealCountHistory [data-delete-meal-count]').length
+  };
+})()`);
+await evaluate("document.querySelector('#mealCountForm button[type=submit]')?.click()");
+await waitFor("!document.querySelector('#mealCountDialog')?.open && document.querySelector('#mealCountRecommendation')?.textContent.trim() === '2'");
+await evaluate("document.querySelector('#growthQuickAddButton')?.click()");
+await waitFor("document.querySelector('#growthQuickAddForm')?.classList.contains('is-open')");
+const quickManualTwoMeals = await evaluate(`({
+  editableMeals: [...document.querySelectorAll('#growthQuickAddRow [data-inline-field^="meal-"]')].map((cell) => cell.dataset.inlineField),
+  thirdDisabled: Boolean(document.querySelector('#growthQuickAddRow .meal-not-planned'))
+})`);
+await evaluate("document.querySelector('#growthQuickAddButton')?.click()");
+await evaluate("document.querySelector('#mealCountEditButton')?.click()");
+await waitFor("document.querySelector('#mealCountDialog')?.open");
+await evaluate(`(() => {
+  const date = document.querySelector('#mealCountDate');
+  date.value = '2026-08-12';
+  date.dispatchEvent(new Event('change', { bubbles: true }));
+  const radio = document.querySelector('input[name="mealsPerDay"][value="3"]');
+  radio.checked = true;
+  radio.dispatchEvent(new Event('change', { bubbles: true }));
+  document.querySelector('#mealCountForm button[type=submit]').click();
+})()`);
+await waitFor("!document.querySelector('#mealCountDialog')?.open");
+const savedMealCountChanges = await evaluate(`(async () => {
+  const payload = await (await fetch('/api/profile', { cache: 'no-store' })).json();
+  return payload.feedingSettings?.mealCountChanges || [];
+})()`);
+await evaluate(`document.querySelector('.chart-actions [data-open-record="feeding"]')?.click()`);
+await waitFor("document.querySelector('#recordDialog')?.open");
+await evaluate(`(() => {
+  const input = document.querySelector('#feedingDate');
+  input.value = '2026-07-28';
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+})()`);
+const manualTwoMeals = await evaluate("document.querySelectorAll('#mealsContainer .meal-row').length");
+await evaluate(`(() => {
+  const input = document.querySelector('#feedingDate');
+  input.value = '2026-08-12';
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+})()`);
+const manualThreeMeals = await evaluate("document.querySelectorAll('#mealsContainer .meal-row').length");
+await evaluate("document.querySelector('#recordDialog').close()");
+console.log("manual feeding schedule checked");
+
 await evaluate(`document.querySelector('.chart-actions [data-open-record="feeding"]')?.click()`);
 await waitFor("document.querySelector('#recordDialog')?.open");
 const feedingFormNoComment = await evaluate(`(() => {
@@ -362,6 +423,7 @@ const backupExport = await evaluate(`(async () => {
     backupType: payload.backupType,
     records: payload.records?.length,
     feedingNorms: payload.profile?.feedingSettings?.feedingNorms?.length,
+    mealCountChanges: payload.profile?.feedingSettings?.mealCountChanges?.length,
     avatar: payload.profile?.avatarUrl,
     expenses: payload.expenses?.length
   };
@@ -424,11 +486,16 @@ const normActualLine = await evaluate(`({
 })`);
 await screenshot("/tmp/porschik-cdp-barf-after-flows.png");
 
-const report = { desktop, normChart, normHover, normClick, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, feedingFormNoComment, feedingTooltip, pointClick, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
+const report = { desktop, normChart, normHover, normClick, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, mealCountInitial, mealCountPreview, quickManualTwoMeals, savedMealCountChanges, manualTwoMeals, manualThreeMeals, feedingFormNoComment, feedingTooltip, pointClick, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
 console.log(JSON.stringify(report, null, 2));
 
 if (desktop.overflow > 0 || mobile.overflow > 0 || historyMobile.overflow > 0) process.exitCode = 1;
 if (desktop.tableOnHome || desktop.commentInputs || feedingFormNoComment.commentField || puppyMeals !== 3 || adultMeals !== 2 || pointClick.recordDialogOpen || !pointClick.tooltip) process.exitCode = 1;
+if (mealCountInitial.count !== "3" || !mealCountInitial.source?.includes("возраст") || !mealCountInitial.editVisible) process.exitCode = 1;
+if (!mealCountPreview.text?.includes("3 → 2") || mealCountPreview.history !== 0) process.exitCode = 1;
+if (quickManualTwoMeals.editableMeals.join(",") !== "meal-1,meal-2" || !quickManualTwoMeals.thirdDisabled) process.exitCode = 1;
+if (savedMealCountChanges.length !== 2 || savedMealCountChanges[0]?.mealsPerDay !== 2 || savedMealCountChanges[1]?.mealsPerDay !== 3) process.exitCode = 1;
+if (manualTwoMeals !== 2 || manualThreeMeals !== 3) process.exitCode = 1;
 if (!desktop.pawDecoration?.includes("🐾") || desktop.avatarWidth < 80) process.exitCode = 1;
 if (desktop.foodSegments < 20 || !desktop.chartSubtitle?.includes("составные столбики")) process.exitCode = 1;
 if (normChart.normPoints < 100 || normChart.actualPoints < 1 || normChart.currentRatio !== "0.054" || normChart.adultDate !== "2026-10-28" || normChart.adultRatio !== "0.03" || normChart.timelinePoints !== 4) process.exitCode = 1;
@@ -451,7 +518,7 @@ if (historyDesktop.manualBackupButton || !historyDesktop.automaticBadge?.include
 if (!inlineCancelledWeight?.includes("7,95") || !inlineSavedWeight?.includes("8")) process.exitCode = 1;
 if (mobile.legendChecks !== 8 || mobile.legendVisible === "none" || mobile.minLegendTapHeight < 44) process.exitCode = 1;
 if (inlineDraft.rows !== historyDesktop.rows + 1 || inlineDraft.weight !== "—" || inlineDraft.meal1 !== "—" || historyAfterDraft !== historyDesktop.rows) process.exitCode = 1;
-if (!historyDesktop.backupPanelVisible || !backupExport.ok || backupExport.schemaVersion !== 3 || backupExport.backupType !== "full" || backupExport.records !== historyAfterDraft || backupExport.feedingNorms !== 4 || !backupExport.avatar || backupExport.expenses < 1 || !backupExport.disposition?.includes("porschik-full-backup")) process.exitCode = 1;
+if (!historyDesktop.backupPanelVisible || !backupExport.ok || backupExport.schemaVersion !== 4 || backupExport.backupType !== "full" || backupExport.records !== historyAfterDraft || backupExport.feedingNorms !== 4 || backupExport.mealCountChanges !== 2 || !backupExport.avatar || backupExport.expenses < 1 || !backupExport.disposition?.includes("porschik-full-backup")) process.exitCode = 1;
 if (automaticBackups.options < 2 || !backupRestored?.includes("восстановлены")) process.exitCode = 1;
 if (historyMobile.tableVisible || !historyMobile.cardListVisible || historyMobile.cards !== historyAfterDraft) process.exitCode = 1;
 if (browserErrors.length) process.exitCode = 1;

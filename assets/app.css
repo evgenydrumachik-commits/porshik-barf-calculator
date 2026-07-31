@@ -426,30 +426,6 @@ a {
   content: "";
 }
 
-.inline-edit-button {
-  display: inline-grid;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  padding: 0;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-  border-radius: 50%;
-  color: inherit;
-  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
-  font-size: 0.72rem;
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0.72;
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-
-.inline-edit-button:hover,
-.inline-edit-button:focus-visible {
-  opacity: 1;
-  transform: scale(1.08);
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -553,10 +529,10 @@ a {
   gap: 8px;
 }
 
-.growth-quick-add-trigger {
+.add-icon-button {
   display: inline-grid;
   width: 44px;
-  min-height: 44px;
+  height: 44px;
   place-items: center;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--blue) 36%, var(--border));
@@ -568,8 +544,21 @@ a {
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
 
-.growth-quick-add-trigger:hover { transform: translateY(-2px); filter: saturate(1.08); }
-.growth-quick-add-trigger svg { width: 20px; height: 20px; }
+.add-icon-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 11px 22px color-mix(in srgb, var(--blue) 32%, transparent);
+  filter: saturate(1.08);
+}
+
+.add-icon-button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.add-icon-button svg {
+  width: 20px;
+  height: 20px;
+}
 
 .growth-quick-add {
   max-height: 0;
@@ -1000,7 +989,7 @@ a {
   font-weight: 820;
 }
 
-.feeding-status .inline-edit-button {
+.feeding-status .edit-icon-button {
   margin: -4px -5px -4px 2px;
 }
 
@@ -1040,6 +1029,25 @@ a {
   color: var(--coral);
   font-size: 0.7rem;
   font-weight: 820;
+}
+
+.meal-count-metric-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meal-count-metric-value strong {
+  margin-top: 9px;
+}
+
+.meal-count-metric-value .meal-count-edit-button {
+  margin-top: 9px;
+}
+
+.feeding-metric .meal-count-source {
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .secondary-details {
@@ -1212,36 +1220,6 @@ a {
   text-transform: uppercase;
 }
 
-.norm-inline-add,
-.expense-inline-add {
-  display: inline-grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid color-mix(in srgb, var(--coral) 34%, var(--border));
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--coral) 9%, var(--surface-solid));
-  color: var(--coral);
-  font-size: 1.3rem;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
-}
-
-.norm-inline-add:hover:not(:disabled),
-.expense-inline-add:hover:not(:disabled) {
-  transform: translateY(-1px) rotate(90deg);
-  background: color-mix(in srgb, var(--coral) 15%, var(--surface-solid));
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--coral) 16%, transparent);
-}
-
-.norm-inline-add:disabled,
-.expense-inline-add:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
 .norm-timeline-summary {
   display: grid;
   grid-template-columns: 64px 42px minmax(0, 1fr);
@@ -1280,7 +1258,7 @@ a {
   gap: 4px;
 }
 
-.norm-row-action {
+.edit-icon-button {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1295,12 +1273,12 @@ a {
   cursor: pointer;
 }
 
-.norm-row-action svg {
+.edit-icon-button svg {
   width: 14px;
   height: 14px;
 }
 
-.norm-row-action::after {
+.edit-icon-button[data-tooltip]::after {
   position: absolute;
   z-index: 8;
   right: 0;
@@ -1322,8 +1300,8 @@ a {
   white-space: nowrap;
 }
 
-.norm-row-action:hover::after,
-.norm-row-action:focus-visible::after {
+.edit-icon-button[data-tooltip]:hover::after,
+.edit-icon-button[data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1344,13 +1322,13 @@ a {
   cursor: pointer;
 }
 
-.norm-row-action:hover,
+.edit-icon-button:hover,
 .norm-inline-action:hover {
   border-color: color-mix(in srgb, var(--blue) 30%, var(--border));
   color: var(--text);
 }
 
-.norm-row-action.is-delete {
+.edit-icon-button.is-delete {
   color: var(--danger);
 }
 
@@ -1726,7 +1704,7 @@ a {
   font-weight: 650;
 }
 .expense-order-row span { color: var(--muted); }
-.expense-order-row button { min-width: 34px; min-height: 34px; }
+.expense-order-row button:not(.edit-icon-button) { min-width: 34px; min-height: 34px; }
 
 .expense-order-editor {
   display: grid;
@@ -2554,6 +2532,168 @@ dialog::backdrop {
   font-weight: 700;
 }
 
+.meal-count-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.meal-count-fieldset legend {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 820;
+}
+
+.meal-count-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.meal-count-options label {
+  position: relative;
+  cursor: pointer;
+}
+
+.meal-count-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.meal-count-options label > span {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 64px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.meal-count-options input:checked + span {
+  border-color: color-mix(in srgb, var(--coral) 54%, var(--border));
+  background: color-mix(in srgb, var(--coral) 10%, var(--surface-solid));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coral) 10%, transparent);
+}
+
+.meal-count-options input:focus-visible + span {
+  outline: 3px solid color-mix(in srgb, var(--focus) 26%, transparent);
+  outline-offset: 2px;
+}
+
+.meal-count-options strong {
+  color: var(--coral);
+  font-family: ui-rounded, "SF Pro Rounded", Inter, sans-serif;
+  font-size: 1.45rem;
+}
+
+.meal-count-options small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 780;
+}
+
+.meal-count-preview {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mint) 12%, var(--surface-solid));
+}
+
+.meal-count-preview div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 0.8rem;
+}
+
+.meal-count-preview span {
+  color: var(--muted);
+}
+
+.meal-count-preview strong {
+  text-align: right;
+}
+
+.meal-count-preserved {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.meal-count-history-head {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.meal-count-history {
+  display: grid;
+  gap: 7px;
+  max-height: 180px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.meal-count-history li {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--surface-soft) 65%, var(--surface-solid));
+  font-size: 0.78rem;
+}
+
+.meal-count-history time {
+  color: var(--muted);
+}
+
+.meal-count-history button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--danger);
+  background: var(--surface-solid);
+  cursor: pointer;
+}
+
+.meal-count-history-empty {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.meal-extra-label {
+  margin-left: 6px;
+  color: var(--coral);
+  font-size: 0.68rem;
+  font-weight: 780;
+}
+
+.meal-not-planned {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-soft) 72%, transparent);
+}
+
+.meal-extra-cell {
+  box-shadow: inset 3px 0 0 var(--coral);
+}
+
 .replace-intro,
 .replace-preserved,
 .settings-recommended,
@@ -2943,20 +3083,18 @@ dialog::backdrop {
     height: 230px;
   }
 
-  .norm-inline-add,
-  .expense-inline-add,
-  .norm-row-action,
+  .add-icon-button,
+  .edit-icon-button,
   .norm-inline-action,
   .legend-toggle {
     min-height: 44px;
   }
 
-  .norm-inline-add,
-  .expense-inline-add {
+  .add-icon-button {
     min-width: 44px;
   }
 
-  .norm-row-action {
+  .edit-icon-button {
     min-width: 44px;
   }
 

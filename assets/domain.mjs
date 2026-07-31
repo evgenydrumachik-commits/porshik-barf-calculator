@@ -16,7 +16,8 @@ export const DOG_PROFILE = Object.freeze({
   adultMealsPerDay: 2,
   targetAdultWeightKg: 12,
   transitionStartWeightRatio: 0.9,
-  feedingNorms: DEFAULT_FEEDING_NORMS
+  feedingNorms: DEFAULT_FEEDING_NORMS,
+  mealCountChanges: Object.freeze([])
 });
 
 const DAY_MS = 86_400_000;
@@ -171,16 +172,52 @@ export function feedingRatioForDate(dateIso, profile = DOG_PROFILE) {
   };
 }
 
+export function mealCountPlanForDate(dateIso, profile = DOG_PROFILE) {
+  parseIsoDate(dateIso);
+  const adultDate = addMonths(profile.birthDate, profile.adultAgeMonths);
+  const transitionStartDate = addDays(adultDate, -profile.transitionDays);
+  const ageBasedMealsPerDay = dateIso < transitionStartDate
+    ? Number(profile.puppyMealsPerDay)
+    : Number(profile.adultMealsPerDay);
+  const changes = (Array.isArray(profile.mealCountChanges) ? profile.mealCountChanges : [])
+    .map((item) => ({
+      date: String(item?.date || "").slice(0, 10),
+      mealsPerDay: Number(item?.mealsPerDay),
+      mode: item?.mode === "automatic" ? "automatic" : "manual"
+    }))
+    .filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.date)
+      && (item.mode === "automatic" || [2, 3].includes(item.mealsPerDay)))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const activeChange = changes.filter((item) => item.date <= dateIso).at(-1) || null;
+
+  if (activeChange?.mode === "manual") {
+    return {
+      mealsPerDay: activeChange.mealsPerDay,
+      mealCountSource: "manual",
+      mealCountStartDate: activeChange.date,
+      ageBasedMealsPerDay
+    };
+  }
+
+  return {
+    mealsPerDay: ageBasedMealsPerDay,
+    mealCountSource: "automatic",
+    mealCountStartDate: activeChange?.date || null,
+    ageBasedMealsPerDay
+  };
+}
+
 export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
   const adultDate = addMonths(profile.birthDate, profile.adultAgeMonths);
   const transitionStartDate = addDays(adultDate, -profile.transitionDays);
   const norm = feedingRatioForDate(dateIso, profile);
+  const mealCountPlan = mealCountPlanForDate(dateIso, profile);
 
   if (dateIso < transitionStartDate) {
     return {
       phase: "puppy",
       ...norm,
-      mealsPerDay: profile.puppyMealsPerDay,
+      ...mealCountPlan,
       transitionProgress: 0,
       transitionStartDate,
       adultDate
@@ -191,7 +228,7 @@ export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
     return {
       phase: "adult",
       ...norm,
-      mealsPerDay: profile.adultMealsPerDay,
+      ...mealCountPlan,
       transitionProgress: 1,
       transitionStartDate,
       adultDate
@@ -203,7 +240,7 @@ export function feedingPlanForDate(dateIso, profile = DOG_PROFILE) {
   return {
     phase: "transition",
     ...norm,
-    mealsPerDay: profile.adultMealsPerDay,
+    ...mealCountPlan,
     transitionProgress,
     transitionStartDate,
     adultDate
