@@ -3,8 +3,8 @@ import {
   actualDailyGrams,
   addDays,
   addMonths,
-  daysBetween,
   latestWeightRecord,
+  projectedWeightForDate,
   recommendationFor
 } from "./domain.mjs";
 
@@ -37,26 +37,6 @@ function actualConsumptionFactor(records, today, profile) {
     actualGrams,
     targetGrams
   };
-}
-
-function projectedWeightForDate(date, latestWeight, profile) {
-  const currentWeightKg = Number(latestWeight?.weightKg);
-  if (!Number.isFinite(currentWeightKg) || currentWeightKg <= 0) return null;
-  const targetAdultWeightKg = Number(profile.targetAdultWeightKg);
-  const adultDate = addMonths(profile.birthDate, profile.adultAgeMonths);
-  if (
-    !Number.isFinite(targetAdultWeightKg)
-    || targetAdultWeightKg <= 0
-    || currentWeightKg >= targetAdultWeightKg
-    || latestWeight.date >= adultDate
-  ) {
-    return currentWeightKg;
-  }
-  if (date <= latestWeight.date) return currentWeightKg;
-  if (date >= adultDate) return targetAdultWeightKg;
-  const growthDays = Math.max(1, daysBetween(latestWeight.date, adultDate));
-  const progress = daysBetween(latestWeight.date, date) / growthDays;
-  return currentWeightKg + (targetAdultWeightKg - currentWeightKg) * progress;
 }
 
 export function calculateExpenseMetrics(

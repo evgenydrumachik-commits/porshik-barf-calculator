@@ -52,6 +52,12 @@ test("dashboard and history mount the same growth-chart component", async () => 
   assert.match(app, /const rightGutter = width < 560 \? 70 : 82;/);
   assert.match(app, /right: width - rightGutter/);
   assert.match(app, /canvas\.dataset\.rightGutter = String\(rightGutter\);/);
+  assert.match(dashboard, /id="normAxisToggle"[\s\S]*data-norm-axis="percent"[\s\S]*data-norm-axis="grams"/);
+  assert.match(app, /function setNormChartAxis\(axis\)/);
+  assert.match(app, /localStorage\.setItem\(NORM_CHART_AXIS_STORAGE_KEY, state\.normAxis\)/);
+  assert.match(app, /projectedWeightForDate\(date, latestWeight, profile\)/);
+  assert.match(app, /canvas\.dataset\.axis = state\.normAxis;/);
+  assert.match(app, /state\.normAxis === "grams" \? t\("barf\.gramsAxis"\) : t\("barf\.percentAxis"\)/);
   assert.match(app, /canvas\.addEventListener\("pointermove", handleNormChartPointer\);\s+canvas\.addEventListener\("click", handleNormChartPointer\);/);
   assert.match(app, /const hoverProbe = expenseChartPoints\.at\(-1\);/);
   assert.match(app, /canvas\.dataset\.hoverX = hoverProbe \? String\(hoverProbe\.x\) : "";/);

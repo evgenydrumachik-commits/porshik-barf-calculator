@@ -12,6 +12,7 @@ import {
   isDailyIntakeComplete,
   latestWeightRecord,
   recommendationFor,
+  projectedWeightForDate,
   sortDailyRecords,
   todayInTimezone
 } from "./domain.mjs";
@@ -21,6 +22,7 @@ import { calculateExpenseMetrics } from "./expense-metrics.mjs";
 const page = document.body.dataset.page || "dashboard";
 const today = todayInTimezone();
 const CHART_DATE_RANGES_STORAGE_KEY = "porschik_chart_date_ranges";
+const NORM_CHART_AXIS_STORAGE_KEY = "porschik_norm_chart_axis";
 const PAGE_SCROLL_STORAGE_KEY = `porschik_page_scroll:${location.pathname}`;
 const DAY_MS = 86_400_000;
 const chartRangeEndResetPending = new Set(["growth", "norm", "expense"]);
@@ -94,6 +96,7 @@ const state = {
   showGrowthTarget: true,
   showNormTarget: true,
   showNormActual: true,
+  normAxis: readNormChartAxis(),
   showExpenseFood: true,
   showExpenseDelivery: true,
   showExpensePriceKg: true,
@@ -113,6 +116,22 @@ function readChartDateRanges() {
 function persistChartDateRanges() {
   try {
     localStorage.setItem(CHART_DATE_RANGES_STORAGE_KEY, JSON.stringify(state.chartDateRanges));
+  } catch {
+    // A private-browser policy must not prevent chart interaction.
+  }
+}
+
+function readNormChartAxis() {
+  try {
+    return localStorage.getItem(NORM_CHART_AXIS_STORAGE_KEY) === "grams" ? "grams" : "percent";
+  } catch {
+    return "percent";
+  }
+}
+
+function persistNormChartAxis() {
+  try {
+    localStorage.setItem(NORM_CHART_AXIS_STORAGE_KEY, state.normAxis);
   } catch {
     // A private-browser policy must not prevent chart interaction.
   }
@@ -421,14 +440,18 @@ const translations = {
     "mealCount.delete": "Удалить изменение",
     "mealCount.retroactive": "Будут пересчитаны завершённые дни начиная с этой даты.",
     "barf.title": "Норма и фактическое питание",
-    "barf.subtitle": "План до взросления и сколько Поршик фактически съедает в % от веса.",
+    "barf.subtitle": "План до взросления и фактическое питание Поршика.",
     "barf.norm": "Норма",
     "barf.actual": "Фактически съедено",
     "barf.future": "Будущий план",
     "barf.current": "Сейчас",
     "barf.adultStable": "Стабильная взрослая норма",
     "barf.completeDays": "Фактическая линия показывает полностью отмеченные дни, включая сегодняшний.",
+    "barf.axisToggle": "Единицы вертикальной оси",
     "barf.percentAxis": "% от веса",
+    "barf.gramsAxis": "Граммы",
+    "barf.chartAriaPercent": "Норма и фактически съедено в процентах от веса",
+    "barf.chartAriaGrams": "Норма и фактически съедено в граммах",
     "expense.eyebrow": "Расходы на питание",
     "expense.title": "Сколько стоит питание Поршика",
     "expense.subtitle": "Заказы еды, доставка и динамика цены за килограмм в одной истории.",
@@ -674,14 +697,18 @@ const translations = {
     "mealCount.delete": "Delete change",
     "mealCount.retroactive": "Complete days from this date will be recalculated.",
     "barf.title": "Target and actual feeding",
-    "barf.subtitle": "The plan to adulthood and how much Porschik actually eats as a percentage of body weight.",
+    "barf.subtitle": "The plan to adulthood and Porschik's actual food intake.",
     "barf.norm": "Target",
     "barf.actual": "Actually eaten",
     "barf.future": "Future plan",
     "barf.current": "Current",
     "barf.adultStable": "Stable adult target",
     "barf.completeDays": "The actual line shows fully logged days, including today.",
+    "barf.axisToggle": "Vertical axis units",
     "barf.percentAxis": "% of body weight",
+    "barf.gramsAxis": "Grams",
+    "barf.chartAriaPercent": "Target and actual intake as a percentage of body weight",
+    "barf.chartAriaGrams": "Target and actual intake in grams",
     "expense.eyebrow": "Food expenses",
     "expense.title": "What Porschik's food costs",
     "expense.subtitle": "Food orders, delivery and price-per-kilogram trends in one history.",
@@ -1673,7 +1700,7 @@ function handleNormChartPointer(event) {
     drawNormChart();
   }
   tooltip.innerHTML = `<strong class="tooltip-date">${escapeHtml(formatDate(nearest.date))}</strong>
-    <div class="tooltip-grid"><span>${escapeHtml(nearest.kind === "actual" ? t("barf.actual") : t("barf.norm"))}</span><strong>${escapeHtml(formatRatio(nearest.ratio))}</strong></div>`;
+    <div class="tooltip-grid"><span>${escapeHtml(nearest.kind === "actual" ? t("barf.actual") : t("barf.norm"))}</span><strong>${escapeHtml(formatNormChartValue(nearest.value))}</strong></div>`;
   tooltip.hidden = false;
   const tooltipWidth = Math.min(220, wrap.clientWidth - 20);
   let left = nearest.x + 12;
@@ -1692,9 +1719,33 @@ function initNormChartInteraction() {
   canvas.addEventListener("pointerleave", hideNormTooltip);
 }
 
+function syncNormChartAxisToggle() {
+  document.querySelectorAll("[data-norm-axis]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.normAxis === state.normAxis));
+  });
+}
+
+function setNormChartAxis(axis) {
+  state.normAxis = axis === "grams" ? "grams" : "percent";
+  persistNormChartAxis();
+  hideNormTooltip();
+  drawNormChart();
+}
+
+function normChartAxisValue(point) {
+  return state.normAxis === "grams" ? point.grams : point.ratio;
+}
+
+function formatNormChartValue(value) {
+  return state.normAxis === "grams"
+    ? `${formatNumber(Math.round(value))} ${t("unit.g")}`
+    : formatRatio(value);
+}
+
 function drawNormChart() {
   const canvas = document.getElementById("normChart");
   if (!canvas || canvas.getBoundingClientRect().width < 10) return;
+  syncNormChartAxisToggle();
   const rect = canvas.getBoundingClientRect();
   const width = rect.width;
   const height = rect.height;
@@ -1719,42 +1770,64 @@ function drawNormChart() {
   const minTime = Date.parse(`${range.startDate}T00:00:00Z`);
   const maxTime = Math.max(minTime + DAY_MS, Date.parse(`${range.endDate}T00:00:00Z`));
   const xFor = (date) => area.left + ((Date.parse(`${date}T00:00:00Z`) - minTime) / (maxTime - minTime)) * (area.right - area.left);
+  const latestWeight = latestWeightRecord(state.records, range.endDate);
+  const weightForDate = (date) => {
+    const recorded = latestWeightRecord(state.records, date);
+    if (recorded) return Number(recorded.weightKg);
+    if (latestWeight && date > latestWeight.date) return projectedWeightForDate(date, latestWeight, profile);
+    return null;
+  };
   const normPoints = [];
   for (let date = range.startDate; date <= range.endDate; date = addDays(date, 1)) {
-    normPoints.push({ date, ratio: feedingPlanForDate(date, profile).ratio });
+    const ratio = feedingPlanForDate(date, profile).ratio;
+    const weight = weightForDate(date);
+    normPoints.push({
+      date,
+      ratio,
+      grams: Number.isFinite(weight) ? recommendationFor(weight, date, profile).dailyGrams : null
+    });
   }
   const actualPoints = state.records
     .filter((record) => record.date >= range.startDate && record.date <= range.endDate && isDailyIntakeComplete(record, profile))
     .map((record) => {
       const weight = latestWeightRecord(state.records, record.date)?.weightKg;
       const ratioValue = intakeRatioFor(actualDailyGrams(record), weight);
-      return { date: record.date, ratio: ratioValue };
+      return { date: record.date, ratio: ratioValue, grams: actualDailyGrams(record) };
     })
-    .filter((point) => Number.isFinite(point.ratio));
-  const visibleRatios = [
+    .filter((point) => state.normAxis === "grams"
+      ? Number.isFinite(point.grams)
+      : Number.isFinite(point.ratio));
+  const visibleValues = [
     ...(state.showNormTarget ? normPoints : []),
     ...(state.showNormActual ? actualPoints : [])
-  ].map((point) => point.ratio);
-  const yMax = Math.max(0.08, Math.ceil(Math.max(0, ...visibleRatios) * 100) / 100);
+  ].map(normChartAxisValue).filter(Number.isFinite);
+  const maxVisibleValue = Math.max(0, ...visibleValues);
+  const yMax = state.normAxis === "grams"
+    ? Math.max(300, Math.ceil(maxVisibleValue / 100) * 100)
+    : Math.max(0.08, Math.ceil(maxVisibleValue * 100) / 100);
   const yFor = (value) => area.bottom - (value / yMax) * (area.bottom - area.top);
-  const visibleNorms = norms.filter((point) => point.date >= range.startDate && point.date <= range.endDate);
+  const visibleNorms = normPoints.filter((point) => point.date >= range.startDate && point.date <= range.endDate);
   normInteractivePoints = [
     ...(state.showNormTarget ? visibleNorms : []).map((point) => ({
       kind: "norm",
       key: `norm-${point.date}`,
       date: point.date,
       ratio: point.ratio,
+      grams: point.grams,
       x: xFor(point.date),
-      y: yFor(point.ratio)
-    })),
+      value: normChartAxisValue(point),
+      y: yFor(normChartAxisValue(point))
+    })).filter((point) => Number.isFinite(point.value)),
     ...(state.showNormActual ? actualPoints : []).map((point) => ({
       kind: "actual",
       key: `actual-${point.date}`,
       date: point.date,
       ratio: point.ratio,
+      grams: point.grams,
       x: xFor(point.date),
-      y: yFor(point.ratio)
-    }))
+      value: normChartAxisValue(point),
+      y: yFor(normChartAxisValue(point))
+    })).filter((point) => Number.isFinite(point.value))
   ];
 
   ctx.strokeStyle = cssColor("--border");
@@ -1767,11 +1840,15 @@ function drawNormChart() {
     ctx.lineTo(area.right, y);
     ctx.stroke();
     ctx.textAlign = "right";
-    ctx.fillText(`${formatNumber(yMax * 100 * i / 4, 1)}%`, area.left - 7, y + 3);
+    const tickValue = yMax * i / 4;
+    ctx.fillText(state.normAxis === "grams"
+      ? `${formatNumber(Math.round(tickValue))} ${t("unit.g")}`
+      : `${formatNumber(tickValue * 100, 1)}%`, area.left - 7, y + 3);
   }
 
   const drawLine = (points, color, dashed = false, lineWidth = 3) => {
-    if (points.length < 2) return;
+    const drawable = points.filter((point) => Number.isFinite(normChartAxisValue(point)));
+    if (drawable.length < 2) return;
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
@@ -1779,9 +1856,9 @@ function drawNormChart() {
     ctx.lineJoin = "round";
     if (dashed) ctx.setLineDash([6, 5]);
     ctx.beginPath();
-    points.forEach((point, index) => index
-      ? ctx.lineTo(xFor(point.date), yFor(point.ratio))
-      : ctx.moveTo(xFor(point.date), yFor(point.ratio)));
+    drawable.forEach((point, index) => index
+      ? ctx.lineTo(xFor(point.date), yFor(normChartAxisValue(point)))
+      : ctx.moveTo(xFor(point.date), yFor(normChartAxisValue(point))));
     ctx.stroke();
     ctx.restore();
   };
@@ -1795,15 +1872,17 @@ function drawNormChart() {
   if (state.showNormActual) drawLine(actualPoints, cssColor("--blue"), false, 2.5);
 
   for (const point of state.showNormActual ? actualPoints : []) {
+    if (!Number.isFinite(normChartAxisValue(point))) continue;
     ctx.fillStyle = cssColor("--blue");
     ctx.beginPath();
-    ctx.arc(xFor(point.date), yFor(point.ratio), normHoveredKey === `actual-${point.date}` ? 6 : 3.5, 0, Math.PI * 2);
+    ctx.arc(xFor(point.date), yFor(normChartAxisValue(point)), normHoveredKey === `actual-${point.date}` ? 6 : 3.5, 0, Math.PI * 2);
     ctx.fill();
   }
   for (const norm of state.showNormTarget ? visibleNorms : []) {
+    if (!Number.isFinite(normChartAxisValue(norm))) continue;
     ctx.fillStyle = cssColor("--coral");
     ctx.beginPath();
-    ctx.arc(xFor(norm.date), yFor(norm.ratio), normHoveredKey === `norm-${norm.date}` ? 7 : 4.5, 0, Math.PI * 2);
+    ctx.arc(xFor(norm.date), yFor(normChartAxisValue(norm)), normHoveredKey === `norm-${norm.date}` ? 7 : 4.5, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -1855,16 +1934,18 @@ function drawNormChart() {
   ctx.textAlign = "center";
   ctx.translate(13, (area.top + area.bottom) / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText(t("barf.percentAxis"), 0, 0);
+  ctx.fillText(state.normAxis === "grams" ? t("barf.gramsAxis") : t("barf.percentAxis"), 0, 0);
   ctx.restore();
 
-  const average = actualPoints.length
-    ? actualPoints.reduce((sum, point) => sum + point.ratio, 0) / actualPoints.length
+  const averageValues = actualPoints.map(normChartAxisValue).filter(Number.isFinite);
+  const average = averageValues.length
+    ? averageValues.reduce((sum, value) => sum + value, 0) / averageValues.length
     : null;
   const summary = document.getElementById("normTrendSummary");
   if (summary) summary.textContent = average === null
     ? t("barf.completeDays")
-    : `${t("barf.completeDays")} ${state.lang === "ru" ? "Среднее" : "Average"}: ${formatRatio(average)}.`;
+    : `${t("barf.completeDays")} ${state.lang === "ru" ? "Среднее" : "Average"}: ${formatNormChartValue(average)}.`;
+  canvas.setAttribute("aria-label", t(state.normAxis === "grams" ? "barf.chartAriaGrams" : "barf.chartAriaPercent"));
   canvas.dataset.normPoints = String(normPoints.length);
   canvas.dataset.actualPoints = String(actualPoints.length);
   canvas.dataset.currentRatio = String(feedingPlanForDate(today, profile).ratio);
@@ -1872,6 +1953,8 @@ function drawNormChart() {
   canvas.dataset.adultRatio = String(norms.at(-1).ratio);
   canvas.dataset.showTarget = String(state.showNormTarget);
   canvas.dataset.showActual = String(state.showNormActual);
+  canvas.dataset.axis = state.normAxis;
+  canvas.dataset.axisMax = String(yMax);
   canvas.dataset.minDate = range.startDate;
   canvas.dataset.maxDate = range.endDate;
   canvas.dataset.rightGutter = String(rightGutter);
@@ -3773,6 +3856,9 @@ function wireEvents() {
   wireChartToggle("showGrowthTarget", "showGrowthTarget", () => growthChart?.draw());
   wireChartToggle("showNormTarget", "showNormTarget", drawNormChart);
   wireChartToggle("showNormActual", "showNormActual", drawNormChart);
+  document.querySelectorAll("[data-norm-axis]").forEach((button) => {
+    button.addEventListener("click", () => setNormChartAxis(button.dataset.normAxis));
+  });
   wireChartToggle("showExpenseFood", "showExpenseFood", drawExpenseChart);
   wireChartToggle("showExpenseDelivery", "showExpenseDelivery", drawExpenseChart);
   wireChartToggle("showExpensePriceKg", "showExpensePriceKg", drawExpenseChart);

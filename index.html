@@ -119,9 +119,15 @@
           <p class="form-message norm-inline-message" id="normInlineMessage" aria-live="polite"></p>
         </div>
         <div class="norm-chart-side">
-          <div class="norm-chart-legend chart-toggle-legend" aria-label="Серии графика">
-            <label class="legend-toggle"><input id="showNormTarget" type="checkbox" checked><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></label>
-            <label class="legend-toggle"><input id="showNormActual" type="checkbox" checked><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></label>
+          <div class="norm-chart-toolbar">
+            <div class="norm-chart-legend chart-toggle-legend" aria-label="Серии графика">
+              <label class="legend-toggle"><input id="showNormTarget" type="checkbox" checked><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></label>
+              <label class="legend-toggle"><input id="showNormActual" type="checkbox" checked><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></label>
+            </div>
+            <div class="chart-axis-toggle" id="normAxisToggle" role="group" data-i18n-aria="barf.axisToggle" aria-label="Единицы вертикальной оси">
+              <button type="button" data-norm-axis="percent" data-i18n="barf.percentAxis" aria-pressed="true">% от веса</button>
+              <button type="button" data-norm-axis="grams" data-i18n="barf.gramsAxis" aria-pressed="false">Граммы</button>
+            </div>
           </div>
           <div class="chart-date-range" data-chart-range="norm" aria-label="Диапазон дат графика">
             <span class="chart-date-range-label" data-chart-range-label="norm"></span>
@@ -132,7 +138,7 @@
             </div>
           </div>
           <div class="norm-chart-wrap" id="normChartWrap">
-            <canvas class="norm-canvas" id="normChart" role="img" aria-label="Норма и фактически съедено в процентах от веса"></canvas>
+            <canvas class="norm-canvas" id="normChart" role="img" data-i18n-aria="barf.chartAriaPercent" aria-label="Норма и фактически съедено в процентах от веса"></canvas>
             <div class="chart-tooltip norm-chart-tooltip" id="normChartTooltip" role="tooltip" hidden></div>
           </div>
           <p class="norm-trend-summary" id="normTrendSummary" data-i18n="barf.completeDays">Фактическая линия не включает сегодняшний незавершённый день.</p>

@@ -13,6 +13,7 @@ import {
   intakeDifferencePercent,
   intakeRatioFor,
   mealCountPlanForDate,
+  projectedWeightForDate,
   recommendationFor
 } from "../assets/domain.mjs";
 
@@ -105,6 +106,13 @@ test("recommendation is calculated from current weight and phase", () => {
   const adult = recommendationFor(8, "2026-10-28");
   assert.equal(adult.dailyGrams, 240);
   assert.equal(adult.mealGrams, 120);
+});
+
+test("projected weight supports gram-based future feeding targets", () => {
+  const latest = { date: "2026-07-22", weightKg: 8 };
+  assert.equal(projectedWeightForDate("2026-07-22", latest), 8);
+  assert.equal(projectedWeightForDate("2026-10-28", latest), 12);
+  assert.ok(Math.abs(projectedWeightForDate("2026-09-09", latest) - 10) < 1e-12);
 });
 
 test("switching meal count changes only the recommended portion, not the daily target", () => {

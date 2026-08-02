@@ -319,6 +319,26 @@ export function latestWeightRecord(records, onOrBefore = "9999-12-31") {
     .at(-1) || null;
 }
 
+export function projectedWeightForDate(dateIso, latestWeight, profile = DOG_PROFILE) {
+  const currentWeightKg = Number(latestWeight?.weightKg);
+  if (!Number.isFinite(currentWeightKg) || currentWeightKg <= 0) return null;
+  const targetAdultWeightKg = Number(profile.targetAdultWeightKg);
+  const adultDate = addMonths(profile.birthDate, profile.adultAgeMonths);
+  if (
+    !Number.isFinite(targetAdultWeightKg)
+    || targetAdultWeightKg <= 0
+    || currentWeightKg >= targetAdultWeightKg
+    || latestWeight.date >= adultDate
+  ) {
+    return currentWeightKg;
+  }
+  if (dateIso <= latestWeight.date) return currentWeightKg;
+  if (dateIso >= adultDate) return targetAdultWeightKg;
+  const growthDays = Math.max(1, daysBetween(latestWeight.date, adultDate));
+  const progress = daysBetween(latestWeight.date, dateIso) / growthDays;
+  return currentWeightKg + (targetAdultWeightKg - currentWeightKg) * progress;
+}
+
 export function actualMealCount(record) {
   return (record?.meals || []).filter((meal) => !meal.skipped && Number(meal.grams) > 0).length;
 }
