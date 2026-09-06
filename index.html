@@ -105,8 +105,8 @@
       <section class="panel norm-panel" id="normPanel" aria-labelledby="normPanelTitle">
         <div class="norm-panel-copy">
           <span class="eyebrow" data-i18n="barf.current">Сейчас</span>
-          <h2 id="normPanelTitle" data-i18n="barf.title">Норма и фактическое питание</h2>
-          <p data-i18n="barf.subtitle">План до взросления и сколько Поршик фактически съедает в % от веса.</p>
+          <h2 id="normPanelTitle" data-i18n="barf.title">Текущая норма питания</h2>
+          <p data-i18n="barf.subtitle">Настройка нормы и история её изменений.</p>
           <div class="norm-now">
             <strong id="normCurrentRatio">5,4%</strong>
             <span><b id="normCurrentDaily">—</b> <span data-i18n="feeding.daily">в день</span> · <b id="normCurrentMeal">—</b> <span data-i18n="feeding.perMeal">за приём</span></span>
@@ -117,31 +117,6 @@
           </div>
           <ol class="norm-timeline" id="normTimelineList"></ol>
           <p class="form-message norm-inline-message" id="normInlineMessage" aria-live="polite"></p>
-        </div>
-        <div class="norm-chart-side">
-          <div class="norm-chart-toolbar">
-            <div class="norm-chart-legend chart-toggle-legend" aria-label="Серии графика">
-              <label class="legend-toggle"><input id="showNormTarget" type="checkbox" checked><i style="--legend-color: var(--coral)"></i><span data-i18n="barf.norm">Норма</span></label>
-              <label class="legend-toggle"><input id="showNormActual" type="checkbox" checked><i style="--legend-color: var(--blue)"></i><span data-i18n="barf.actual">Фактически съедено</span></label>
-            </div>
-            <div class="chart-axis-toggle" id="normAxisToggle" role="group" data-i18n-aria="barf.axisToggle" aria-label="Единицы вертикальной оси">
-              <button type="button" data-norm-axis="percent" data-i18n="barf.percentAxis" aria-pressed="true">% от веса</button>
-              <button type="button" data-norm-axis="grams" data-i18n="barf.gramsAxis" aria-pressed="false">Граммы</button>
-            </div>
-          </div>
-          <div class="chart-date-range" data-chart-range="norm" aria-label="Диапазон дат графика">
-            <span class="chart-date-range-label" data-chart-range-label="norm"></span>
-            <div class="chart-date-range-track">
-              <span class="chart-date-range-window" data-chart-range-window="norm" aria-hidden="true"></span>
-              <input type="range" data-chart-range-start="norm" aria-label="Начало периода">
-              <input type="range" data-chart-range-end="norm" aria-label="Конец периода">
-            </div>
-          </div>
-          <div class="norm-chart-wrap" id="normChartWrap">
-            <canvas class="norm-canvas" id="normChart" role="img" data-i18n-aria="barf.chartAriaPercent" aria-label="Норма и фактически съедено в процентах от веса"></canvas>
-            <div class="chart-tooltip norm-chart-tooltip" id="normChartTooltip" role="tooltip" hidden></div>
-          </div>
-          <p class="norm-trend-summary" id="normTrendSummary" data-i18n="barf.completeDays">Фактическая линия не включает сегодняшний незавершённый день.</p>
         </div>
       </section>
 

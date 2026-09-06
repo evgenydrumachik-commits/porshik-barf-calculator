@@ -23,9 +23,11 @@ const page = document.body.dataset.page || "dashboard";
 const today = todayInTimezone();
 const CHART_DATE_RANGES_STORAGE_KEY = "porschik_chart_date_ranges";
 const NORM_CHART_AXIS_STORAGE_KEY = "porschik_norm_chart_axis";
+const GROWTH_CHART_AXIS_STORAGE_KEY = "porschik_growth_chart_axis";
+const GROWTH_CHART_VIEW_STORAGE_KEY = "porschik_growth_chart_view";
 const PAGE_SCROLL_STORAGE_KEY = `porschik_page_scroll:${location.pathname}`;
 const DAY_MS = 86_400_000;
-const chartRangeEndResetPending = new Set(["growth", "norm", "expense"]);
+const chartRangeEndResetPending = new Set(["growth", "expense"]);
 let chartRangeSaveTimer = null;
 let chartRangeDrag = null;
 let pendingScrollRestore = null;
@@ -97,6 +99,9 @@ const state = {
   showNormTarget: true,
   showNormActual: true,
   normAxis: readNormChartAxis(),
+  growthAxis: readGrowthChartAxis(),
+  growthView: readGrowthChartView(),
+  growthChartInfoOpen: false,
   showExpenseFood: true,
   showExpenseDelivery: true,
   showExpensePriceKg: true,
@@ -132,6 +137,38 @@ function readNormChartAxis() {
 function persistNormChartAxis() {
   try {
     localStorage.setItem(NORM_CHART_AXIS_STORAGE_KEY, state.normAxis);
+  } catch {
+    // A private-browser policy must not prevent chart interaction.
+  }
+}
+
+function readGrowthChartAxis() {
+  try {
+    return localStorage.getItem(GROWTH_CHART_AXIS_STORAGE_KEY) === "percent" ? "percent" : "grams";
+  } catch {
+    return "grams";
+  }
+}
+
+function persistGrowthChartAxis() {
+  try {
+    localStorage.setItem(GROWTH_CHART_AXIS_STORAGE_KEY, state.growthAxis);
+  } catch {
+    // A private-browser policy must not prevent chart interaction.
+  }
+}
+
+function readGrowthChartView() {
+  try {
+    return localStorage.getItem(GROWTH_CHART_VIEW_STORAGE_KEY) === "lines" ? "lines" : "bars";
+  } catch {
+    return "bars";
+  }
+}
+
+function persistGrowthChartView() {
+  try {
+    localStorage.setItem(GROWTH_CHART_VIEW_STORAGE_KEY, state.growthView);
   } catch {
     // A private-browser policy must not prevent chart interaction.
   }
@@ -192,7 +229,6 @@ function snapDailyChartRangesToActualData() {
     .filter((record) => Number.isFinite(record.weightKg) || record.meals.some((meal) => Number.isFinite(meal.grams)))
     .at(-1)?.date || "";
   snapChartRangeEndToActualData("growth", latestActualDate);
-  snapChartRangeEndToActualData("norm", latestActualDate);
   persistChartDateRanges();
 }
 
@@ -332,19 +368,33 @@ const translations = {
     "stats.meal": "Порция сейчас",
     "chart.title": "Рост и питание Поршика",
     "chart.subtitle": "Синий — вес, составные столбики — съеденное за день по приёмам.",
+    "chart.subtitleBars": "Синий — вес, составные столбики — съеденное за день, оранжевый пунктир — дневная норма.",
+    "chart.subtitleLines": "Синий — вес, коралловая линия — фактически съеденное, оранжевая — дневная норма; фактическая линия только по завершённым дням.",
     "chart.historySubtitle": "Нажмите точку, чтобы отредактировать её данные.",
     "chart.weightSeries": "Вес",
     "chart.foodSeries": "Питание",
     "chart.weightLegend": "Вес, кг",
     "chart.weightLevel": "Вес",
     "chart.foodLevel": "Питание и дневная норма",
+    "chart.foodLevelLines": "Норма и фактическое питание",
     "chart.actualDaily": "Съедено за день",
     "chart.targetDaily": "Дневная норма",
+    "chart.viewToggle": "Вид графика",
+    "chart.barsMode": "Столбики",
+    "chart.linesMode": "Линии",
+    "chart.modeNoteBars": "Столбики показывают записанное питание по приёмам, включая неполный день.",
+    "chart.modeNoteLines": "Фактическая линия показывает полностью отмеченные дни; пунктир — будущая норма.",
+    "chart.axisToggle": "Единицы питания",
+    "chart.infoButton": "Показать объяснение графика",
+    "chart.infoClose": "Закрыть объяснение графика",
     "chart.meal1": "Приём 1",
     "chart.meal2": "Приём 2",
     "chart.meal3": "Приём 3",
     "chart.leftAxis": "Вес, кг",
     "chart.rightAxis": "За день, г",
+    "chart.rightAxisPercent": "% от веса",
+    "chart.growthChartAriaPercent": "График веса и питания с питанием в процентах от веса",
+    "chart.growthChartAriaGrams": "График веса и питания с питанием в граммах",
     "chart.recommended": "Норма за день",
     "action.addWeight": "Добавить вес",
     "action.addFeeding": "Добавить питание",
@@ -439,8 +489,8 @@ const translations = {
     "mealCount.deleteConfirm": "Удалить изменение режима от {date}? Расчёты связанных дней будут обновлены.",
     "mealCount.delete": "Удалить изменение",
     "mealCount.retroactive": "Будут пересчитаны завершённые дни начиная с этой даты.",
-    "barf.title": "Норма и фактическое питание",
-    "barf.subtitle": "План до взросления и фактическое питание Поршика.",
+    "barf.title": "Текущая норма питания",
+    "barf.subtitle": "Настройка нормы и история её изменений.",
     "barf.norm": "Норма",
     "barf.actual": "Фактически съедено",
     "barf.future": "Будущий план",
@@ -452,6 +502,13 @@ const translations = {
     "barf.gramsAxis": "Граммы",
     "barf.chartAriaPercent": "Норма и фактически съедено в процентах от веса",
     "barf.chartAriaGrams": "Норма и фактически съедено в граммах",
+    "barf.chartGuideEyebrow": "График выше",
+    "barf.chartGuideTitle": "Один график — два способа чтения",
+    "barf.chartGuideText": "Переключайте вид рядом с легендой. Переключатель единиц меняет граммы и процент от веса сразу для выбранного вида.",
+    "barf.barsGuideTitle": "Столбики",
+    "barf.barsGuideText": "Показывают состав каждого дня по приёмам, включая неполный день.",
+    "barf.linesGuideTitle": "Линии",
+    "barf.linesGuideText": "Сравнивают норму с фактическим питанием по полностью отмеченным дням.",
     "expense.eyebrow": "Расходы на питание",
     "expense.title": "Сколько стоит питание Поршика",
     "expense.subtitle": "Заказы еды, доставка и динамика цены за килограмм в одной истории.",
@@ -589,19 +646,33 @@ const translations = {
     "stats.meal": "Current portion",
     "chart.title": "Porschik's growth and feeding",
     "chart.subtitle": "Blue shows weight; stacked bars show daily intake by meal.",
+    "chart.subtitleBars": "Blue shows weight; stacked bars show daily intake, and the orange dashed line shows the daily target.",
+    "chart.subtitleLines": "Blue shows weight; the coral line is actual intake and the orange line is the daily target; actual data includes complete days only.",
     "chart.historySubtitle": "Select a point to edit its data.",
     "chart.weightSeries": "Weight",
     "chart.foodSeries": "Feeding",
     "chart.weightLegend": "Weight, kg",
     "chart.weightLevel": "Weight",
     "chart.foodLevel": "Feeding and daily target",
+    "chart.foodLevelLines": "Target and actual feeding",
     "chart.actualDaily": "Eaten per day",
     "chart.targetDaily": "Daily target",
+    "chart.viewToggle": "Chart view",
+    "chart.barsMode": "Bars",
+    "chart.linesMode": "Lines",
+    "chart.modeNoteBars": "Bars show the recorded meals for each day, including incomplete days.",
+    "chart.modeNoteLines": "The actual line shows fully logged days; the dashed segment is the future target.",
+    "chart.axisToggle": "Feeding units",
+    "chart.infoButton": "Show chart explanation",
+    "chart.infoClose": "Close chart explanation",
     "chart.meal1": "Meal 1",
     "chart.meal2": "Meal 2",
     "chart.meal3": "Meal 3",
     "chart.leftAxis": "Weight, kg",
     "chart.rightAxis": "Per day, g",
+    "chart.rightAxisPercent": "% of body weight",
+    "chart.growthChartAriaPercent": "Weight and feeding chart with feeding shown as a percentage of body weight",
+    "chart.growthChartAriaGrams": "Weight and feeding chart with feeding shown in grams",
     "chart.recommended": "Daily target",
     "action.addWeight": "Add weight",
     "action.addFeeding": "Add feeding",
@@ -696,8 +767,8 @@ const translations = {
     "mealCount.deleteConfirm": "Delete the schedule change from {date}? Calculations for related days will be updated.",
     "mealCount.delete": "Delete change",
     "mealCount.retroactive": "Complete days from this date will be recalculated.",
-    "barf.title": "Target and actual feeding",
-    "barf.subtitle": "The plan to adulthood and Porschik's actual food intake.",
+    "barf.title": "Current feeding target",
+    "barf.subtitle": "Edit the target and review its change history.",
     "barf.norm": "Target",
     "barf.actual": "Actually eaten",
     "barf.future": "Future plan",
@@ -709,6 +780,13 @@ const translations = {
     "barf.gramsAxis": "Grams",
     "barf.chartAriaPercent": "Target and actual intake as a percentage of body weight",
     "barf.chartAriaGrams": "Target and actual intake in grams",
+    "barf.chartGuideEyebrow": "Chart above",
+    "barf.chartGuideTitle": "One chart — two ways to read it",
+    "barf.chartGuideText": "Switch the view beside the legend. The units switch changes grams and body-weight percentage for the selected view.",
+    "barf.barsGuideTitle": "Bars",
+    "barf.barsGuideText": "Show each day's meal composition, including incomplete days.",
+    "barf.linesGuideTitle": "Lines",
+    "barf.linesGuideText": "Compare the target with actual intake on fully logged days.",
     "expense.eyebrow": "Food expenses",
     "expense.title": "What Porschik's food costs",
     "expense.subtitle": "Food orders, delivery and price-per-kilogram trends in one history.",
@@ -1269,6 +1347,16 @@ class GrowthChart {
   }
 
   draw(renderHits = true) {
+    syncGrowthChartAxisToggle();
+    syncGrowthChartViewToggle();
+    syncGrowthChartLegend();
+    this.canvas.dataset.axis = state.growthAxis;
+    this.canvas.dataset.mode = state.growthView;
+    this.canvas.setAttribute("aria-label", t(state.growthAxis === "percent" ? "chart.growthChartAriaPercent" : "chart.growthChartAriaGrams"));
+    const subtitle = document.getElementById("growthChartSubtitle");
+    if (subtitle) subtitle.textContent = t(state.growthView === "lines" ? "chart.subtitleLines" : "chart.subtitleBars");
+    const modeNote = document.getElementById("growthChartModeNote");
+    if (modeNote) modeNote.textContent = t(state.growthView === "lines" ? "chart.modeNoteLines" : "chart.modeNoteBars");
     const rect = this.canvas.getBoundingClientRect();
     const width = Math.max(300, rect.width);
     const height = Math.max(300, rect.height);
@@ -1288,16 +1376,25 @@ class GrowthChart {
     const coral = cssColor("--coral");
     const orange = cssColor("--orange");
     const yellow = cssColor("--yellow");
+    const actualColor = coral;
+    const targetColor = orange;
     ctx.fillStyle = surface;
     ctx.fillRect(0, 0, width, height);
 
     const allRecords = this.records || [];
-    const availableStart = allRecords[0]?.date;
-    const availableEnd = [allRecords.at(-1)?.date || today, today].sort().at(-1);
-    const latestActualDate = allRecords.filter((record) => record.meals.length).at(-1)?.date || "";
+    const profile = activeDogProfile();
+    const norms = activeFeedingNorms();
+    const normStart = norms[0]?.date || "";
+    const adultDate = norms.at(-1)?.date || feedingPlanForDate(today, profile).adultDate;
+    const availableStart = [allRecords[0]?.date, normStart].filter(Boolean).sort().at(0);
+    const availableEnd = [allRecords.at(-1)?.date, adultDate, today].filter(Boolean).sort().at(-1);
+    const latestActualDate = allRecords
+      .filter((record) => Number.isFinite(record.weightKg) || record.meals.length)
+      .at(-1)?.date || "";
+    const defaultLineEnd = addDays(today, 3);
     if (!availableStart || !availableEnd) setChartDateRangeUnavailable("growth");
     const range = availableStart && availableEnd
-      ? chartDateRange("growth", availableStart, availableEnd, { ensureEndDate: latestActualDate })
+      ? chartDateRange("growth", availableStart, availableEnd, { ensureEndDate: state.growthView === "lines" ? defaultLineEnd : latestActualDate })
       : null;
     const records = range ? allRecords.filter((record) => record.date >= range.startDate && record.date <= range.endDate) : allRecords;
     this.wrap.classList.toggle("is-empty", records.length === 0);
@@ -1332,13 +1429,66 @@ class GrowthChart {
     const maxWeight = weights.length ? Math.max(minWeight + 1, Math.ceil((Math.max(...weights) + 0.5) * 2) / 2) : 10;
     const yWeight = (value) => weightArea.bottom - ((value - minWeight) / (maxWeight - minWeight)) * (weightArea.bottom - weightArea.top);
 
-    const dailyFoodValues = records.filter((record) => record.meals.length).map((record) => actualDailyGrams(record));
-    const recommendedValues = records.map((record) => {
-      const latest = latestWeightRecord(records, record.date);
-      return recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).dailyGrams;
+    const latestWeight = latestWeightRecord(state.records, range?.endDate || availableEnd);
+    const weightForDate = (date) => {
+      const recorded = latestWeightRecord(state.records, date);
+      if (recorded) return Number(recorded.weightKg);
+      if (latestWeight && date > latestWeight.date) return projectedWeightForDate(date, latestWeight, profile);
+      return null;
+    };
+    const normPoints = range
+      ? Array.from({ length: Math.max(0, Math.round((Date.parse(`${range.endDate}T00:00:00Z`) - Date.parse(`${range.startDate}T00:00:00Z`)) / DAY_MS)) + 1 }, (_, index) => addDays(range.startDate, index))
+        .map((date) => {
+          const plan = feedingPlanForDate(date, profile);
+          const weight = weightForDate(date);
+          return {
+            date,
+            ratio: plan.ratio,
+            grams: Number.isFinite(weight) ? recommendationFor(weight, date, profile).dailyGrams : null
+          };
+        })
+      : [];
+    const targetFeedingPoints = records.map((record) => {
+      const weightKg = weightForDate(record.date);
+      const recommendation = recommendationFor(weightKg || 0, record.date, profile);
+      return {
+        record,
+        x: xFor(Date.parse(`${record.date}T00:00:00Z`)),
+        grams: recommendation.dailyGrams,
+        ratio: recommendation.ratio
+      };
     });
-    const maxFood = Math.max(300, ...dailyFoodValues, ...recommendedValues);
-    const foodTop = Math.ceil(maxFood / 100) * 100;
+    const actualFeedingPoints = records
+      .filter((record) => record.meals.length)
+      .map((record) => {
+        const grams = actualDailyGrams(record);
+        return {
+          record,
+          grams,
+          ratio: intakeRatioFor(grams, weightForDate(record.date))
+        };
+      });
+    const lineActualPoints = records
+      .filter((record) => isDailyIntakeComplete(record, profile))
+      .map((record) => {
+        const grams = actualDailyGrams(record);
+        return {
+          record,
+          date: record.date,
+          grams,
+          ratio: intakeRatioFor(grams, weightForDate(record.date))
+        };
+      });
+    const feedingPointsForScale = state.growthView === "lines"
+      ? [...normPoints, ...lineActualPoints]
+      : [...targetFeedingPoints, ...actualFeedingPoints];
+    const maxFeedingValue = Math.max(
+      0,
+      ...feedingPointsForScale.map(growthChartAxisValue).filter(Number.isFinite)
+    );
+    const foodTop = state.growthAxis === "percent"
+      ? Math.max(0.08, Math.ceil(maxFeedingValue * 100) / 100)
+      : Math.max(300, Math.ceil(maxFeedingValue / 100) * 100);
     const yFood = (value) => foodArea.bottom - (value / foodTop) * (foodArea.bottom - foodArea.top);
 
     ctx.save();
@@ -1362,7 +1512,9 @@ class GrowthChart {
       ctx.lineTo(plot.right, foodY);
       ctx.stroke();
       ctx.textAlign = "right";
-      ctx.fillText(`${formatNumber(fraction * foodTop)} ${t("unit.g")}`, plot.left - 7, foodY);
+      ctx.fillText(state.growthAxis === "percent"
+        ? `${formatNumber(fraction * foodTop * 100, 1)}%`
+        : `${formatNumber(fraction * foodTop)} ${t("unit.g")}`, plot.left - 7, foodY);
     }
 
     ctx.fillStyle = text;
@@ -1370,7 +1522,7 @@ class GrowthChart {
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(t("chart.weightLevel"), plot.left, weightArea.top + 7);
-    ctx.fillText(t("chart.foodLevel"), plot.left, foodArea.top + 7);
+    ctx.fillText(t(state.growthView === "lines" ? "chart.foodLevelLines" : "chart.foodLevel"), plot.left, foodArea.top + 7);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
@@ -1381,17 +1533,59 @@ class GrowthChart {
     }
     ctx.restore();
 
-    if (state.showGrowthTarget) {
-      const targetPoints = records.map((record) => {
-        const latest = latestWeightRecord(records, record.date);
-        return {
-          x: xFor(Date.parse(`${record.date}T00:00:00Z`)),
-          y: yFood(recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile()).dailyGrams)
-        };
-      }).filter((point) => Number.isFinite(point.y));
+    const toLinePoint = (point, lineKind, color) => ({
+      ...point,
+      kind: "feeding-line",
+      lineKind,
+      key: `${lineKind}-${point.date}`,
+      x: xFor(Date.parse(`${point.date}T00:00:00Z`)),
+      y: yFood(growthChartAxisValue(point)),
+      color
+    });
+    const drawFeedingLine = (points, color, dashed = false, lineWidth = 3) => {
+      const drawable = points.filter((point) => Number.isFinite(growthChartAxisValue(point)));
+      if (drawable.length < 2) return;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      if (dashed) ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      drawable.forEach((point, index) => index
+        ? ctx.lineTo(xFor(Date.parse(`${point.date}T00:00:00Z`)), yFood(growthChartAxisValue(point)))
+        : ctx.moveTo(xFor(Date.parse(`${point.date}T00:00:00Z`)), yFood(growthChartAxisValue(point))));
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    if (state.growthView === "lines") {
+      const pastNorm = normPoints.filter((point) => point.date <= today);
+      const futureNorm = normPoints.filter((point) => point.date >= today);
+      if (state.showGrowthTarget) {
+        drawFeedingLine(pastNorm, targetColor);
+        drawFeedingLine(futureNorm, targetColor, true);
+        for (const point of normPoints.filter((item) => Number.isFinite(growthChartAxisValue(item)))) {
+          const linePoint = toLinePoint(point, "norm", targetColor);
+          this.drawMarker(ctx, linePoint, "circle", linePoint.key === this.hoveredKey ? 6 : 3.5);
+          this.points.push(linePoint);
+        }
+      }
+      if (state.showGrowthActual) {
+        drawFeedingLine(lineActualPoints, actualColor, false, 2.5);
+        for (const point of lineActualPoints.filter((item) => Number.isFinite(growthChartAxisValue(item)))) {
+          const linePoint = toLinePoint(point, "actual", actualColor);
+          this.drawMarker(ctx, linePoint, "circle", linePoint.key === this.hoveredKey ? 6 : 4);
+          this.points.push(linePoint);
+        }
+      }
+    } else if (state.showGrowthTarget) {
+      const targetPoints = targetFeedingPoints
+        .map((point) => ({ x: point.x, y: yFood(growthChartAxisValue(point)) }))
+        .filter((point) => Number.isFinite(point.y));
       if (targetPoints.length > 1) {
         ctx.save();
-        ctx.strokeStyle = coral;
+        ctx.strokeStyle = targetColor;
         ctx.globalAlpha = 0.45;
         ctx.lineWidth = 1.5;
         ctx.setLineDash([6, 5]);
@@ -1400,6 +1594,23 @@ class GrowthChart {
         ctx.stroke();
         ctx.restore();
       }
+    }
+
+    if (state.growthView === "lines" && today >= range.startDate && today <= range.endDate) {
+      const todayX = xFor(Date.parse(`${today}T00:00:00Z`));
+      ctx.save();
+      ctx.strokeStyle = colorWithAlpha(muted, 0.65);
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.moveTo(todayX, foodArea.top);
+      ctx.lineTo(todayX, foodArea.bottom);
+      ctx.stroke();
+      ctx.fillStyle = muted;
+      ctx.font = "850 9px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(`${state.lang === "ru" ? "Сегодня" : "Today"}: ${formatDate(today, { day: "numeric", month: "long" })}`, todayX, foodArea.bottom - 5);
+      ctx.restore();
     }
 
     if (state.showGrowthWeight && weights.length) {
@@ -1426,26 +1637,34 @@ class GrowthChart {
       }
     }
 
-    if (state.showGrowthActual) {
+    if (state.showGrowthActual && state.growthView === "bars") {
       const mealColors = [coral, orange, yellow];
       for (const record of records) {
         const meals = record.meals.filter((meal) => !meal.skipped && Number(meal.grams) > 0);
         if (!meals.length) continue;
         const totalGrams = actualDailyGrams(record);
         if (!Number.isFinite(totalGrams) || totalGrams <= 0) continue;
+        const totalRatio = intakeRatioFor(totalGrams, weightForDate(record.date));
+        const totalValue = growthChartAxisValue({ grams: totalGrams, ratio: totalRatio });
+        if (!Number.isFinite(totalValue) || totalValue <= 0) continue;
         const x = xFor(Date.parse(`${record.date}T00:00:00Z`));
-        let accumulatedGrams = 0;
+        let accumulatedValue = 0;
         const segments = meals.map((meal) => {
-          const bottom = yFood(accumulatedGrams);
-          accumulatedGrams += Number(meal.grams);
-          const top = yFood(accumulatedGrams);
+          const grams = Number(meal.grams);
+          const ratio = intakeRatioFor(grams, weightForDate(record.date));
+          const value = growthChartAxisValue({ grams, ratio });
+          const bottom = yFood(accumulatedValue);
+          accumulatedValue += value;
+          const top = yFood(accumulatedValue);
           return {
             kind: "feeding",
             slot: meal.slot,
             key: `meal-${record.date}-${meal.slot}`,
             record,
             totalGrams,
-            grams: Number(meal.grams),
+            totalRatio,
+            grams,
+            ratio,
             x,
             y: (top + bottom) / 2,
             top,
@@ -1456,8 +1675,10 @@ class GrowthChart {
         const bar = {
           record,
           totalGrams,
+          totalRatio,
+          totalValue,
           x,
-          y: yFood(totalGrams),
+          y: yFood(totalValue),
           baseY: foodArea.bottom,
           segments
         };
@@ -1483,15 +1704,40 @@ class GrowthChart {
     ctx.textBaseline = "middle";
     ctx.translate(width < 560 ? 11 : 18, (foodArea.top + foodArea.bottom) / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(t("chart.rightAxis"), 0, 0);
+    ctx.fillText(state.growthAxis === "percent" ? t("chart.rightAxisPercent") : t("chart.rightAxis"), 0, 0);
     ctx.restore();
     this.canvas.dataset.foodAxisSide = "left";
 
     this.canvas.dataset.showWeight = String(state.showGrowthWeight);
     this.canvas.dataset.showActual = String(state.showGrowthActual);
     this.canvas.dataset.showTarget = String(state.showGrowthTarget);
+    this.canvas.dataset.weightColor = blue;
+    this.canvas.dataset.actualColor = actualColor;
+    this.canvas.dataset.targetColor = targetColor;
+    const fullNormPointCount = normStart && adultDate
+      ? Math.max(0, Math.round((Date.parse(`${adultDate}T00:00:00Z`) - Date.parse(`${normStart}T00:00:00Z`)) / DAY_MS)) + 1
+      : normPoints.length;
+    this.canvas.dataset.normPoints = String(fullNormPointCount);
+    this.canvas.dataset.actualPoints = String(lineActualPoints.length);
+    this.canvas.dataset.currentRatio = String(feedingPlanForDate(today, profile).ratio);
+    this.canvas.dataset.adultDate = adultDate;
+    this.canvas.dataset.adultRatio = String(norms.at(-1)?.ratio ?? feedingPlanForDate(adultDate, profile).ratio);
+    this.canvas.dataset.todayLabel = `${state.lang === "ru" ? "Сегодня" : "Today"}: ${formatDate(today, { day: "numeric", month: "long" })}`;
     this.canvas.dataset.minDate = range?.startDate || "";
     this.canvas.dataset.maxDate = range?.endDate || "";
+    if (modeNote) {
+      const averageValues = lineActualPoints.map(growthChartAxisValue).filter(Number.isFinite);
+      const average = averageValues.length
+        ? averageValues.reduce((sum, value) => sum + value, 0) / averageValues.length
+        : null;
+      const baseNote = t(state.growthView === "lines" ? "chart.modeNoteLines" : "chart.modeNoteBars");
+      modeNote.textContent = state.growthView === "lines" && average !== null
+        ? `${baseNote} ${state.lang === "ru" ? "Среднее" : "Average"}: ${formatGrowthChartValue(state.growthAxis === "grams" ? average : null, state.growthAxis === "percent" ? average : null)}.`
+        : baseNote;
+    }
+    const hoverProbe = lineActualPoints.at(-1);
+    this.canvas.dataset.hoverX = hoverProbe ? String(xFor(Date.parse(`${hoverProbe.date}T00:00:00Z`))) : "";
+    this.canvas.dataset.hoverY = hoverProbe ? String(yFood(growthChartAxisValue(hoverProbe))) : "";
     if (renderHits) this.renderHitTargets();
   }
 
@@ -1550,7 +1796,7 @@ class GrowthChart {
     ctx.font = "750 8px Inter, system-ui, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(`${formatNumber(bar.totalGrams)} ${t("unit.g")}`, 0, 0);
+    ctx.fillText(formatGrowthChartValue(bar.totalGrams, bar.totalRatio), 0, 0);
     ctx.restore();
   }
 
@@ -1577,7 +1823,10 @@ class GrowthChart {
     if (point.kind === "weight") {
       return `${formatDate(point.record.date)}: ${t("tooltip.weight")} ${formatNumber(point.record.weightKg, 2)} ${t("unit.kg")}`;
     }
-    return `${formatDate(point.record.date)}: ${t("form.meal", { slot: point.slot })} ${formatNumber(point.grams)} ${t("unit.g")}; ${t("tooltip.total")} ${formatNumber(point.totalGrams)} ${t("unit.g")}`;
+    if (point.kind === "feeding-line") {
+      return `${formatDate(point.date)}: ${t(point.lineKind === "actual" ? "barf.actual" : "barf.norm")} ${formatGrowthChartValue(point.grams, point.ratio)}`;
+    }
+    return `${formatDate(point.record.date)}: ${t("form.meal", { slot: point.slot })} ${formatGrowthChartValue(point.grams, point.ratio)}; ${t("tooltip.total")} ${formatGrowthChartValue(point.totalGrams, point.totalRatio)}`;
   }
 
   nearestPoint(event) {
@@ -1609,28 +1858,43 @@ class GrowthChart {
     const changed = this.hoveredKey !== point.key;
     this.hoveredKey = point.key;
     if (changed) this.draw(false);
+    if (point.kind === "feeding-line") {
+      this.tooltip.innerHTML = `
+        <strong class="tooltip-date">${escapeHtml(formatDate(point.date))}</strong>
+        <div class="tooltip-grid"><span>${escapeHtml(t(point.lineKind === "actual" ? "barf.actual" : "barf.norm"))}</span><strong>${escapeHtml(formatGrowthChartValue(point.grams, point.ratio))}</strong></div>`;
+      this.tooltip.hidden = false;
+      this.positionTooltip(point);
+      return;
+    }
     const record = point.record;
     const previousWeight = state.records.filter((item) => item.date < record.date && Number.isFinite(item.weightKg)).at(-1);
     const change = Number.isFinite(record.weightKg) && previousWeight ? record.weightKg - previousWeight.weightKg : null;
     const changePercent = change !== null ? percentChange(previousWeight.weightKg, record.weightKg) : null;
     const latest = latestWeightRecord(state.records, record.date);
     const recommendation = recommendationFor(latest?.weightKg || 0, record.date, activeDogProfile());
+    const recordWeight = latest?.weightKg;
     const mealRows = record.meals.map((meal) => `
       <span${point.slot === meal.slot ? ` class="is-selected"` : ""}>${point.slot === meal.slot ? "● " : ""}${escapeHtml(t("form.meal", { slot: meal.slot }))}</span>
-      <strong${point.slot === meal.slot ? ` class="is-selected"` : ""}>${meal.skipped ? escapeHtml(t("tooltip.skipped")) : `${formatNumber(meal.grams)} ${escapeHtml(t("unit.g"))}`}</strong>
+      <strong${point.slot === meal.slot ? ` class="is-selected"` : ""}>${meal.skipped ? escapeHtml(t("tooltip.skipped")) : escapeHtml(formatGrowthChartValue(Number(meal.grams), intakeRatioFor(Number(meal.grams), recordWeight)))}</strong>
     `).join("");
+    const actualGrams = actualDailyGrams(record);
+    const actualRatio = intakeRatioFor(actualGrams, recordWeight);
     this.tooltip.innerHTML = `
       <strong class="tooltip-date">${escapeHtml(formatDate(record.date))}</strong>
       <div class="tooltip-grid">
         ${Number.isFinite(record.weightKg) ? `<span>${escapeHtml(t("tooltip.weight"))}</span><strong>${formatNumber(record.weightKg, 2)} ${escapeHtml(t("unit.kg"))}</strong>` : ""}
         ${change !== null ? `<span>${escapeHtml(t("tooltip.change"))}</span><strong>${change > 0 ? "+" : ""}${formatNumber(change, 2)} ${escapeHtml(t("unit.kg"))}<small class="replace-delta">${changePercent > 0 ? "+" : ""}${formatNumber(changePercent, 1)}%</small></strong>` : ""}
         ${mealRows}
-        ${record.meals.length ? `<span>${escapeHtml(t("tooltip.actualMeals"))}</span><strong>${actualMealCount(record)}</strong><span>${escapeHtml(t("tooltip.total"))}</span><strong>${formatNumber(actualDailyGrams(record))} ${escapeHtml(t("unit.g"))}</strong>` : ""}
-        <span>${escapeHtml(t("tooltip.dailyRecommended"))}</span><strong>${formatNumber(Math.round(recommendation.dailyGrams))} ${escapeHtml(t("unit.g"))}</strong>
+        ${record.meals.length ? `<span>${escapeHtml(t("tooltip.actualMeals"))}</span><strong>${actualMealCount(record)}</strong><span>${escapeHtml(t("tooltip.total"))}</span><strong>${escapeHtml(formatGrowthChartValue(actualGrams, actualRatio))}</strong>` : ""}
+        <span>${escapeHtml(t("tooltip.dailyRecommended"))}</span><strong>${escapeHtml(formatGrowthChartValue(recommendation.dailyGrams, recommendation.ratio))}</strong>
       </div>
       ${record.comment ? `<p class="tooltip-comment">${escapeHtml(record.comment)}</p>` : ""}
     `;
     this.tooltip.hidden = false;
+    this.positionTooltip(point);
+  }
+
+  positionTooltip(point) {
     const tooltipWidth = Math.min(300, this.wrap.clientWidth - 24);
     let left = point.x + 14;
     let top = point.y - 30;
@@ -1651,6 +1915,75 @@ class GrowthChart {
 }
 
 let growthChart = null;
+
+function syncGrowthChartViewToggle() {
+  document.querySelectorAll("[data-growth-view]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.growthView === state.growthView));
+  });
+}
+
+function syncGrowthChartLegend() {
+  const actualMark = document.querySelector(".growth-actual-mark");
+  if (actualMark) {
+    actualMark.classList.toggle("bar", state.growthView === "bars");
+    actualMark.classList.toggle("line", state.growthView === "lines");
+  }
+}
+
+function setGrowthChartInfoOpen(open) {
+  const button = document.getElementById("growthChartInfoButton");
+  const popover = document.getElementById("growthChartInfoPopover");
+  if (!button || !popover) return;
+  state.growthChartInfoOpen = Boolean(open);
+  popover.hidden = !state.growthChartInfoOpen;
+  button.setAttribute("aria-expanded", String(state.growthChartInfoOpen));
+  button.classList.toggle("is-open", state.growthChartInfoOpen);
+}
+
+function setGrowthChartView(view) {
+  state.growthView = view === "lines" ? "lines" : "bars";
+  persistGrowthChartView();
+  const savedRange = state.chartDateRanges.growth;
+  const latestActualDate = state.records
+    .filter((record) => Number.isFinite(record.weightKg) || record.meals.some((meal) => Number.isFinite(meal.grams)))
+    .at(-1)?.date || "";
+  const adultDate = activeFeedingNorms().at(-1)?.date || addDays(today, 3);
+  const lineDefaultEnd = [addDays(today, 3), adultDate].sort().at(0);
+  const desiredEnd = state.growthView === "lines" ? lineDefaultEnd : latestActualDate;
+  if (savedRange?.startDate && desiredEnd && savedRange.endDate !== desiredEnd
+    && ((state.growthView === "lines" && savedRange.endDate < desiredEnd)
+      || (state.growthView === "bars" && savedRange.endDate > desiredEnd))) {
+    state.chartDateRanges.growth = {
+      ...savedRange,
+      endDate: desiredEnd
+    };
+    persistChartDateRanges();
+  }
+  growthChart?.hideTooltip();
+  growthChart?.draw();
+}
+
+function syncGrowthChartAxisToggle() {
+  document.querySelectorAll("[data-growth-axis]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.growthAxis === state.growthAxis));
+  });
+}
+
+function setGrowthChartAxis(axis) {
+  state.growthAxis = axis === "percent" ? "percent" : "grams";
+  persistGrowthChartAxis();
+  growthChart?.hideTooltip();
+  growthChart?.draw();
+}
+
+function growthChartAxisValue(point) {
+  return state.growthAxis === "percent" ? point.ratio : point.grams;
+}
+
+function formatGrowthChartValue(grams, ratio) {
+  if (state.growthAxis === "percent") return Number.isFinite(ratio) ? formatRatio(ratio) : "—";
+  return Number.isFinite(grams) ? `${formatNumber(Math.round(grams))} ${t("unit.g")}` : "—";
+}
 
 function initGrowthChart() {
   const canvas = document.getElementById("growthChart");
@@ -2835,7 +3168,6 @@ async function deleteExpenseInlineEditor() {
 function renderAll() {
   updateDerivedUI();
   growthChart?.setData(state.records);
-  drawNormChart();
   renderExpenses();
   renderHistoryTable();
 }
@@ -3787,7 +4119,6 @@ function wireEvents() {
     state.theme = state.theme === "dark" ? "light" : "dark";
     applyTheme();
     growthChart?.draw();
-    drawNormChart();
     drawExpenseChart();
   });
   document.getElementById("loginButton")?.addEventListener("click", openAuthDialog);
@@ -3854,10 +4185,25 @@ function wireEvents() {
   wireChartToggle("showGrowthWeight", "showGrowthWeight", () => growthChart?.draw());
   wireChartToggle("showGrowthActual", "showGrowthActual", () => growthChart?.draw());
   wireChartToggle("showGrowthTarget", "showGrowthTarget", () => growthChart?.draw());
-  wireChartToggle("showNormTarget", "showNormTarget", drawNormChart);
-  wireChartToggle("showNormActual", "showNormActual", drawNormChart);
-  document.querySelectorAll("[data-norm-axis]").forEach((button) => {
-    button.addEventListener("click", () => setNormChartAxis(button.dataset.normAxis));
+  document.querySelectorAll("[data-growth-view]").forEach((button) => {
+    button.addEventListener("click", () => setGrowthChartView(button.dataset.growthView));
+  });
+  document.querySelectorAll("[data-growth-axis]").forEach((button) => {
+    button.addEventListener("click", () => setGrowthChartAxis(button.dataset.growthAxis));
+  });
+  document.getElementById("growthChartInfoButton")?.addEventListener("click", () => {
+    setGrowthChartInfoOpen(!state.growthChartInfoOpen);
+  });
+  document.getElementById("growthChartInfoClose")?.addEventListener("click", () => setGrowthChartInfoOpen(false));
+  document.addEventListener("pointerdown", (event) => {
+    if (!state.growthChartInfoOpen || event.target.closest?.("#growthChartInfoButton, #growthChartInfoPopover")) return;
+    setGrowthChartInfoOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (state.growthChartInfoOpen && event.key === "Escape") {
+      event.preventDefault();
+      setGrowthChartInfoOpen(false);
+    }
   });
   wireChartToggle("showExpenseFood", "showExpenseFood", drawExpenseChart);
   wireChartToggle("showExpenseDelivery", "showExpenseDelivery", drawExpenseChart);
@@ -3941,7 +4287,7 @@ function wireEvents() {
     const point = nearestExpensePoint(event);
     if (point) showExpenseTooltip(point);
   });
-  addEventListener("resize", () => { drawNormChart(); drawExpenseChart(); });
+  addEventListener("resize", () => { growthChart?.draw(); drawExpenseChart(); });
   document.querySelectorAll("dialog").forEach((dialog) => dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   }));
@@ -3983,7 +4329,6 @@ async function init() {
   mountGrowthChartPanel();
   applyTheme();
   initGrowthChart();
-  initNormChartInteraction();
   wireEvents();
   applyTranslations();
   setRecordTab("weight");

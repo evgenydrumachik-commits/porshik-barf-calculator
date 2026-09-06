@@ -104,43 +104,105 @@ const desktop = await evaluate(`(() => ({
   avatarWidth: Math.round(document.querySelector('.brand-avatar').getBoundingClientRect().width),
   commentInputs: document.querySelectorAll('#weightComment, #feedingComment').length
 }))()`);
-await waitFor("Number(document.querySelector('#normChart')?.dataset.normPoints) > 100");
+const chartInfoInitial = await evaluate(`(() => ({
+  buttonExpanded: document.querySelector('#growthChartInfoButton')?.getAttribute('aria-expanded'),
+  popoverHidden: document.querySelector('#growthChartInfoPopover')?.hidden,
+  guideInNormPanel: Boolean(document.querySelector('.norm-panel-guide'))
+}))()`);
+await evaluate("document.querySelector('#growthChartInfoButton')?.click()");
+await waitFor("document.querySelector('#growthChartInfoPopover') && !document.querySelector('#growthChartInfoPopover').hidden");
+const chartInfoOpen = await evaluate(`({
+  buttonExpanded: document.querySelector('#growthChartInfoButton')?.getAttribute('aria-expanded'),
+  popoverHidden: document.querySelector('#growthChartInfoPopover')?.hidden,
+  title: document.querySelector('#growthChartInfoTitle')?.textContent.trim(),
+  options: document.querySelectorAll('#growthChartInfoPopover .chart-info-options article').length
+})`);
+await evaluate("document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))");
+await waitFor("document.querySelector('#growthChartInfoPopover')?.hidden");
+const chartInfoEscape = await evaluate(`({
+  buttonExpanded: document.querySelector('#growthChartInfoButton')?.getAttribute('aria-expanded'),
+  popoverHidden: document.querySelector('#growthChartInfoPopover')?.hidden
+})`);
+await evaluate("document.querySelector('#growthChartInfoButton')?.click()");
+await waitFor("document.querySelector('#growthChartInfoPopover') && !document.querySelector('#growthChartInfoPopover').hidden");
+await evaluate("document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))");
+await waitFor("document.querySelector('#growthChartInfoPopover')?.hidden");
+const chartInfoOutside = await evaluate(`({
+  buttonExpanded: document.querySelector('#growthChartInfoButton')?.getAttribute('aria-expanded'),
+  popoverHidden: document.querySelector('#growthChartInfoPopover')?.hidden
+})`);
+await waitFor("Number(document.querySelector('#growthChart')?.dataset.normPoints) > 100");
+await evaluate("document.querySelector('[data-growth-view=lines]')?.click()");
+await waitFor("document.querySelector('#growthChart')?.dataset.mode === 'lines'");
+const lineSeriesColors = await evaluate(`(() => {
+  const chart = document.querySelector('#growthChart');
+  const actualMark = document.querySelector('.growth-actual-mark');
+  const targetMark = document.querySelector('.growth-target-mark');
+  const actualInput = document.querySelector('#showGrowthActual');
+  const targetInput = document.querySelector('#showGrowthTarget');
+  const resolveVariable = (name) => {
+    const probe = document.createElement('span');
+    probe.style.color = 'var(' + name + ')';
+    document.body.append(probe);
+    const value = getComputedStyle(probe).color;
+    probe.remove();
+    return value;
+  };
+  const actualAccent = getComputedStyle(actualInput).accentColor;
+  const targetAccent = getComputedStyle(targetInput).accentColor;
+  return {
+    weight: chart.dataset.weightColor,
+    actual: chart.dataset.actualColor,
+    target: chart.dataset.targetColor,
+    distinct: new Set([chart.dataset.weightColor, chart.dataset.actualColor, chart.dataset.targetColor]).size === 3,
+    actualMarkIsLine: actualMark?.classList.contains('line') && !actualMark?.classList.contains('bar'),
+    targetMarkIsDashed: targetMark?.classList.contains('target'),
+    actualMarkColor: getComputedStyle(actualMark).backgroundColor,
+    targetMarkColor: getComputedStyle(targetMark).backgroundImage,
+    actualInputAccent: actualAccent,
+    targetInputAccent: targetAccent,
+    actualAccentMatches: actualAccent === resolveVariable('--coral'),
+    targetAccentMatches: targetAccent === resolveVariable('--orange')
+  };
+})()`);
 const normChart = await evaluate(`({
-  normPoints: Number(document.querySelector('#normChart').dataset.normPoints),
-  actualPoints: Number(document.querySelector('#normChart').dataset.actualPoints),
-  currentRatio: document.querySelector('#normChart').dataset.currentRatio,
-  adultDate: document.querySelector('#normChart').dataset.adultDate,
-  adultRatio: document.querySelector('#normChart').dataset.adultRatio,
-  todayLabel: document.querySelector('#normChart').dataset.todayLabel,
+  normPoints: Number(document.querySelector('#growthChart').dataset.normPoints),
+  actualPoints: Number(document.querySelector('#growthChart').dataset.actualPoints),
+  currentRatio: document.querySelector('#growthChart').dataset.currentRatio,
+  adultDate: document.querySelector('#growthChart').dataset.adultDate,
+  adultRatio: document.querySelector('#growthChart').dataset.adultRatio,
+  todayLabel: document.querySelector('#growthChart').dataset.todayLabel,
   timelinePoints: document.querySelectorAll('#normTimelineList li').length,
   timelineDates: [...document.querySelectorAll('#normTimelineList .norm-timeline-summary > span:first-child')].map((element) => element.textContent.trim()),
   timelineText: document.querySelector('#normTimelineList')?.textContent,
   dailyRatio: document.querySelector('#dailyRecommendationRatio')?.textContent
 })`);
 const normHover = await evaluate(`(() => {
-  const canvas = document.querySelector('#normChart');
+  const canvas = document.querySelector('#growthChart');
   const rect = canvas.getBoundingClientRect();
   canvas.dispatchEvent(new PointerEvent('pointermove', {
     bubbles: true,
     clientX: rect.left + Number(canvas.dataset.hoverX),
     clientY: rect.top + Number(canvas.dataset.hoverY)
   }));
-  const tooltip = document.querySelector('#normChartTooltip');
+  const tooltip = document.querySelector('#growthChartTooltip');
   return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
 })()`);
 const normClick = await evaluate(`(() => {
-  const canvas = document.querySelector('#normChart');
+  const canvas = document.querySelector('#growthChart');
   const rect = canvas.getBoundingClientRect();
   canvas.dispatchEvent(new PointerEvent('click', {
     bubbles: true,
     clientX: rect.left + Number(canvas.dataset.hoverX),
     clientY: rect.top + Number(canvas.dataset.hoverY)
   }));
-  const tooltip = document.querySelector('#normChartTooltip');
+  const tooltip = document.querySelector('#growthChartTooltip');
   return { visible: !tooltip.hidden, text: tooltip.textContent.trim() };
 })()`);
+await evaluate("document.querySelector('[data-growth-view=bars]')?.click()");
+await waitFor("document.querySelector('#growthChart')?.dataset.mode === 'bars'");
 const legendToggles = await evaluate(`(() => {
-  const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showNormTarget', 'showNormActual', 'showExpenseFood', 'showExpenseDelivery', 'showExpensePriceKg'];
+  const ids = ['showGrowthWeight', 'showGrowthActual', 'showGrowthTarget', 'showExpenseFood', 'showExpenseDelivery', 'showExpensePriceKg'];
   for (const id of ids) {
     const input = document.getElementById(id);
     input.checked = false;
@@ -148,7 +210,6 @@ const legendToggles = await evaluate(`(() => {
   }
   const hidden = {
     growth: [document.querySelector('#growthChart').dataset.showWeight, document.querySelector('#growthChart').dataset.showActual, document.querySelector('#growthChart').dataset.showTarget],
-    norm: [document.querySelector('#normChart').dataset.showTarget, document.querySelector('#normChart').dataset.showActual],
     expense: [document.querySelector('#expenseChart').dataset.showFood, document.querySelector('#expenseChart').dataset.showDelivery, document.querySelector('#expenseChart').dataset.showPriceKg]
   };
   for (const id of ids) {
@@ -479,17 +540,19 @@ await command("Emulation.setDeviceMetricsOverride", {
   mobile: false
 });
 await navigate(appUrl);
-await waitFor("Number(document.querySelector('#normChart')?.dataset.actualPoints) > 0");
+await evaluate("document.querySelector('[data-growth-view=lines]')?.click()");
+await waitFor("document.querySelector('#growthChart')?.dataset.mode === 'lines' && Number(document.querySelector('#growthChart')?.dataset.actualPoints) > 0");
 const normActualLine = await evaluate(`({
-  points: Number(document.querySelector('#normChart').dataset.actualPoints),
-  summary: document.querySelector('#normTrendSummary')?.textContent.trim()
+  points: Number(document.querySelector('#growthChart').dataset.actualPoints),
+  summary: document.querySelector('#growthChartModeNote')?.textContent.trim()
 })`);
 await screenshot("/tmp/porschik-cdp-barf-after-flows.png");
 
-const report = { desktop, normChart, normHover, normClick, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, mealCountInitial, mealCountPreview, quickManualTwoMeals, savedMealCountChanges, manualTwoMeals, manualThreeMeals, feedingFormNoComment, feedingTooltip, pointClick, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
+const report = { desktop, chartInfoInitial, chartInfoOpen, chartInfoEscape, chartInfoOutside, lineSeriesColors, normChart, normHover, normClick, legendToggles, normEditor, normAdd, savedNorms, normActualLine, puppyMeals, adultMeals, mealCountInitial, mealCountPreview, quickManualTwoMeals, savedMealCountChanges, manualTwoMeals, manualThreeMeals, feedingFormNoComment, feedingTooltip, pointClick, replacementPreview, deleteWeightVisible, photoSaved, customPhotoLoaded, historyDesktop, inlineCancelledWeight, inlineSavedWeight, inlineDraft, historyAfterDraft, backupExport, automaticBackups, backupRestored, mobile, historyMobile, browserErrors };
 console.log(JSON.stringify(report, null, 2));
 
 if (desktop.overflow > 0 || mobile.overflow > 0 || historyMobile.overflow > 0) process.exitCode = 1;
+if (chartInfoInitial.buttonExpanded !== "false" || !chartInfoInitial.popoverHidden || chartInfoInitial.guideInNormPanel || chartInfoOpen.buttonExpanded !== "true" || chartInfoOpen.popoverHidden || chartInfoOpen.options !== 2 || chartInfoEscape.buttonExpanded !== "false" || !chartInfoEscape.popoverHidden || chartInfoOutside.buttonExpanded !== "false" || !chartInfoOutside.popoverHidden) process.exitCode = 1;
 if (desktop.tableOnHome || desktop.commentInputs || feedingFormNoComment.commentField || puppyMeals !== 3 || adultMeals !== 2 || pointClick.recordDialogOpen || !pointClick.tooltip) process.exitCode = 1;
 if (mealCountInitial.count !== "3" || !mealCountInitial.source?.includes("возраст") || !mealCountInitial.editVisible) process.exitCode = 1;
 if (!mealCountPreview.text?.includes("3 → 2") || mealCountPreview.history !== 0) process.exitCode = 1;
@@ -498,16 +561,17 @@ if (savedMealCountChanges.length !== 2 || savedMealCountChanges[0]?.mealsPerDay 
 if (manualTwoMeals !== 2 || manualThreeMeals !== 3) process.exitCode = 1;
 if (!desktop.pawDecoration?.includes("🐾") || desktop.avatarWidth < 80) process.exitCode = 1;
 if (desktop.foodSegments < 20 || !desktop.chartSubtitle?.includes("составные столбики")) process.exitCode = 1;
+if (!lineSeriesColors.distinct || !lineSeriesColors.actualMarkIsLine || !lineSeriesColors.targetMarkIsDashed || !lineSeriesColors.actualAccentMatches || !lineSeriesColors.targetAccentMatches) process.exitCode = 1;
 if (normChart.normPoints < 100 || normChart.actualPoints < 1 || normChart.currentRatio !== "0.054" || normChart.adultDate !== "2026-10-28" || normChart.adultRatio !== "0.03" || normChart.timelinePoints !== 4) process.exitCode = 1;
 if (normChart.timelineDates.join(",") !== "28 окт.,22 июл.,01 июл.,01 мая") process.exitCode = 1;
 if (!normChart.todayLabel?.includes("22 июля") || !normChart.timelineText?.includes("4мес 24дн") || !normChart.dailyRatio?.includes("5,4%")) process.exitCode = 1;
 if (!normHover.visible || !normHover.text.includes("Фактически съедено") || !normClick.visible || !normClick.text.includes("Фактически съедено") || !feedingTooltip?.includes("Всего")) process.exitCode = 1;
-if (legendToggles.count !== 8 || Object.values(legendToggles.hidden).flat().some((value) => value !== "false")) process.exitCode = 1;
+if (legendToggles.count !== 6 || Object.values(legendToggles.hidden).flat().some((value) => value !== "false")) process.exitCode = 1;
 if (normEditor.timelineRows !== 4 || normEditor.editButtons !== 3 || normEditor.deleteButtons !== 3 || normEditor.date !== "2026-10-28" || normEditor.percent !== "3.0" || normEditor.dialogPresent) process.exitCode = 1;
 if (normEditor.actionText.some(Boolean) || !normEditor.tooltips.includes("Изменить") || !normEditor.tooltips.includes("Удалить")) process.exitCode = 1;
 if (normAdd.timelineRows !== 5 || !normAdd.firstIsEditor || !normAdd.animated || normAdd.editorAnimationName !== "norm-row-in" || normAdd.editorAnimationMs < 500 || normAdd.shiftedRows !== 4 || !normAdd.date || !normAdd.percent) process.exitCode = 1;
 if (savedNorms.length !== 4 || savedNorms[1]?.date !== "2026-07-01" || savedNorms[1]?.interpolation !== "step" || savedNorms[2]?.ratio !== 0.054) process.exitCode = 1;
-if (normActualLine.points < 1 || !normActualLine.summary.includes("Среднее")) process.exitCode = 1;
+if (normActualLine.points < 1 || !normActualLine.summary.includes("Фактическая линия")) process.exitCode = 1;
 if (!replacementPreview.after?.includes("8,1 кг") || !replacementPreview.preserved?.includes("питание")) process.exitCode = 1;
 if (!deleteWeightVisible || !photoSaved || !customPhotoLoaded) process.exitCode = 1;
 if (!historyDesktop.rows || historyDesktop.rows !== historyDesktop.cards || !historyDesktop.tableVisible) process.exitCode = 1;

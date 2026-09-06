@@ -1,0 +1,847 @@
+{
+  "vercel.json": {
+    "mtime": 1782674351.9814541,
+    "ast_hash": "f56f69b2c981d3c9e31d73214b50ce1d",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1784729829.1553838,
+    "ast_hash": "68434c41f749d60de5019667b618ef88",
+    "semantic_hash": ""
+  },
+  "staticwebapp.config.json": {
+    "mtime": 1782836514.03594,
+    "ast_hash": "5e9a72f876c8eb583697c1c2e0d22cd7",
+    "semantic_hash": ""
+  },
+  "api/_users.js": {
+    "mtime": 1784729803.018165,
+    "ast_hash": "fb0d14e8fbf9ba07dd8fdf1eae79d8ca",
+    "semantic_hash": ""
+  },
+  "api/users.js": {
+    "mtime": 1782674351.9811907,
+    "ast_hash": "94f3c8013637de673d9a8cabe0c2c9e7",
+    "semantic_hash": ""
+  },
+  "api/config.js": {
+    "mtime": 1782659752.0243359,
+    "ast_hash": "6fb6565945f87ce28bbf9e0f120b2579",
+    "semantic_hash": ""
+  },
+  "api/weights.js": {
+    "mtime": 1785093701.7085888,
+    "ast_hash": "5052e8699b672348c5394b7ed92e3725",
+    "semantic_hash": ""
+  },
+  "api/_weights.js": {
+    "mtime": 1784729751.9054554,
+    "ast_hash": "b0d348c88bcd65d882bbfaaf99d8b289",
+    "semantic_hash": ""
+  },
+  "api/_auth.js": {
+    "mtime": 1784730016.7733579,
+    "ast_hash": "bb2084cec1588d20d13970d0ac0929ec",
+    "semantic_hash": ""
+  },
+  "api/auth/logout.js": {
+    "mtime": 1784655700.4100626,
+    "ast_hash": "9129fbbb44608597c229678a63fd018b",
+    "semantic_hash": ""
+  },
+  "api/auth/verify.js": {
+    "mtime": 1784655699.952485,
+    "ast_hash": "ce18f3c4ae17428c67e557bef1aab23c",
+    "semantic_hash": ""
+  },
+  "api/auth/status.js": {
+    "mtime": 1784655700.1979642,
+    "ast_hash": "1ed9649f67a948a8170f3cf2e82a4644",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1785652993.0544245,
+    "ast_hash": "e96900f1bd193b57d0a5638240932cfc",
+    "semantic_hash": ""
+  },
+  "admin.html": {
+    "mtime": 1784376345.4084733,
+    "ast_hash": "4fde65f3e097e7ca0845e4e2045bd0a3",
+    "semantic_hash": ""
+  },
+  "assets/porschik.jpg": {
+    "mtime": 1782674949.8546493,
+    "ast_hash": "4fba62d015589f7ac6476670a053f03a",
+    "semantic_hash": ""
+  },
+  ".codex/hooks.json": {
+    "mtime": 1783095593.8196647,
+    "ast_hash": "26408502a648cc0d03a441e85a92d5d8",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1783095593.8148844,
+    "ast_hash": "62c05a2bf20bf036a0b2633478663e64",
+    "semantic_hash": ""
+  },
+  "output/playwright/porschik-weight-page.png": {
+    "mtime": 1783095725.6514719,
+    "ast_hash": "bf0c9e4c4c9ec21f615fa3d6fa6314ab",
+    "semantic_hash": ""
+  },
+  "output/playwright/porschik-weight-page-full.png": {
+    "mtime": 1783095799.596476,
+    "ast_hash": "546aca534082163016d8a35d4ecde9b3",
+    "semantic_hash": ""
+  },
+  "output/playwright/prod-porschik-after-deploy.png": {
+    "mtime": 1783101980.593656,
+    "ast_hash": "7cbe39ad386edf5d6e84bc2d58d0dd8d",
+    "semantic_hash": ""
+  },
+  "output/playwright/prod-porschik-snapshot-storage.png": {
+    "mtime": 1783102488.8424728,
+    "ast_hash": "039762d6cd8b8435e0433c30db133e48",
+    "semantic_hash": ""
+  },
+  "output/playwright/prod-weight-percent-hover.png": {
+    "mtime": 1783102736.7079713,
+    "ast_hash": "7ddc39440e944475b2d06249ea825296",
+    "semantic_hash": ""
+  },
+  "test-results/.last-run.json": {
+    "mtime": 1783102805.4822392,
+    "ast_hash": "ff6d5dab1dfd50cea584142bc288ce9e",
+    "semantic_hash": ""
+  },
+  "output/playwright/dark-percent-prod.png": {
+    "mtime": 1783103354.6691241,
+    "ast_hash": "40e955ffdeebdff21a4755fc85d3602e",
+    "semantic_hash": ""
+  },
+  "sites-app/next.config.mjs": {
+    "mtime": 1783751302.894133,
+    "ast_hash": "a91fb4cafea4b515ad0460727e08dafd",
+    "semantic_hash": ""
+  },
+  "sites-app/package.json": {
+    "mtime": 1783752077.542724,
+    "ast_hash": "4052cc742a88b756a4927e87a71ff730",
+    "semantic_hash": ""
+  },
+  "sites-app/app/route.js": {
+    "mtime": 1783752481.7190332,
+    "ast_hash": "7bf7c83e64106d3d0f2e271af64d818d",
+    "semantic_hash": ""
+  },
+  "sites-app/app/api/[...path]/route.js": {
+    "mtime": 1783752481.7193696,
+    "ast_hash": "481ceddfefb7988654144f6cf6a547fb",
+    "semantic_hash": ""
+  },
+  "sites-app/.openai/hosting.json": {
+    "mtime": 1783751124.3541632,
+    "ast_hash": "818ca2075e11bb95d60a953fda8495d0",
+    "semantic_hash": ""
+  },
+  "output/playwright/prod-backup-ui.png": {
+    "mtime": 1783104106.7620902,
+    "ast_hash": "b4e3f97e1c555f0c466a1fb6bed22cb2",
+    "semantic_hash": ""
+  },
+  "sites-app/index.html": {
+    "mtime": 1783751168.609011,
+    "ast_hash": "cbd7beb20b6597956f8d3865b676137c",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/_users.js": {
+    "mtime": 1783751767.7101767,
+    "ast_hash": "93ebc0def4e575465e6f94d94c159d21",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/users.js": {
+    "mtime": 1783751201.3913589,
+    "ast_hash": "94f3c8013637de673d9a8cabe0c2c9e7",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/config.js": {
+    "mtime": 1783751201.3902848,
+    "ast_hash": "6fb6565945f87ce28bbf9e0f120b2579",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/weights.js": {
+    "mtime": 1783751201.3920846,
+    "ast_hash": "5da9cc7b80428327608b5f6cdbb68177",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/_weights.js": {
+    "mtime": 1783751767.7094293,
+    "ast_hash": "62e2eb8f28a9bce65c1a39f4e0bdebf8",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/_auth.js": {
+    "mtime": 1783751201.3876956,
+    "ast_hash": "37a628fac8c667a25a9287bb5d23ad5f",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/auth/logout.js": {
+    "mtime": 1783751201.396592,
+    "ast_hash": "24a0c04d608057cdee1ef4116d6cb61d",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/auth/verify.js": {
+    "mtime": 1783751201.3981595,
+    "ast_hash": "211c409cdebb57f77227910aefeabc5d",
+    "semantic_hash": ""
+  },
+  "sites-app/legacy-api/auth/status.js": {
+    "mtime": 1783751201.3974614,
+    "ast_hash": "2850a43ec1c60e7ca74e33517eee99d1",
+    "semantic_hash": ""
+  },
+  "sites-app/public/assets/porschik.jpg": {
+    "mtime": 1783751308.396225,
+    "ast_hash": "4fba62d015589f7ac6476670a053f03a",
+    "semantic_hash": ""
+  },
+  "sites-app/vite.config.ts": {
+    "mtime": 1783751687.143051,
+    "ast_hash": "60fb46cd36cf08f2e73cb8c48bb5dc5a",
+    "semantic_hash": ""
+  },
+  "sites-app/next-env.d.ts": {
+    "mtime": 1783751736.6582322,
+    "ast_hash": "2a74d3909800ca5467fa83b0ab4a4890",
+    "semantic_hash": ""
+  },
+  "tests/domain.test.mjs": {
+    "mtime": 1785652993.885565,
+    "ast_hash": "c47b8b1d4a82c0fb4a67d19496f68d6d",
+    "semantic_hash": ""
+  },
+  "assets/domain.mjs": {
+    "mtime": 1785652992.232176,
+    "ast_hash": "a7ad07adf4b84f35de4515bcec5c3200",
+    "semantic_hash": ""
+  },
+  "FRONTEND_REDESIGN_TASK.md": {
+    "mtime": 1785266802.3176665,
+    "ast_hash": "30fc2cac3f0e145b40d9f90520cbaa39",
+    "semantic_hash": ""
+  },
+  "tests/api-records.test.mjs": {
+    "mtime": 1784375292.7713697,
+    "ast_hash": "f0d01254d1bfeae476ddbae69f722640",
+    "semantic_hash": ""
+  },
+  "assets/app.mjs": {
+    "mtime": 1785668120.1320508,
+    "ast_hash": "0a2c6e2551c8dbd90fcb3fd84fdb844a",
+    "semantic_hash": ""
+  },
+  "history.html": {
+    "mtime": 1785093702.2231638,
+    "ast_hash": "5baf5504c98ca1bac68729b825a6e290",
+    "semantic_hash": ""
+  },
+  "tests/dev-server.mjs": {
+    "mtime": 1785266379.8613865,
+    "ast_hash": "a7e08a15f84637dde87017e5cfe4eec4",
+    "semantic_hash": ""
+  },
+  "tests/browser-smoke.mjs": {
+    "mtime": 1785267650.005053,
+    "ast_hash": "4ac160ceafcf5b81a0ec0a62c0b3e1af",
+    "semantic_hash": ""
+  },
+  "api/profile.js": {
+    "mtime": 1784386440.2098165,
+    "ast_hash": "9c8dad4681f0667c51cf1deaa3bdf818",
+    "semantic_hash": ""
+  },
+  "api/_profile.js": {
+    "mtime": 1785266374.3367255,
+    "ast_hash": "0c1053cc5dd3b3d0b2e9ef7953bbf2ff",
+    "semantic_hash": ""
+  },
+  "tests/profile.test.mjs": {
+    "mtime": 1785266693.7124782,
+    "ast_hash": "dbbe72b2dcf39ad6c963c4b783a5d685",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1785266802.0699756,
+    "ast_hash": "e3280f3e487bbf8091671ff03690d381",
+    "semantic_hash": ""
+  },
+  "tests/auth.test.mjs": {
+    "mtime": 1784655713.443419,
+    "ast_hash": "9a59279845e5d156cb1d083e94225f03",
+    "semantic_hash": ""
+  },
+  "output/playwright/norm-timeline-actual.png": {
+    "mtime": 1784877176.250876,
+    "ast_hash": "438f0617c11e2647e4d214639c1497f3",
+    "semantic_hash": ""
+  },
+  "output/playwright/growth-daily-bars-hover.png": {
+    "mtime": 1784877176.237649,
+    "ast_hash": "ce6065528e984ca560ad864b7054bad5",
+    "semantic_hash": ""
+  },
+  "tests/dev-state.mjs": {
+    "mtime": 1784712146.928256,
+    "ast_hash": "56e064aee098421cce3079cb9afaed2f",
+    "semantic_hash": ""
+  },
+  "tests/dev-state.test.mjs": {
+    "mtime": 1785266709.566658,
+    "ast_hash": "474df4c7c216bc8e94f26d72b8783769",
+    "semantic_hash": ""
+  },
+  "tests/expenses.test.mjs": {
+    "mtime": 1784712116.806133,
+    "ast_hash": "1220afda3b691dae05fd0542829fd956",
+    "semantic_hash": ""
+  },
+  "api/_expenses.js": {
+    "mtime": 1784729783.1885953,
+    "ast_hash": "9795b59d3418e46f217aba4bd1b6b52a",
+    "semantic_hash": ""
+  },
+  "api/expenses.js": {
+    "mtime": 1784712116.5900438,
+    "ast_hash": "a1b4539a0bc86c80653f9d00b7870af9",
+    "semantic_hash": ""
+  },
+  "tests/expense-browser-smoke.mjs": {
+    "mtime": 1785052874.3155396,
+    "ast_hash": "b2d10ef23ed6c17a2881784787fbb4dc",
+    "semantic_hash": ""
+  },
+  "output/playwright/split-growth-and-expenses.png": {
+    "mtime": 1784904277.8675635,
+    "ast_hash": "440f8a40302730e9d182c593e5140890",
+    "semantic_hash": ""
+  },
+  "db/schema.sql": {
+    "mtime": 1784729703.3422976,
+    "ast_hash": "5c49ca770e4ee28b8f63c4415c89c1ac",
+    "semantic_hash": ""
+  },
+  "api/_db.js": {
+    "mtime": 1784729702.968952,
+    "ast_hash": "7a33172576255d6f963a017adbcbb441",
+    "semantic_hash": ""
+  },
+  "scripts/migrate-local-state-to-neon.mjs": {
+    "mtime": 1784729828.9336674,
+    "ast_hash": "b7d593940d242ac42ebbd967abed342d",
+    "semantic_hash": ""
+  },
+  "tests/postgres-storage.test.mjs": {
+    "mtime": 1784729974.452981,
+    "ast_hash": "534aecfaba6f85320813c6401007f622",
+    "semantic_hash": ""
+  },
+  "tests/chart-date-range-browser-smoke.mjs": {
+    "mtime": 1785045623.1222017,
+    "ast_hash": "d476276490b7be3ff5f80db7ccdb119d",
+    "semantic_hash": ""
+  },
+  "assets/growth-chart-panel.mjs": {
+    "mtime": 1785668132.1025205,
+    "ast_hash": "0deba98384e4dc3e15b3f19fea2a7ef3",
+    "semantic_hash": ""
+  },
+  "tests/growth-chart-component.test.mjs": {
+    "mtime": 1785667947.7822182,
+    "ast_hash": "62adaf6f68e25148a764fb301aab4b68",
+    "semantic_hash": ""
+  },
+  "tests/expense-metrics.test.mjs": {
+    "mtime": 1785051977.327071,
+    "ast_hash": "9ee386d9a6083a7fc03529d111114cfe",
+    "semantic_hash": ""
+  },
+  "assets/expense-metrics.mjs": {
+    "mtime": 1785653033.6971476,
+    "ast_hash": "c711c25f45060c8257e4cdd3b6c6ef8e",
+    "semantic_hash": ""
+  },
+  "tests/expense-chart-source.test.mjs": {
+    "mtime": 1784979402.1076934,
+    "ast_hash": "b4afe020ed2792c4e556289126d1f1e0",
+    "semantic_hash": ""
+  },
+  "tests/backup-export.test.mjs": {
+    "mtime": 1785266703.4412782,
+    "ast_hash": "dc06d0bb627462e43c577cc5018e1613",
+    "semantic_hash": ""
+  },
+  "api/_backup.js": {
+    "mtime": 1785266383.8364887,
+    "ast_hash": "c41fa48b2a5702bd1c0636cd876d03e6",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260728_190715_\u043a\u0430\u043a_\u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0430\u0442\u044c_\u043f\u0435\u0440\u0435\u0445\u043e\u0434_\u043c\u0435\u0436\u0434\u0443_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u044b\u043c_\u0438_\u0442\u0440\u0435\u0445\u0440\u0430\u0437.md": {
+    "mtime": 1785265635.4880092,
+    "ast_hash": "2ab3534dae79d7c5fbdc277497e2a578",
+    "semantic_hash": ""
+  },
+  "tests/meal-count-ui.test.mjs": {
+    "mtime": 1785304668.862223,
+    "ast_hash": "5dce75ada0ee8db30f405780097c2b46",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260728_194147_\u043a\u0430\u043a_\u0440\u0435\u0430\u043b\u0438\u0437\u043e\u0432\u0430\u0442\u044c_\u043f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435_\u043c\u0435\u0436\u0434\u0443_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u044b\u043c_\u0438_\u0442.md": {
+    "mtime": 1785267707.6786788,
+    "ast_hash": "320259a9b33d44f6550bac0efcdc4fe8",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260728_195238_\u043f\u043e\u0447\u0435\u043c\u0443_\u043f\u043e\u0441\u043b\u0435_\u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u043e\u0433\u043e_\u043f\u0438\u0442\u0430\u043d\u0438\u044f_\u043b\u043e\u043a\u0430\u043b.md": {
+    "mtime": 1785268358.366835,
+    "ast_hash": "57dc4bffbf62136086cd372a3fe6a909",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260729_050526_\u043a\u0430\u043a_\u043f\u0435\u0440\u0435\u0441\u0442\u0430\u0432\u0438\u0442\u044c_\u0431\u043b\u043e\u043a_\u0430\u043a\u0442\u0443\u0430\u043b\u044c\u043d\u043e\u0439_\u043d\u043e\u0440\u043c\u044b_\u043f\u0435\u0440\u0435\u0434_\u0433\u0440\u0430\u0444\u0438\u043a.md": {
+    "mtime": 1785301526.4837658,
+    "ast_hash": "979bd38a8a2389707eae12f12b26f3d6",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260729_055949_\u043a\u0430\u043a_\u0443\u043d\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u0442\u044c_\u0438\u043a\u043e\u043d\u043a\u0443_\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f_\u0440\u0435\u0436\u0438\u043c\u0430_\u043a\u043e\u0440.md": {
+    "mtime": 1785304789.1340256,
+    "ast_hash": "b56ccd833fd17228d616202332ef9d18",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260802_074754_\u0433\u0434\u0435_\u0441\u043e\u0445\u0440\u0430\u043d\u044f\u044e\u0442\u0441\u044f_\u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438_\u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f_\u0433\u0440\u0430\u0444\u0438\u043a\u043e\u0432_\u0438_\u0434.md": {
+    "mtime": 1785656874.1125188,
+    "ast_hash": "7320fd3326ca42303e0e16a1fe4c1df3",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/vercel.json": {
+    "mtime": 1782674351.9814541,
+    "ast_hash": "f56f69b2c981d3c9e31d73214b50ce1d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/package.json": {
+    "mtime": 1784729829.1553838,
+    "ast_hash": "68434c41f749d60de5019667b618ef88",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/staticwebapp.config.json": {
+    "mtime": 1782836514.03594,
+    "ast_hash": "5e9a72f876c8eb583697c1c2e0d22cd7",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/meal-count-ui.test.mjs": {
+    "mtime": 1785304668.862223,
+    "ast_hash": "5dce75ada0ee8db30f405780097c2b46",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/auth.test.mjs": {
+    "mtime": 1784655713.443419,
+    "ast_hash": "9a59279845e5d156cb1d083e94225f03",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/growth-chart-component.test.mjs": {
+    "mtime": 1785667947.7822182,
+    "ast_hash": "62adaf6f68e25148a764fb301aab4b68",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/dev-state.mjs": {
+    "mtime": 1784712146.928256,
+    "ast_hash": "56e064aee098421cce3079cb9afaed2f",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/domain.test.mjs": {
+    "mtime": 1785652993.885565,
+    "ast_hash": "c47b8b1d4a82c0fb4a67d19496f68d6d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expense-browser-smoke.mjs": {
+    "mtime": 1785052874.3155396,
+    "ast_hash": "b2d10ef23ed6c17a2881784787fbb4dc",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/browser-smoke.mjs": {
+    "mtime": 1785267650.005053,
+    "ast_hash": "4ac160ceafcf5b81a0ec0a62c0b3e1af",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/postgres-storage.test.mjs": {
+    "mtime": 1784729974.452981,
+    "ast_hash": "534aecfaba6f85320813c6401007f622",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/dev-server.mjs": {
+    "mtime": 1785266379.8613865,
+    "ast_hash": "a7e08a15f84637dde87017e5cfe4eec4",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expense-metrics.test.mjs": {
+    "mtime": 1785051977.327071,
+    "ast_hash": "9ee386d9a6083a7fc03529d111114cfe",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expense-chart-source.test.mjs": {
+    "mtime": 1784979402.1076934,
+    "ast_hash": "b4afe020ed2792c4e556289126d1f1e0",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/backup-export.test.mjs": {
+    "mtime": 1785266703.4412782,
+    "ast_hash": "dc06d0bb627462e43c577cc5018e1613",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/api-records.test.mjs": {
+    "mtime": 1784375292.7713697,
+    "ast_hash": "f0d01254d1bfeae476ddbae69f722640",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/expenses.test.mjs": {
+    "mtime": 1784712116.806133,
+    "ast_hash": "1220afda3b691dae05fd0542829fd956",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/dev-state.test.mjs": {
+    "mtime": 1785266709.566658,
+    "ast_hash": "474df4c7c216bc8e94f26d72b8783769",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/profile.test.mjs": {
+    "mtime": 1785266693.7124782,
+    "ast_hash": "dbbe72b2dcf39ad6c963c4b783a5d685",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/tests/chart-date-range-browser-smoke.mjs": {
+    "mtime": 1785045623.1222017,
+    "ast_hash": "d476276490b7be3ff5f80db7ccdb119d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/.codex/hooks.json": {
+    "mtime": 1783095593.8196647,
+    "ast_hash": "26408502a648cc0d03a441e85a92d5d8",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/scripts/migrate-local-state-to-neon.mjs": {
+    "mtime": 1784729828.9336674,
+    "ast_hash": "b7d593940d242ac42ebbd967abed342d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/next.config.mjs": {
+    "mtime": 1783751302.894133,
+    "ast_hash": "a91fb4cafea4b515ad0460727e08dafd",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/next-env.d.ts": {
+    "mtime": 1783751736.6582322,
+    "ast_hash": "2a74d3909800ca5467fa83b0ab4a4890",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/package.json": {
+    "mtime": 1783752077.542724,
+    "ast_hash": "4052cc742a88b756a4927e87a71ff730",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/vite.config.ts": {
+    "mtime": 1783751687.143051,
+    "ast_hash": "60fb46cd36cf08f2e73cb8c48bb5dc5a",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/app/route.js": {
+    "mtime": 1783752481.7190332,
+    "ast_hash": "7bf7c83e64106d3d0f2e271af64d818d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/app/api/[...path]/route.js": {
+    "mtime": 1783752481.7193696,
+    "ast_hash": "481ceddfefb7988654144f6cf6a547fb",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/.openai/hosting.json": {
+    "mtime": 1783751124.3541632,
+    "ast_hash": "818ca2075e11bb95d60a953fda8495d0",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/_users.js": {
+    "mtime": 1783751767.7101767,
+    "ast_hash": "93ebc0def4e575465e6f94d94c159d21",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/users.js": {
+    "mtime": 1783751201.3913589,
+    "ast_hash": "94f3c8013637de673d9a8cabe0c2c9e7",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/config.js": {
+    "mtime": 1783751201.3902848,
+    "ast_hash": "6fb6565945f87ce28bbf9e0f120b2579",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/weights.js": {
+    "mtime": 1783751201.3920846,
+    "ast_hash": "5da9cc7b80428327608b5f6cdbb68177",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/_weights.js": {
+    "mtime": 1783751767.7094293,
+    "ast_hash": "62e2eb8f28a9bce65c1a39f4e0bdebf8",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/_auth.js": {
+    "mtime": 1783751201.3876956,
+    "ast_hash": "37a628fac8c667a25a9287bb5d23ad5f",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/auth/logout.js": {
+    "mtime": 1783751201.396592,
+    "ast_hash": "24a0c04d608057cdee1ef4116d6cb61d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/auth/verify.js": {
+    "mtime": 1783751201.3981595,
+    "ast_hash": "211c409cdebb57f77227910aefeabc5d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/legacy-api/auth/status.js": {
+    "mtime": 1783751201.3974614,
+    "ast_hash": "2850a43ec1c60e7ca74e33517eee99d1",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/.wrangler/deploy/config.json": {
+    "mtime": 1783752491.8030605,
+    "ast_hash": "9d663abcd158c67f171c437cb71f9503",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/db/schema.sql": {
+    "mtime": 1784729703.3422976,
+    "ast_hash": "5c49ca770e4ee28b8f63c4415c89c1ac",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/profile.js": {
+    "mtime": 1784386440.2098165,
+    "ast_hash": "9c8dad4681f0667c51cf1deaa3bdf818",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_users.js": {
+    "mtime": 1784729803.018165,
+    "ast_hash": "fb0d14e8fbf9ba07dd8fdf1eae79d8ca",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_profile.js": {
+    "mtime": 1785266374.3367255,
+    "ast_hash": "0c1053cc5dd3b3d0b2e9ef7953bbf2ff",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_db.js": {
+    "mtime": 1784729702.968952,
+    "ast_hash": "7a33172576255d6f963a017adbcbb441",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_expenses.js": {
+    "mtime": 1784729783.1885953,
+    "ast_hash": "9795b59d3418e46f217aba4bd1b6b52a",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/users.js": {
+    "mtime": 1782674351.9811907,
+    "ast_hash": "94f3c8013637de673d9a8cabe0c2c9e7",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/config.js": {
+    "mtime": 1782659752.0243359,
+    "ast_hash": "6fb6565945f87ce28bbf9e0f120b2579",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/expenses.js": {
+    "mtime": 1784712116.5900438,
+    "ast_hash": "a1b4539a0bc86c80653f9d00b7870af9",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/weights.js": {
+    "mtime": 1785093701.7085888,
+    "ast_hash": "5052e8699b672348c5394b7ed92e3725",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_weights.js": {
+    "mtime": 1784729751.9054554,
+    "ast_hash": "b0d348c88bcd65d882bbfaaf99d8b289",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_auth.js": {
+    "mtime": 1784730016.7733579,
+    "ast_hash": "bb2084cec1588d20d13970d0ac0929ec",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/_backup.js": {
+    "mtime": 1785266383.8364887,
+    "ast_hash": "c41fa48b2a5702bd1c0636cd876d03e6",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/auth/logout.js": {
+    "mtime": 1784655700.4100626,
+    "ast_hash": "9129fbbb44608597c229678a63fd018b",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/auth/verify.js": {
+    "mtime": 1784655699.952485,
+    "ast_hash": "ce18f3c4ae17428c67e557bef1aab23c",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/api/auth/status.js": {
+    "mtime": 1784655700.1979642,
+    "ast_hash": "1ed9649f67a948a8170f3cf2e82a4644",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/test-results/.last-run.json": {
+    "mtime": 1783102805.4822392,
+    "ast_hash": "ff6d5dab1dfd50cea584142bc288ce9e",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/growth-chart-panel.mjs": {
+    "mtime": 1785670930.6887217,
+    "ast_hash": "fb6c666c6022819731f32c62567309d4",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/expense-metrics.mjs": {
+    "mtime": 1785653033.6971476,
+    "ast_hash": "c711c25f45060c8257e4cdd3b6c6ef8e",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/domain.mjs": {
+    "mtime": 1785652992.232176,
+    "ast_hash": "a7ad07adf4b84f35de4515bcec5c3200",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/app.mjs": {
+    "mtime": 1785671032.103078,
+    "ast_hash": "37a4eebbc9ca2a099e8fa165c2228fd2",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/index.html": {
+    "mtime": 1785670952.3922305,
+    "ast_hash": "41b1f5ac30b03513484a322e68542897",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/admin.html": {
+    "mtime": 1784376345.4084733,
+    "ast_hash": "4fde65f3e097e7ca0845e4e2045bd0a3",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/README.md": {
+    "mtime": 1785266802.0699756,
+    "ast_hash": "e3280f3e487bbf8091671ff03690d381",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/history.html": {
+    "mtime": 1785093702.2231638,
+    "ast_hash": "5baf5504c98ca1bac68729b825a6e290",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/FRONTEND_REDESIGN_TASK.md": {
+    "mtime": 1785266802.3176665,
+    "ast_hash": "30fc2cac3f0e145b40d9f90520cbaa39",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/AGENTS.md": {
+    "mtime": 1783095593.8148844,
+    "ast_hash": "62c05a2bf20bf036a0b2633478663e64",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/index.html": {
+    "mtime": 1783751168.609011,
+    "ast_hash": "cbd7beb20b6597956f8d3865b676137c",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260728_195238_\u043f\u043e\u0447\u0435\u043c\u0443_\u043f\u043e\u0441\u043b\u0435_\u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u043e\u0433\u043e_\u043f\u0438\u0442\u0430\u043d\u0438\u044f_\u043b\u043e\u043a\u0430\u043b.md": {
+    "mtime": 1785268358.366835,
+    "ast_hash": "57dc4bffbf62136086cd372a3fe6a909",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260728_194147_\u043a\u0430\u043a_\u0440\u0435\u0430\u043b\u0438\u0437\u043e\u0432\u0430\u0442\u044c_\u043f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435_\u043c\u0435\u0436\u0434\u0443_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u044b\u043c_\u0438_\u0442.md": {
+    "mtime": 1785267707.6786788,
+    "ast_hash": "320259a9b33d44f6550bac0efcdc4fe8",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260729_050526_\u043a\u0430\u043a_\u043f\u0435\u0440\u0435\u0441\u0442\u0430\u0432\u0438\u0442\u044c_\u0431\u043b\u043e\u043a_\u0430\u043a\u0442\u0443\u0430\u043b\u044c\u043d\u043e\u0439_\u043d\u043e\u0440\u043c\u044b_\u043f\u0435\u0440\u0435\u0434_\u0433\u0440\u0430\u0444\u0438\u043a.md": {
+    "mtime": 1785301526.4837658,
+    "ast_hash": "979bd38a8a2389707eae12f12b26f3d6",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260729_055949_\u043a\u0430\u043a_\u0443\u043d\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u0442\u044c_\u0438\u043a\u043e\u043d\u043a\u0443_\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f_\u0440\u0435\u0436\u0438\u043c\u0430_\u043a\u043e\u0440.md": {
+    "mtime": 1785304789.1340256,
+    "ast_hash": "b56ccd833fd17228d616202332ef9d18",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260802_074754_\u0433\u0434\u0435_\u0441\u043e\u0445\u0440\u0430\u043d\u044f\u044e\u0442\u0441\u044f_\u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438_\u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f_\u0433\u0440\u0430\u0444\u0438\u043a\u043e\u0432_\u0438_\u0434.md": {
+    "mtime": 1785656874.1125188,
+    "ast_hash": "7320fd3326ca42303e0e16a1fe4c1df3",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/graphify-out/memory/query_20260728_190715_\u043a\u0430\u043a_\u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0430\u0442\u044c_\u043f\u0435\u0440\u0435\u0445\u043e\u0434_\u043c\u0435\u0436\u0434\u0443_\u0434\u0432\u0443\u0445\u0440\u0430\u0437\u043e\u0432\u044b\u043c_\u0438_\u0442\u0440\u0435\u0445\u0440\u0430\u0437.md": {
+    "mtime": 1785265635.4880092,
+    "ast_hash": "2ab3534dae79d7c5fbdc277497e2a578",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/dark-percent-prod.png": {
+    "mtime": 1783103354.6691241,
+    "ast_hash": "40e955ffdeebdff21a4755fc85d3602e",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/porschik-weight-page.png": {
+    "mtime": 1783095725.6514719,
+    "ast_hash": "bf0c9e4c4c9ec21f615fa3d6fa6314ab",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/norm-timeline-actual.png": {
+    "mtime": 1784877176.250876,
+    "ast_hash": "438f0617c11e2647e4d214639c1497f3",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/prod-weight-percent-hover.png": {
+    "mtime": 1783102736.7079713,
+    "ast_hash": "7ddc39440e944475b2d06249ea825296",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/prod-porschik-snapshot-storage.png": {
+    "mtime": 1783102488.8424728,
+    "ast_hash": "039762d6cd8b8435e0433c30db133e48",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/porschik-weight-page-full.png": {
+    "mtime": 1783095799.596476,
+    "ast_hash": "546aca534082163016d8a35d4ecde9b3",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/growth-daily-bars-hover.png": {
+    "mtime": 1784877176.237649,
+    "ast_hash": "ce6065528e984ca560ad864b7054bad5",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/prod-porschik-after-deploy.png": {
+    "mtime": 1783101980.593656,
+    "ast_hash": "7cbe39ad386edf5d6e84bc2d58d0dd8d",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/split-growth-and-expenses.png": {
+    "mtime": 1784904277.8675635,
+    "ast_hash": "440f8a40302730e9d182c593e5140890",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/output/playwright/prod-backup-ui.png": {
+    "mtime": 1783104106.7620902,
+    "ast_hash": "b4e3f97e1c555f0c466a1fb6bed22cb2",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/sites-app/public/assets/porschik.jpg": {
+    "mtime": 1783751308.396225,
+    "ast_hash": "4fba62d015589f7ac6476670a053f03a",
+    "semantic_hash": ""
+  },
+  "/Users/evgenydrumachik/Codex Projects/\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0435\u0434\u044b \u0434\u043b\u044f \u041f\u043e\u0440\u0448\u0438\u043a\u0430/assets/porschik.jpg": {
+    "mtime": 1782674949.8546493,
+    "ast_hash": "4fba62d015589f7ac6476670a053f03a",
+    "semantic_hash": ""
+  }
+}
