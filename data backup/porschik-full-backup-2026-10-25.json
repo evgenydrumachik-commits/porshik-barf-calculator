@@ -1,0 +1,2352 @@
+{
+  "exportType": "manual",
+  "storageReady": true,
+  "schemaVersion": 4,
+  "backupType": "full",
+  "exportedAt": "2026-10-25T09:26:11.629Z",
+  "records": [
+    {
+      "id": "2026-05-01",
+      "date": "2026-05-01",
+      "weightKg": 2.5,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 66,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 66,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 66,
+          "skipped": false
+        }
+      ],
+      "comment": "Первый замер"
+    },
+    {
+      "id": "2026-05-08",
+      "date": "2026-05-08",
+      "weightKg": 3,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 80,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 80,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 80,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-05-15",
+      "date": "2026-05-15",
+      "weightKg": 3.45,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 92,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 92,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 92,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-05-22",
+      "date": "2026-05-22",
+      "weightKg": 3.9,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 106,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 106,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 106,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-05-29",
+      "date": "2026-05-29",
+      "weightKg": 4.37,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 117,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 117,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 117,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-06-05",
+      "date": "2026-06-05",
+      "weightKg": 4.76,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 125,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 125,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 125,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-06-12",
+      "date": "2026-06-12",
+      "weightKg": 5.4,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 144,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 144,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 144,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-06-19",
+      "date": "2026-06-19",
+      "weightKg": 6.1,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 163,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 163,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 163,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-06-26",
+      "date": "2026-06-26",
+      "weightKg": 6.55,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 173,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 173,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 173,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-03",
+      "date": "2026-07-03",
+      "weightKg": 7.05,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 185,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 185,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 185,
+          "skipped": false
+        }
+      ],
+      "comment": "Вечером перед ужином"
+    },
+    {
+      "id": "2026-07-10",
+      "date": "2026-07-10",
+      "weightKg": 7.25,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 190,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-12",
+      "date": "2026-07-12",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 190,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-13",
+      "date": "2026-07-13",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 3,
+          "grams": null,
+          "skipped": true
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-14",
+      "date": "2026-07-14",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 150,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 192,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 150,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-15",
+      "date": "2026-07-15",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 150,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 173,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 178,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-16",
+      "date": "2026-07-16",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 192,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 3,
+          "grams": 148,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-17",
+      "date": "2026-07-17",
+      "weightKg": 7.95,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 190,
+          "skipped": false
+        }
+      ],
+      "comment": "Вечер, до еды"
+    },
+    {
+      "id": "2026-07-18",
+      "date": "2026-07-18",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 194,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 206,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 180,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-19",
+      "date": "2026-07-19",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 168,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-20",
+      "date": "2026-07-20",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 203,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-21",
+      "date": "2026-07-21",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 100,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-22",
+      "date": "2026-07-22",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 151,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 150,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 150,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-23",
+      "date": "2026-07-23",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 148,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 165,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 165,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-24",
+      "date": "2026-07-24",
+      "weightKg": 8.5,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 152,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 150,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 160,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-25",
+      "date": "2026-07-25",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 167,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 3,
+          "grams": 168,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-26",
+      "date": "2026-07-26",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 165,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 168,
+          "skipped": false
+        },
+        {
+          "slot": 3,
+          "grams": 167,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-27",
+      "date": "2026-07-27",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 166,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 3,
+          "grams": 168,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-28",
+      "date": "2026-07-28",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 165,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": null,
+          "skipped": true
+        },
+        {
+          "slot": 3,
+          "grams": 160,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-29",
+      "date": "2026-07-29",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-30",
+      "date": "2026-07-30",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 212,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-07-31",
+      "date": "2026-07-31",
+      "weightKg": 8.5,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 211,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-01",
+      "date": "2026-08-01",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 147,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 220,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-02",
+      "date": "2026-08-02",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 207,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 232,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-03",
+      "date": "2026-08-03",
+      "weightKg": 8.7,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 205,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-04",
+      "date": "2026-08-04",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 207,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-05",
+      "date": "2026-08-05",
+      "weightKg": 8.7,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 219,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 128,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-06",
+      "date": "2026-08-06",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 188,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 186,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-07",
+      "date": "2026-08-07",
+      "weightKg": 9,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 186,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 186,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-08",
+      "date": "2026-08-08",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-09",
+      "date": "2026-08-09",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 198,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-10",
+      "date": "2026-08-10",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 216,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-11",
+      "date": "2026-08-11",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 211,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-12",
+      "date": "2026-08-12",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-13",
+      "date": "2026-08-13",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 209,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-14",
+      "date": "2026-08-14",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-15",
+      "date": "2026-08-15",
+      "weightKg": 9.35,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 198,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-16",
+      "date": "2026-08-16",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 214,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-17",
+      "date": "2026-08-17",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 216,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 218,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-18",
+      "date": "2026-08-18",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 216,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 216,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-19",
+      "date": "2026-08-19",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 212,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-20",
+      "date": "2026-08-20",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 214,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 213,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-21",
+      "date": "2026-08-21",
+      "weightKg": 9.5,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 213,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-22",
+      "date": "2026-08-22",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-23",
+      "date": "2026-08-23",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-24",
+      "date": "2026-08-24",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 214,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-25",
+      "date": "2026-08-25",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 212,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 212,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-26",
+      "date": "2026-08-26",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 212,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 212,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-27",
+      "date": "2026-08-27",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 207,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 312,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-28",
+      "date": "2026-08-28",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 68,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-29",
+      "date": "2026-08-29",
+      "weightKg": 9.85,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 206,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-30",
+      "date": "2026-08-30",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 220,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-08-31",
+      "date": "2026-08-31",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 160,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-01",
+      "date": "2026-09-01",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 205,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-02",
+      "date": "2026-09-02",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 205,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 205,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-03",
+      "date": "2026-09-03",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 225,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-04",
+      "date": "2026-09-04",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 205,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-05",
+      "date": "2026-09-05",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 258,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 170,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-06",
+      "date": "2026-09-06",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 230,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-07",
+      "date": "2026-09-07",
+      "weightKg": 10.2,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-08",
+      "date": "2026-09-08",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 220,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 120,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-09",
+      "date": "2026-09-09",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 90,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 210,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-10",
+      "date": "2026-09-10",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 207,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 246,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-11",
+      "date": "2026-09-11",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 135,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-12",
+      "date": "2026-09-12",
+      "weightKg": 10.1,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 217,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 228,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-13",
+      "date": "2026-09-13",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 225,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 220,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-14",
+      "date": "2026-09-14",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 206,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 208,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-15",
+      "date": "2026-09-15",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 113,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 230,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-16",
+      "date": "2026-09-16",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 212,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-17",
+      "date": "2026-09-17",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 170,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 207,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-18",
+      "date": "2026-09-18",
+      "weightKg": 10.35,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 209,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 211,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-19",
+      "date": "2026-09-19",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 201,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 203,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-20",
+      "date": "2026-09-20",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 203,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-21",
+      "date": "2026-09-21",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 300,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 203,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-22",
+      "date": "2026-09-22",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 202,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-23",
+      "date": "2026-09-23",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 208,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-24",
+      "date": "2026-09-24",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 209,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-25",
+      "date": "2026-09-25",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 208,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 240,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-26",
+      "date": "2026-09-26",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-27",
+      "date": "2026-09-27",
+      "weightKg": 10.5,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-28",
+      "date": "2026-09-28",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-29",
+      "date": "2026-09-29",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 215,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 215,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-09-30",
+      "date": "2026-09-30",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 208,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-01",
+      "date": "2026-10-01",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 202,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 227,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-02",
+      "date": "2026-10-02",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 199,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 203,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-03",
+      "date": "2026-10-03",
+      "weightKg": 10.3,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 208,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-04",
+      "date": "2026-10-04",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-05",
+      "date": "2026-10-05",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-06",
+      "date": "2026-10-06",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 200,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-07",
+      "date": "2026-10-07",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 201,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 201,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-08",
+      "date": "2026-10-08",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 191,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 197,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-09",
+      "date": "2026-10-09",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 196,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 191,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-10",
+      "date": "2026-10-10",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 198,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 201,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-11",
+      "date": "2026-10-11",
+      "weightKg": 10.3,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 201,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 199,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-12",
+      "date": "2026-10-12",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 195,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 202,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-13",
+      "date": "2026-10-13",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 195,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 197,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-14",
+      "date": "2026-10-14",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 195,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 205,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-15",
+      "date": "2026-10-15",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 199,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 211,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-16",
+      "date": "2026-10-16",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 197,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 198,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-17",
+      "date": "2026-10-17",
+      "weightKg": 10,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 210,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 200,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-18",
+      "date": "2026-10-18",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 181,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 185,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-19",
+      "date": "2026-10-19",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 195,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 185,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-20",
+      "date": "2026-10-20",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 183,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 188,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-21",
+      "date": "2026-10-21",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 185,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 201,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-22",
+      "date": "2026-10-22",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 183,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 63,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-23",
+      "date": "2026-10-23",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 174,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 180,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-24",
+      "date": "2026-10-24",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 1,
+          "grams": 190,
+          "skipped": false
+        },
+        {
+          "slot": 2,
+          "grams": 183,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    },
+    {
+      "id": "2026-10-25",
+      "date": "2026-10-25",
+      "weightKg": null,
+      "meals": [
+        {
+          "slot": 2,
+          "grams": 192,
+          "skipped": false
+        }
+      ],
+      "comment": ""
+    }
+  ],
+  "profile": {
+    "avatarUrl": "/assets/porschik.jpg",
+    "feedingSettings": {
+      "feedingNorms": [
+        {
+          "date": "2026-05-01",
+          "ratio": 0.08
+        },
+        {
+          "date": "2026-07-01",
+          "ratio": 0.08,
+          "interpolation": "step"
+        },
+        {
+          "date": "2026-07-22",
+          "ratio": 0.06
+        },
+        {
+          "date": "2026-07-29",
+          "ratio": 0.05
+        },
+        {
+          "date": "2026-10-28",
+          "ratio": 0.03
+        }
+      ],
+      "mealCountChanges": [
+        {
+          "date": "2026-07-29",
+          "mealsPerDay": 2
+        }
+      ]
+    },
+    "updatedAt": "2026-07-29T05:13:25.257Z"
+  },
+  "expenses": [
+    {
+      "id": "f62a1230-0034-4f1b-9419-8e9066459930",
+      "date": "2026-05-04",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 6,
+      "pricePerKg": 4.39,
+      "deliveryCost": 14,
+      "totalCost": 40.34
+    },
+    {
+      "id": "134f0d1a-8a41-4589-aa9c-5f61f8c3eb39",
+      "date": "2026-05-19",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 10,
+      "pricePerKg": 3.99,
+      "deliveryCost": 14,
+      "totalCost": 53.9
+    },
+    {
+      "id": "ce2147ac-b00e-44ca-bc7f-60e844d192c8",
+      "date": "2026-06-19",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 11,
+      "pricePerKg": 4.39,
+      "deliveryCost": 14,
+      "totalCost": 62.29
+    },
+    {
+      "id": "1cc4188b-4205-4ead-8571-a5117954b2b5",
+      "date": "2026-07-14",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 12,
+      "pricePerKg": 4.39,
+      "deliveryCost": 14,
+      "totalCost": 66.68
+    },
+    {
+      "id": "37f48dcf-2ff6-4610-bb22-a12d3c50c4f2",
+      "date": "2026-08-11",
+      "type": "BARF",
+      "description": "",
+      "kilograms": 10,
+      "pricePerKg": 4.39,
+      "deliveryCost": 7,
+      "totalCost": 50.9
+    },
+    {
+      "id": "fd4ecaba-ff8f-463a-b748-e182d4614e06",
+      "date": "2026-08-11",
+      "type": "BARF",
+      "description": "",
+      "kilograms": 4,
+      "pricePerKg": 4.99,
+      "deliveryCost": 7,
+      "totalCost": 26.96
+    },
+    {
+      "id": "3b9864c6-d6aa-4731-a1c2-43630d056ea3",
+      "date": "2026-09-18",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 5,
+      "pricePerKg": 4.99,
+      "deliveryCost": 7,
+      "totalCost": 31.95
+    },
+    {
+      "id": "6d711752-bcad-477a-95b3-b2274c7559b2",
+      "date": "2026-09-18",
+      "type": "BARF",
+      "description": "Barfexpress",
+      "kilograms": 10,
+      "pricePerKg": 3.95,
+      "deliveryCost": 7,
+      "totalCost": 46.5
+    }
+  ]
+}
